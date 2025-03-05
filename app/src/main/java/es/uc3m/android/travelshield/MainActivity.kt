@@ -18,6 +18,8 @@ import es.uc3m.android.travelshield.screens.CountryScreen
 import es.uc3m.android.travelshield.screens.HomeScreen
 import es.uc3m.android.travelshield.screens.MapScreen
 import es.uc3m.android.travelshield.screens.ProfileScreen
+import es.uc3m.android.travelshield.screens.LoginScreen
+
 import es.uc3m.android.travelshield.screens.SettingsScreen
 
 class MainActivity : ComponentActivity() {
@@ -80,6 +82,8 @@ fun NavigationGraph(navController: NavHostController, modifier: Modifier) {
         composable(NavGraph.Profile.route) { ProfileScreen(navController) }
         composable(NavGraph.Country.route) { CountryScreen(navController) }
         composable(NavGraph.Categories.route) { CategoriesScreen(navController) }
-        }
+        composable(NavGraph.Login.route) { LoginScreen(navController) }
+
+    }
     }
 

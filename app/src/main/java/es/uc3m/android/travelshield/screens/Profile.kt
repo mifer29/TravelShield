@@ -1,81 +1,99 @@
 package es.uc3m.android.travelshield.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.Alignment
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 
+import es.uc3m.android.travelshield.NavGraph
 
 @Composable
 fun ProfileScreen(navController: NavController) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-
     Box(
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.TopCenter
     ) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // App logo
-            val logo: Painter = painterResource(id = es.uc3m.android.travelshield.R.drawable.logo_travelshield)
-            Image(painter = logo, contentDescription = "App Logo", modifier = Modifier.size(100.dp))
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Title
-            Text(text = "Login", style = MaterialTheme.typography.headlineMedium)
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Informative message
-            Text(
-                text = "Please log in or sign up first to view your profile.",
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-
-            // Email input
-            OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
-                label = { Text("Email Address") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Password input
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text("Password") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                visualTransformation = PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Login button
-            Button(
-                onClick = { /* Authentication logic goes here */ },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(text = "Log In")
+            // Foto de perfil con icono de edición
+            Box(contentAlignment = Alignment.TopEnd) {
+                Image(
+                    painter = painterResource(id = es.uc3m.android.travelshield.R.drawable.foto_perfil),
+                    contentDescription = "Profile Picture",
+                    modifier = Modifier
+                        .size(100.dp)
+                        .clip(CircleShape)
+                        .border(2.dp, Color.Gray, CircleShape)
+                )
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = "Edit Profile",
+                    modifier = Modifier
+                        .size(24.dp)
+                        .background(Color.White, CircleShape)
+                        .padding(4.dp)
+                )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
+            // Nombre y ubicación
+            Text(text = "Nombre Apellido", style = MaterialTheme.typography.headlineSmall)
+            Text(text = "Ubicación", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Estadísticas
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                ProfileStat("X", "Countries travelled")
+                ProfileStat("Y", "Reviews written")
+                ProfileStat("Z", "Likes given")
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Botón de Logout
+            Button(
+                onClick = {
+                    // Realizar el logout y navegar a la pantalla de login
+                    navController.navigate("login") {
+                        // Limpiar la pila de navegación para que no se pueda volver a la pantalla anterior
+                        popUpTo(NavGraph.Home.route) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
+            ) {
+                Text("Log Out")
+            }
         }
+    }
+}
+
+@Composable
+fun ProfileStat(value: String, label: String) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(text = value, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+        Text(text = label, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
     }
 }

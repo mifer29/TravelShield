@@ -6,20 +6,20 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.*
-import androidx.navigation.navArgument // Ves esto por ejemplo por qué no se usa??
 import es.uc3m.android.travelshield.screens.CategoriesScreen
 import es.uc3m.android.travelshield.screens.CountryScreen
 import es.uc3m.android.travelshield.screens.HomeScreen
 import es.uc3m.android.travelshield.screens.MapScreen
 import es.uc3m.android.travelshield.screens.ProfileScreen
 import es.uc3m.android.travelshield.screens.LoginScreen
-
 import es.uc3m.android.travelshield.screens.SettingsScreen
 
 class MainActivity : ComponentActivity() {
@@ -63,7 +63,12 @@ fun BottomNavigationBar(navController: NavHostController) {
                 },
                 label = { Text(text = item.route.replaceFirstChar { it.uppercase() }) },
                 icon = {
-                    Icon(imageVector = Icons.Default.Home, contentDescription = item.route)
+                    when (index) {
+                        0 -> Icon(imageVector = Icons.Default.Home, contentDescription = item.route)
+                        1 -> Icon(imageVector = Icons.Default.Place, contentDescription = item.route)
+                        2 -> Icon(imageVector = Icons.Default.Person, contentDescription = item.route)
+                        else -> Icon(imageVector = Icons.Default.Home, contentDescription = item.route)
+                    }
                 }
             )
         }
@@ -83,7 +88,11 @@ fun NavigationGraph(navController: NavHostController, modifier: Modifier) {
         composable(NavGraph.Country.route) { CountryScreen(navController) }
         composable(NavGraph.Categories.route) { CategoriesScreen(navController) }
         composable(NavGraph.Login.route) { LoginScreen(navController) }
-
     }
-    }
+}
 
+@Preview(showBackground = true)
+@Composable
+fun TravelShieldAppPreview() {
+    TravelShieldApp()
+}

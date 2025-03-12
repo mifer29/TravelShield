@@ -151,7 +151,7 @@ fun CategoryItem(name: String, navController: NavController) {
             Spacer(modifier = Modifier.height(8.dp))
 
             // Category Text
-            Text(text = name, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+            Text(text = name, fontSize = 11.sp, fontWeight = FontWeight.Medium)
         }
     }
 }

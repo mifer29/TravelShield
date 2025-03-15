@@ -34,8 +34,14 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun TravelShieldApp() {
     val navController = rememberNavController()
+    val currentRoute by navController.currentBackStackEntryFlow.collectAsState(initial = navController.currentBackStackEntry)
+
     Scaffold(
-        bottomBar = { BottomNavigationBar(navController) }
+        bottomBar = {
+            if (currentRoute?.destination?.route != NavGraph.Login.route) {
+                BottomNavigationBar(navController)
+            }
+        }
     ) { paddingValues ->
         NavigationGraph(navController, Modifier.padding(paddingValues))
     }
@@ -79,7 +85,7 @@ fun BottomNavigationBar(navController: NavHostController) {
 fun NavigationGraph(navController: NavHostController, modifier: Modifier) {
     NavHost(
         navController = navController,
-        startDestination = NavGraph.Home.route,
+        startDestination = NavGraph.Login.route,
         modifier = modifier
     ) {
         composable(NavGraph.Home.route) { HomeScreen(navController) }

@@ -20,7 +20,7 @@ class AuthViewModel : ViewModel() {
     val toastMessage: State<String?> = _toastMessage
 
     // Function for signing up a new user
-    fun signUp(email: String, password: String) {
+    fun signUp(name: String, surname: String, email: String, password: String) {
         viewModelScope.launch {
             try {
                 auth.createUserWithEmailAndPassword(email, password).await()

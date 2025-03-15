@@ -86,7 +86,7 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel = vi
 
             Button(
                 onClick = {
-                    authViewModel.signUp(email, password)
+                    authViewModel.signUp(name, surname, email, password)
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {

@@ -22,6 +22,7 @@ import es.uc3m.android.travelshield.R
 import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
+import es.uc3m.android.travelshield.NavGraph
 
 @Composable
 fun CountryScreen(navController: NavController) {
@@ -127,22 +128,31 @@ fun CategoryGrid(navController: NavController, modifier: Modifier = Modifier) {
 // **Category Item as a Button**
 @Composable
 fun CategoryItem(name: String, navController: NavController) {
+    val route = when (name) {
+        "General Info" -> NavGraph.GeneralInfo.route
+        "Health" -> NavGraph.Health.route
+        "Visa" -> NavGraph.Visa.route
+        "Security" -> NavGraph.Security.route
+        "News" -> NavGraph.News.route
+        "Transport" -> NavGraph.Transport.route
+        else -> NavGraph.Home.route // Fallback (puede cambiarse según lo necesario)
+    }
+
     Button(
-        onClick = { navController.navigate("categories") }, // Navigate to categories screen
+        onClick = { navController.navigate(route) }, // Navegar a la categoría específica
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier.size(100.dp),
         colors = ButtonDefaults.buttonColors(
-                containerColor = Color.Gray, // Button background color
-                contentColor = Color.White  // Text/Icon color inside button
-    )
+            containerColor = Color.Gray,
+            contentColor = Color.White
+        )
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Placeholder for Icon (Replace later with correct icons!!!!!)
             Icon(
-                painter = painterResource(id = R.drawable.heart), // Replace with correct icon
+                painter = painterResource(id = R.drawable.heart), // Sustituir con el icono correcto
                 contentDescription = "$name Icon",
                 modifier = Modifier.size(40.dp),
                 tint = Color.White
@@ -150,7 +160,6 @@ fun CategoryItem(name: String, navController: NavController) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Category Text
             Text(text = name, fontSize = 11.sp, fontWeight = FontWeight.Medium)
         }
     }

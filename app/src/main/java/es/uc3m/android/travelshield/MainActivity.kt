@@ -21,6 +21,7 @@ import es.uc3m.android.travelshield.screens.MapScreen
 import es.uc3m.android.travelshield.screens.ProfileScreen
 import es.uc3m.android.travelshield.screens.LoginScreen
 import es.uc3m.android.travelshield.screens.SettingsScreen
+import es.uc3m.android.travelshield.screens.SignUpScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,7 +39,9 @@ fun TravelShieldApp() {
 
     Scaffold(
         bottomBar = {
-            if (currentRoute?.destination?.route != NavGraph.Login.route) {
+            if (currentRoute?.destination?.route != NavGraph.Login.route &&
+                currentRoute?.destination?.route != NavGraph.SignUp.route)
+            {
                 BottomNavigationBar(navController)
             }
         }
@@ -94,6 +97,7 @@ fun NavigationGraph(navController: NavHostController, modifier: Modifier) {
         composable(NavGraph.Country.route) { CountryScreen(navController) }
         composable(NavGraph.Categories.route) { CategoriesScreen(navController) }
         composable(NavGraph.Login.route) { LoginScreen(navController) }
+        composable(NavGraph.SignUp.route) { SignUpScreen(navController) }
     }
 }
 

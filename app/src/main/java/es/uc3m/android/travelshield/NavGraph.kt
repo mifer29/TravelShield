@@ -7,6 +7,7 @@ const val MAP_ROUTE = "map"
 const val COUNTRY_ROUTE = "country"
 const val CATEGORIES_ROUTE = "categories"
 const val LOGIN_ROUTE = "login"
+const val SIGNUP_ROUTE = "signup"
 
 const val GENERAL_INFO_ROUTE = "categories/general_info"
 const val HEALTH_ROUTE = "categories/health"
@@ -21,7 +22,8 @@ sealed class NavGraph(val route: String) {
     data object Map : NavGraph(MAP_ROUTE)
     data object Country : NavGraph(COUNTRY_ROUTE)
     data object Categories : NavGraph(CATEGORIES_ROUTE)
-    data object Login : NavGraph(LOGIN_ROUTE)
+    data object Login: NavGraph(LOGIN_ROUTE)
+    data object SignUp: NavGraph(SIGNUP_ROUTE)
 
     data object Settings : NavGraph("$SETTING_ROUTE/{source}") {
         fun createRoute(source: String) = "$SETTING_ROUTE/$source"

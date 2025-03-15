@@ -21,6 +21,7 @@ import es.uc3m.android.travelshield.screens.MapScreen
 import es.uc3m.android.travelshield.screens.ProfileScreen
 import es.uc3m.android.travelshield.screens.LoginScreen
 import es.uc3m.android.travelshield.screens.SettingsScreen
+import es.uc3m.android.travelshield.screens.SignUpScreen
 import es.uc3m.android.travelshield.screens.categories.*
 
 class MainActivity : ComponentActivity() {
@@ -35,8 +36,16 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun TravelShieldApp() {
     val navController = rememberNavController()
+    val currentRoute by navController.currentBackStackEntryFlow.collectAsState(initial = navController.currentBackStackEntry)
+
     Scaffold(
-        bottomBar = { BottomNavigationBar(navController) }
+        bottomBar = {
+            if (currentRoute?.destination?.route != NavGraph.Login.route &&
+                currentRoute?.destination?.route != NavGraph.SignUp.route)
+            {
+                BottomNavigationBar(navController)
+            }
+        }
     ) { paddingValues ->
         NavigationGraph(navController, Modifier.padding(paddingValues))
     }
@@ -80,7 +89,7 @@ fun BottomNavigationBar(navController: NavHostController) {
 fun NavigationGraph(navController: NavHostController, modifier: Modifier) {
     NavHost(
         navController = navController,
-        startDestination = NavGraph.Home.route,
+        startDestination = NavGraph.Login.route,
         modifier = modifier
     ) {
         // Pantallas generales
@@ -89,6 +98,7 @@ fun NavigationGraph(navController: NavHostController, modifier: Modifier) {
         composable(NavGraph.Profile.route) { ProfileScreen(navController) }
         composable(NavGraph.Country.route) { CountryScreen(navController) }
         composable(NavGraph.Login.route) { LoginScreen(navController) }
+        composable(NavGraph.SignUp.route) { SignUpScreen(navController) }
         composable(NavGraph.Settings.route) { SettingsScreen(navController) }
 
         // Pantallas de categorías

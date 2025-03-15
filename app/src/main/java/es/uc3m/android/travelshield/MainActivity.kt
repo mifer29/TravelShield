@@ -22,6 +22,7 @@ import es.uc3m.android.travelshield.screens.ProfileScreen
 import es.uc3m.android.travelshield.screens.LoginScreen
 import es.uc3m.android.travelshield.screens.SettingsScreen
 import es.uc3m.android.travelshield.screens.SignUpScreen
+import es.uc3m.android.travelshield.screens.categories.*
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -91,13 +92,22 @@ fun NavigationGraph(navController: NavHostController, modifier: Modifier) {
         startDestination = NavGraph.Login.route,
         modifier = modifier
     ) {
+        // Pantallas generales
         composable(NavGraph.Home.route) { HomeScreen(navController) }
         composable(NavGraph.Map.route) { MapScreen(navController) }
         composable(NavGraph.Profile.route) { ProfileScreen(navController) }
         composable(NavGraph.Country.route) { CountryScreen(navController) }
-        composable(NavGraph.Categories.route) { CategoriesScreen(navController) }
         composable(NavGraph.Login.route) { LoginScreen(navController) }
         composable(NavGraph.SignUp.route) { SignUpScreen(navController) }
+        composable(NavGraph.Settings.route) { SettingsScreen(navController) }
+
+        // Pantallas de categorías
+        composable(NavGraph.GeneralInfo.route) { GeneralInfoScreen(navController) }
+        composable(NavGraph.Health.route) { HealthScreen(navController) }
+        composable(NavGraph.News.route) { NewsScreen(navController) }
+        composable(NavGraph.Security.route) { SecurityScreen(navController) }
+        composable(NavGraph.Transport.route) { TranportScreen(navController) }
+        composable(NavGraph.Visa.route) { VisaScreen(navController) }
     }
 }
 

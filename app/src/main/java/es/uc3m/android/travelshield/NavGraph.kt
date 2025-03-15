@@ -9,6 +9,13 @@ const val CATEGORIES_ROUTE = "categories"
 const val LOGIN_ROUTE = "login"
 const val SIGNUP_ROUTE = "signup"
 
+const val GENERAL_INFO_ROUTE = "categories/general_info"
+const val HEALTH_ROUTE = "categories/health"
+const val NEWS_ROUTE = "categories/news"
+const val SECURITY_ROUTE = "categories/security"
+const val TRANSPORT_ROUTE = "categories/transport"
+const val VISA_ROUTE = "categories/visa"
+
 sealed class NavGraph(val route: String) {
     data object Home : NavGraph(HOME_ROUTE)
     data object Profile : NavGraph(PROFILE_ROUTE)
@@ -19,7 +26,14 @@ sealed class NavGraph(val route: String) {
     data object SignUp: NavGraph(SIGNUP_ROUTE)
 
     data object Settings : NavGraph("$SETTING_ROUTE/{source}") {
-        // Helper function to create the route with arguments
         fun createRoute(source: String) = "$SETTING_ROUTE/$source"
     }
+
+    // Countries categories
+    data object GeneralInfo : NavGraph(GENERAL_INFO_ROUTE)
+    data object Health : NavGraph(HEALTH_ROUTE)
+    data object News : NavGraph(NEWS_ROUTE)
+    data object Security : NavGraph(SECURITY_ROUTE)
+    data object Transport : NavGraph(TRANSPORT_ROUTE)
+    data object Visa : NavGraph(VISA_ROUTE)
 }

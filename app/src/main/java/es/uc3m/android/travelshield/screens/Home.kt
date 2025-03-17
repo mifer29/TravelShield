@@ -65,13 +65,16 @@ fun CountryBox(countryName: String, imageRes: Int, onClick: () -> Unit) {
 }
 
 fun getImageRes(countryName: String): Int {
-    return when (countryName) {
-        "Australia" -> R.drawable.country_australia
-        "USA" -> R.drawable.country_usa
-        "Thailand" -> R.drawable.country_thailand
-        "Switzerland" -> R.drawable.country_switzerland
-        else -> R.drawable.country_australia // Fallback
+    val resourceId = try {
+        val resName = "country_${countryName.lowercase()}"
+        // Searching for image with that name
+        val resId = R.drawable::class.java.getDeclaredField(resName).getInt(null)
+        resId
+    } catch (e: Exception) {
+        // If not country image found with that name, default image
+        R.drawable.country_default
     }
+    return resourceId
 }
 
 @Preview(showBackground = true)

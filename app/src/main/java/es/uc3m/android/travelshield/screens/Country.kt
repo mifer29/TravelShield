@@ -149,6 +149,16 @@ fun CategoryItem(name: String, navController: NavController) {
         else -> NavGraph.Home.route // Fallback (puede cambiarse según lo necesario)
     }
 
+    val imageResId = when (name) {
+        "General Info" -> R.drawable.categories_info
+        "Health" -> R.drawable.categories_hospital
+        "Visa" -> R.drawable.categories_visa
+        "Security" -> R.drawable.categories_security
+        "News" -> R.drawable.categories_news
+        "Transport" -> R.drawable.categories_transport
+        else -> R.drawable.categories_info // Default to general info icon if something is missing
+    }
+
     Button(
         onClick = { navController.navigate(route) }, // Navegar a la categoría específica
         shape = RoundedCornerShape(12.dp),
@@ -162,11 +172,10 @@ fun CategoryItem(name: String, navController: NavController) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Icon(
-                painter = painterResource(id = R.drawable.heart), // Sustituir con el icono correcto
+            Image(
+                painter = painterResource(id = imageResId),
                 contentDescription = "$name Icon",
-                modifier = Modifier.size(40.dp),
-                tint = Color.White
+                modifier = Modifier.size(40.dp)
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -180,5 +189,5 @@ fun CategoryItem(name: String, navController: NavController) {
 @Composable
 fun PreviewCountryScreen() {
     val navController = rememberNavController() // Mock NavController for preview
-    CountryScreen(navController = navController, "Australia")
+    CountryScreen(navController = navController, "USA")
 }

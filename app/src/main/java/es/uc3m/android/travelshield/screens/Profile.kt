@@ -27,8 +27,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import es.uc3m.android.travelshield.R
 
 @Composable
@@ -68,7 +70,7 @@ fun ProfileScreen(navController: NavController) {
                     )
                 } else {
                     Image(
-                        painter = painterResource(id = R.drawable.foto_perfil),
+                        painter = painterResource(id = R.drawable.profile_default),
                         contentDescription = "Profile Picture",
                         modifier = Modifier.size(100.dp).clip(CircleShape).border(2.dp, Color.Gray, CircleShape)
                     )
@@ -85,10 +87,14 @@ fun ProfileScreen(navController: NavController) {
             if (showDialog) {
                 AlertDialog(
                     onDismissRequest = { showDialog = false },
-                    title = { Text("Seleccionar foto de perfil") },
-                    text = { Text("Elige una opción") },
+                    title = { Text("Select Profile Picture") },
+                    text = { Text("Choose an option") },
                     confirmButton = {
-                        Column {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally // Alinea los botones en el centro
+                        ) {
                             Button(onClick = {
                                 showDialog = false
                                 if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
@@ -97,45 +103,44 @@ fun ProfileScreen(navController: NavController) {
                                     requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
                                 }
                             }) {
-                                Text("Tomar foto")
+                                Text("Take photo")
                             }
                             Button(onClick = {
                                 showDialog = false
                                 galleryLauncher.launch("image/*")
                             }) {
-                                Text("Elegir de galería")
+                                Text("Choose from gallery")
                             }
-                        }
-                    },
-                    dismissButton = {
-                        Button(onClick = { showDialog = false }) {
-                            Text("Cancelar")
+                            Button(onClick = { showDialog = false }) {
+                                Text("Cancel")
+                            }
                         }
                     }
                 )
             }
 
+
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Nombre y ubicación
-            Text(text = "Nombre Apellido", style = MaterialTheme.typography.headlineSmall)
-            Text(text = "Ubicación", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
+            // Name and location
+            Text(text = "First Last Name", style = MaterialTheme.typography.headlineSmall)
+            Text(text = "Location", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Estadísticas
+            // Statistics
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                ProfileStat("X", "Countries travelled")
-                ProfileStat("Y", "Reviews written")
-                ProfileStat("Z", "Likes given")
+                ProfileStat("0", "Countries traveled")
+                ProfileStat("0", "Reviews written")
+                ProfileStat("0", "Likes given")
             }
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Botón de Logout
+            // Log out button
             Button(
                 onClick = {
                     navController.navigate("login") {
@@ -175,4 +180,11 @@ fun ProfileStat(value: String, label: String) {
         Text(text = value, style = MaterialTheme.typography.titleMedium)
         Text(text = label, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ProfileScreenPreview() {
+    val navController = rememberNavController()
+    ProfileScreen(navController)
 }

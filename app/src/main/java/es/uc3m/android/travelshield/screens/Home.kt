@@ -18,44 +18,27 @@ import es.uc3m.android.travelshield.R
 
 @Composable
 fun HomeScreen(navController: NavController) {
+    val countries = listOf("Australia", "USA", "Thailand", "Switzerland")
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        // First row
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            CountryBox(
-                countryName = "Australia",
-                imageRes = R.drawable.country_australia,
-                onClick = { navController.navigate("country/Australia") }
-            )
-            CountryBox(
-                countryName = "USA",
-                imageRes = R.drawable.country_usa,
-                onClick = { navController.navigate("country/USA") }
-            )
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Second row
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            CountryBox(
-                countryName = "Thailand",
-                imageRes = R.drawable.country_thailand,
-                onClick = { navController.navigate("country/Thailand") }
-            )
-            CountryBox(
-                countryName = "Switzerland",
-                imageRes = R.drawable.country_switzerland,
-                onClick = { navController.navigate("country/Switzerland") }
-            )
+        for (row in countries.chunked(2)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                row.forEach { country ->
+                    CountryBox(
+                        countryName = country,
+                        imageRes = getImageRes(country),
+                        onClick = { navController.navigate("country/$country") }
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
@@ -78,6 +61,16 @@ fun CountryBox(countryName: String, imageRes: Int, onClick: () -> Unit) {
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(text = countryName, fontSize = 16.sp)
+    }
+}
+
+fun getImageRes(countryName: String): Int {
+    return when (countryName) {
+        "Australia" -> R.drawable.country_australia
+        "USA" -> R.drawable.country_usa
+        "Thailand" -> R.drawable.country_thailand
+        "Switzerland" -> R.drawable.country_switzerland
+        else -> R.drawable.country_australia // Fallback
     }
 }
 

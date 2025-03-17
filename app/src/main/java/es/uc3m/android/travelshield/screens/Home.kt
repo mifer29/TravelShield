@@ -25,9 +25,20 @@ fun HomeScreen(navController: NavController) {
             .fillMaxSize()
             .padding(16.dp)
     ) {
+        Text(
+            text = "Trending Countries",
+            fontSize = 28.sp,
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier
+                .padding(bottom = 16.dp)
+                .align(Alignment.CenterHorizontally)
+        )
+
         for (row in countries.chunked(2)) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 row.forEach { country ->
@@ -38,11 +49,9 @@ fun HomeScreen(navController: NavController) {
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
-
 @Composable
 fun CountryBox(countryName: String, imageRes: Int, onClick: () -> Unit) {
     Column(

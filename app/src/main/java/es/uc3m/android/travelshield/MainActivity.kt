@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
-import es.uc3m.android.travelshield.screens.CategoriesScreen
+
 import es.uc3m.android.travelshield.screens.CountryScreen
 import es.uc3m.android.travelshield.screens.HomeScreen
 import es.uc3m.android.travelshield.screens.MapScreen
@@ -96,7 +96,11 @@ fun NavigationGraph(navController: NavHostController, modifier: Modifier) {
         composable(NavGraph.Home.route) { HomeScreen(navController) }
         composable(NavGraph.Map.route) { MapScreen(navController) }
         composable(NavGraph.Profile.route) { ProfileScreen(navController) }
-        composable(NavGraph.Country.route) { CountryScreen(navController) }
+
+        composable("country/{countryName}") { backStackEntry ->
+            val countryName = backStackEntry.arguments?.getString("countryName") ?: "Unknown"
+            CountryScreen(navController, countryName)
+        }
         composable(NavGraph.Login.route) { LoginScreen(navController) }
         composable(NavGraph.SignUp.route) { SignUpScreen(navController) }
         composable(NavGraph.Settings.route) { SettingsScreen(navController) }

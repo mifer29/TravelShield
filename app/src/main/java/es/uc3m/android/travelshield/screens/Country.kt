@@ -1,7 +1,6 @@
 package es.uc3m.android.travelshield.screens
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -19,13 +18,25 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import es.uc3m.android.travelshield.R
-import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import es.uc3m.android.travelshield.NavGraph
+import androidx.compose.runtime.remember
 
 @Composable
-fun CountryScreen(navController: NavController) {
+fun CountryScreen(navController: NavController, countryName: String) {
+    val countryImageName = "country_${countryName.lowercase().replace(" ", "_")}"
+
+    // Obtener ID de la imagen en drawable
+    val imageResId = remember(countryImageName) {
+        try {
+            val resId = R.drawable::class.java.getField(countryImageName).getInt(null)
+            resId
+        } catch (e: Exception) {
+            R.drawable.country_default // Imagen por defecto si no existe
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -47,15 +58,15 @@ fun CountryScreen(navController: NavController) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Australia",
+                text = countryName,
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold
             )
 
-            // Heart Icon (in drawable heart.png)
-            IconButton(onClick = { /* Action when liking!!! */ }) {
+            // Heart Icon (en drawable heart.png)
+            IconButton(onClick = { /* Acción cuando se marca como favorito */ }) {
                 Icon(
-                    painter = painterResource(id = R.drawable.heart), // Elegir corazón bonito!!!!
+                    painter = painterResource(id = R.drawable.heart),
                     contentDescription = "Favorite",
                     tint = Color.Gray
                 )
@@ -66,8 +77,8 @@ fun CountryScreen(navController: NavController) {
 
         // Country Image
         Image(
-            painter = painterResource(id = R.drawable.australia),
-            contentDescription = "Australia Image",
+            painter = painterResource(id = imageResId),
+            contentDescription = "$countryName Image",
             modifier = Modifier
                 .fillMaxWidth()
                 .height(200.dp)
@@ -80,7 +91,7 @@ fun CountryScreen(navController: NavController) {
         // Search Bar
         OutlinedTextField(
             value = "",
-            onValueChange = { /* Handle search input!!! (later on when database is working) */ },
+            onValueChange = { /* Manejar la búsqueda cuando la base de datos esté lista */ },
             placeholder = { Text("Search for information") },
             leadingIcon = {
                 Icon(imageVector = Icons.Default.Search, contentDescription = "Search Icon")
@@ -93,9 +104,9 @@ fun CountryScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Align category grid
+        // Categorías
         CategoryGrid(
-            navController = navController, // Pass the navController
+            navController = navController,
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
@@ -169,5 +180,5 @@ fun CategoryItem(name: String, navController: NavController) {
 @Composable
 fun PreviewCountryScreen() {
     val navController = rememberNavController() // Mock NavController for preview
-    CountryScreen(navController = navController)
+    CountryScreen(navController = navController, "Australia")
 }

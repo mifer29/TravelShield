@@ -15,7 +15,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import es.uc3m.android.travelshield.R
-import es.uc3m.android.travelshield.NavGraph
 
 @Composable
 fun HomeScreen(navController: NavController) {
@@ -31,13 +30,13 @@ fun HomeScreen(navController: NavController) {
         ) {
             CountryBox(
                 countryName = "Australia",
-                imageRes = R.drawable.australia,
-                onClick = { navController.navigate(NavGraph.Country.route)}
+                imageRes = R.drawable.country_australia,
+                onClick = { navController.navigate("country/Australia") }
             )
             CountryBox(
                 countryName = "USA",
-                imageRes = R.drawable.usa,
-                onClick = { navController.navigate(NavGraph.Country.route)}
+                imageRes = R.drawable.country_usa,
+                onClick = { navController.navigate("country/USA") }
             )
         }
         Spacer(modifier = Modifier.height(16.dp))
@@ -49,13 +48,13 @@ fun HomeScreen(navController: NavController) {
         ) {
             CountryBox(
                 countryName = "Thailand",
-                imageRes = R.drawable.bangkok,
-                onClick = { navController.navigate(NavGraph.Country.route)}
+                imageRes = R.drawable.country_thailand,
+                onClick = { navController.navigate("country/Thailand") }
             )
             CountryBox(
                 countryName = "Switzerland",
-                imageRes = R.drawable.geneva,
-                onClick = { navController.navigate(NavGraph.Country.route)}
+                imageRes = R.drawable.country_switzerland,
+                onClick = { navController.navigate("country/Switzerland") }
             )
         }
     }

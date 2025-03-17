@@ -43,11 +43,7 @@ fun CountryScreen(navController: NavController, countryName: String) {
             .padding(16.dp),
         verticalArrangement = Arrangement.Top
     ) {
-        // Header Text
-        Text(
-            text = "Traveling information...",
-            fontSize = 12.sp
-        )
+
 
         Spacer(modifier = Modifier.height(4.dp))
 

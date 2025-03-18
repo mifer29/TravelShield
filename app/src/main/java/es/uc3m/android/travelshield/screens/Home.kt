@@ -20,9 +20,10 @@ import androidx.compose.ui.res.stringResource
 
 @Composable
 fun HomeScreen(navController: NavController) {
-    // Here we get the country list from strings.xml and split it into a list, AVOIDING HARDCODED STRINGS
-    // explanation: split with ',' delimiter. The map thing is to remove empty extra spaces
-    val countries = stringResource(id = R.string.country_list).split(", ").map { it.trim() }
+    val countries = listOf(stringResource(R.string.australia),
+        stringResource(R.string.usa), stringResource(R.string.thailand),
+        stringResource(R.string.switzerland)
+    )
 
     Column(
         modifier = Modifier

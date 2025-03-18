@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">TravelShield</string>
+    <string name="country_list">Australia, USA, Thailand, Switzerland</string>
+
 </resources>

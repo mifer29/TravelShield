@@ -15,10 +15,14 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import es.uc3m.android.travelshield.R
+import androidx.compose.ui.res.stringResource
+
 
 @Composable
 fun HomeScreen(navController: NavController) {
-    val countries = listOf("Australia", "USA", "Thailand", "Switzerland")
+    // Here we get the country list from strings.xml and split it into a list, AVOIDING HARDCODED STRINGS
+    // explanation: split with ',' delimiter. The map thing is to remove empty extra spaces
+    val countries = stringResource(id = R.string.country_list).split(", ").map { it.trim() }
 
     Column(
         modifier = Modifier
@@ -52,6 +56,7 @@ fun HomeScreen(navController: NavController) {
         }
     }
 }
+
 @Composable
 fun CountryBox(countryName: String, imageRes: Int, onClick: () -> Unit) {
     Column(

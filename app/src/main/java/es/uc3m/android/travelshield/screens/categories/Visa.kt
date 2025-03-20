@@ -10,6 +10,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import androidx.compose.ui.res.stringResource
+import es.uc3m.android.travelshield.R
 
 @Composable
 fun VisaScreen(navController: NavController) {
@@ -20,7 +22,7 @@ fun VisaScreen(navController: NavController) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "Visa Screen")
+            Text(text = stringResource(R.string.categories_visa))
             Spacer(modifier = Modifier.height(16.dp))
             Button(onClick = { navController.popBackStack() }) {
                 Text(text = "Go Back")

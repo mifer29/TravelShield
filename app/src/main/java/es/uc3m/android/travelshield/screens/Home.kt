@@ -38,7 +38,7 @@ fun HomeScreen(navController: NavController) {
             .padding(16.dp)
     ) {
         Text(
-            text = "Trending Countries",
+            text = stringResource(R.string.home_title),
             fontSize = 28.sp,
             style = MaterialTheme.typography.titleLarge,
             modifier = Modifier

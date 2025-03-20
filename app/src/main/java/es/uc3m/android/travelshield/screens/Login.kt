@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import es.uc3m.android.travelshield.NavGraph
 import es.uc3m.android.travelshield.viewmodel.AuthViewModel
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun LoginScreen(navController: NavController, authViewModel: AuthViewModel = viewModel()) {
@@ -52,14 +53,20 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel = vie
             modifier = Modifier.padding(16.dp)
         ) {
             val logo: Painter = painterResource(id = R.drawable.logo_travelshield)
-            Image(painter = logo, contentDescription = "App Logo", modifier = Modifier.size(100.dp).clip(RoundedCornerShape(16.dp)))
+            Image(
+                painter = logo,
+                contentDescription = stringResource(R.string.app_logo),
+                modifier = Modifier
+                    .size(100.dp)
+                    .clip(RoundedCornerShape(16.dp))
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
-            Text(text = "Login", style = MaterialTheme.typography.headlineMedium)
+            Text(text = stringResource(R.string.login_title), style = MaterialTheme.typography.headlineMedium)
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Please log in or sign up first to view your profile.",
+                text = stringResource(R.string.login_message),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
@@ -67,7 +74,7 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel = vie
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                label = { Text("Email Address") },
+                label = { Text(stringResource(R.string.login_box)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 modifier = Modifier.fillMaxWidth()
             )
@@ -76,7 +83,7 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel = vie
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text("Password") },
+                label = { Text(stringResource(R.string.password_box)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier.fillMaxWidth()
@@ -88,7 +95,7 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel = vie
                 onClick = { authViewModel.login(email, password) },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = "Log In")
+                Text(text = stringResource(R.string.login_title))
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -97,7 +104,7 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel = vie
                 onClick = { navController.navigate(NavGraph.SignUp.route) },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = "Sign Up")
+                Text(text = stringResource(R.string.sign_up_tittle))
             }
         }
     }

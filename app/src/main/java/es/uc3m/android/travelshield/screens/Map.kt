@@ -7,6 +7,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
+import androidx.compose.ui.res.stringResource
+import es.uc3m.android.travelshield.R
 
 @Composable
 fun MapScreen(navController: NavController) {
@@ -15,6 +17,6 @@ fun MapScreen(navController: NavController) {
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        Text(text = "Map Screen")
+        Text(text = stringResource(R.string.map_message))
     }
 }

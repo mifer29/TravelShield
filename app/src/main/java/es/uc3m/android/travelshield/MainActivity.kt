@@ -14,6 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
+import androidx.compose.ui.res.stringResource
+
 
 // Screens
 import es.uc3m.android.travelshield.screens.CountryScreen
@@ -74,19 +76,27 @@ fun BottomNavigationBar(navController: NavHostController) {
                         launchSingleTop = true
                     }
                 },
-                label = { Text(text = item.route.replaceFirstChar { it.uppercase() }) },
+                label = {
+                    when (index) {
+                        0 -> Text(text = stringResource(R.string.home))
+                        1 -> Text(text = stringResource(R.string.map))
+                        2 -> Text(text = stringResource(R.string.profile))
+                        else -> Text(text = stringResource(R.string.home))
+                    }
+                },
                 icon = {
                     when (index) {
-                        0 -> Icon(imageVector = Icons.Default.Home, contentDescription = item.route)
-                        1 -> Icon(imageVector = Icons.Default.Place, contentDescription = item.route)
-                        2 -> Icon(imageVector = Icons.Default.Person, contentDescription = item.route)
-                        else -> Icon(imageVector = Icons.Default.Home, contentDescription = item.route)
+                        0 -> Icon(imageVector = Icons.Default.Home, contentDescription = stringResource(R.string.home))
+                        1 -> Icon(imageVector = Icons.Default.Place, contentDescription = stringResource(R.string.map))
+                        2 -> Icon(imageVector = Icons.Default.Person, contentDescription = stringResource(R.string.profile))
+                        else -> Icon(imageVector = Icons.Default.Home, contentDescription = stringResource(R.string.home))
                     }
                 }
             )
         }
     }
 }
+
 
 // Navigation graph that defines the routes for the app
 @Composable

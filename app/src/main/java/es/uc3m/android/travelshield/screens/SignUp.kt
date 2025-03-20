@@ -10,13 +10,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import es.uc3m.android.travelshield.NavGraph
 import es.uc3m.android.travelshield.viewmodel.AuthViewModel
+import androidx.compose.ui.res.stringResource
+import es.uc3m.android.travelshield.R
 
 @Composable
 fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel = viewModel()) {
@@ -50,13 +50,13 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel = vi
             modifier = Modifier.padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "Sign Up", style = MaterialTheme.typography.headlineMedium)
+            Text(text = stringResource(id = R.string.sign_up_tittle), style = MaterialTheme.typography.headlineMedium)
             Spacer(modifier = Modifier.height(16.dp))
 
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
-                label = { Text("Name") },
+                label = { Text(stringResource(id = R.string.name_box)) },
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -64,7 +64,7 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel = vi
             OutlinedTextField(
                 value = surname,
                 onValueChange = { surname = it },
-                label = { Text("Surname") },
+                label = { Text(stringResource(id = R.string.surname_box)) },
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -72,7 +72,7 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel = vi
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                label = { Text("Email Address") },
+                label = { Text(stringResource(id = R.string.login_box)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 modifier = Modifier.fillMaxWidth()
             )
@@ -81,7 +81,7 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel = vi
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text("Password") },
+                label = { Text(stringResource(id = R.string.password_box)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier.fillMaxWidth()
@@ -94,7 +94,7 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel = vi
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = "Sign Up")
+                Text(text = stringResource(id = R.string.sign_up_tittle))
             }
         }
     }

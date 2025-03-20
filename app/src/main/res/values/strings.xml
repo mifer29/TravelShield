@@ -1,8 +1,61 @@
 <resources>
     <string name="app_name">TravelShield</string>
+
+    <string name="home">Home</string>
+    <string name="map">Map</string>
+    <string name="profile">Profile</string>
+
+    <string name="home_title">Trending countries</string>
     <string name="australia">Australia</string>
     <string name="usa">USA</string>
     <string name="thailand">Thailand</string>
     <string name="switzerland">Switzerland</string>
 
+    <string name="login_title">Log in</string>
+    <string name="login_message"> Please log in or sign up first yo view your profile</string>
+    <string name="login_box">Email address</string>
+    <string name="password_box">Password</string>
+
+    <string name="sign_up_tittle">Sign Up</string>
+    <string name="name_box">Name</string>
+    <string name="surname_box">Surname</string>
+
+    <string name="map_message">Map Screen</string>
+
+    <string name="provisional_profile_name">Name</string>
+    <string name="provisional_profile_surname">Surname</string>
+    <string name="provisional_profile_location">Location</string>
+
+    <string name="profile_stats_countries">"Countries traveled</string>
+    <string name="profile_stats_reviews">"Reviews written</string>
+    <string name="profile_stats_likes">"Likes given</string>
+
+    <string name="log_out">Log out</string>
+
+    <string name="search_bar">Search for information</string>
+
+    <string name="categories_general_info">General Information</string>
+    <string name="categories_health">Health</string>
+    <string name="categories_visa">Visa</string>
+    <string name="categories_security">Security</string>
+    <string name="categories_news">News</string>
+    <string name="categories_transport">Transport</string>
+
+    <string name="search_icon">Search Icon</string>
+    <string name="favourite_icon">Favourite Icon</string>
+    <string name="category_info_icon">categories_info</string>
+    <string name="category_health_icon">categories_hospital</string>
+    <string name="category_visa_icon">categories_visa</string>
+    <string name="category_security_icon">categories_security</string>
+    <string name="category_news_icon">categories_news</string>
+    <string name="category_transport_icon">categories_transport</string>
+
+    <string name="app_logo">App Logo</string>
+
+    <string name="call_emergency">Call Emergency</string>
+    <string name="call_999">Call 999</string>
+
+    <string name="go_back">Go Back</string>
+
+    <string name="image">Image</string>
 </resources>

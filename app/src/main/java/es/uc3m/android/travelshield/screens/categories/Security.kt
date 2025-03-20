@@ -19,6 +19,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import androidx.compose.ui.res.stringResource
+import es.uc3m.android.travelshield.R
 
 @Composable
 fun SecurityScreen(navController: NavController) {
@@ -32,7 +34,7 @@ fun SecurityScreen(navController: NavController) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(text = "Security Screen")
+            Text(text = stringResource(R.string.categories_security))
 
             Button(
                 onClick = {
@@ -48,19 +50,20 @@ fun SecurityScreen(navController: NavController) {
             ) {
                 Icon(
                     imageVector = Icons.Default.Phone,
-                    contentDescription = "Call Emergency",
+                    contentDescription = stringResource(R.string.call_emergency),
                     modifier = Modifier.size(24.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(text = "Call 999")
+                Text(text = stringResource(R.string.call_999))
             }
 
             Button(onClick = { navController.popBackStack() }) {
-                Text(text = "Go Back")
+                Text(text = stringResource(R.string.go_back))
             }
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable

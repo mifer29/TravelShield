@@ -43,14 +43,15 @@
 
     <string name="search_icon">Search Icon</string>
     <string name="favourite_icon">Favourite Icon</string>
-    <string name="category_info_icon">categories_info</string>
-    <string name="category_health_icon">categories_hospital</string>
-    <string name="category_visa_icon">categories_visa</string>
-    <string name="category_security_icon">categories_security</string>
-    <string name="category_news_icon">categories_news</string>
-    <string name="category_transport_icon">categories_transport</string>
 
-    <string name="app_logo">App Logo</string>
+    <string name="category_info_icon">Categories Info Icon</string>
+    <string name="category_health_icon">Categories Hospital Icon</string>
+    <string name="category_visa_icon">Categories Visa Icon</string>
+    <string name="category_security_icon">Categories Security Icon</string>
+    <string name="category_news_icon">Categories News Icon</string>
+    <string name="category_transport_icon">Categories Transport Icon</string>
+
+    <string name="app_logo">App Logo </string>
 
     <string name="call_emergency">Call Emergency</string>
     <string name="call_999">Call 999</string>

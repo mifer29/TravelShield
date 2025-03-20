@@ -10,6 +10,7 @@ import androidx.navigation.NavController
 
 @Composable
 fun MapScreen(navController: NavController) {
+    // In the future it will hold map logic with locations.
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center

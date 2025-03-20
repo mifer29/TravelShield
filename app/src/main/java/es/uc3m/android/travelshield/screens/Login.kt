@@ -24,6 +24,7 @@ import es.uc3m.android.travelshield.viewmodel.AuthViewModel
 
 @Composable
 fun LoginScreen(navController: NavController, authViewModel: AuthViewModel = viewModel()) {
+    // For toasts
     val context = LocalContext.current
 
     var email by remember { mutableStateOf("") }

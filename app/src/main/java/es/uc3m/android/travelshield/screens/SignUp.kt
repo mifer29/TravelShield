@@ -10,9 +10,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import es.uc3m.android.travelshield.NavGraph
 import es.uc3m.android.travelshield.viewmodel.AuthViewModel
 
@@ -20,11 +22,13 @@ import es.uc3m.android.travelshield.viewmodel.AuthViewModel
 fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel = viewModel()) {
     val context = LocalContext.current
 
+    // Variables for user input fields
     var name by remember { mutableStateOf("") }
     var surname by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
+    // Variables from ViewModel
     val route by authViewModel.route
     val toastMessage by authViewModel.toastMessage
 
@@ -95,7 +99,7 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel = vi
         }
     }
 
-    // Show error messages if any
+    // Display toast message for errors or notifications
     toastMessage?.let { message ->
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }

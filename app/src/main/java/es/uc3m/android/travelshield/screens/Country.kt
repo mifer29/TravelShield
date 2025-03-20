@@ -22,19 +22,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import es.uc3m.android.travelshield.NavGraph
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun CountryScreen(navController: NavController, countryName: String) {
-    val countryImageName = "country_${countryName.lowercase().replace(" ", "_")}"
 
-    // Obtener ID de la imagen en drawable
-    val imageResId = remember(countryImageName) {
-        try {
-            val resId = R.drawable::class.java.getField(countryImageName).getInt(null)
-            resId
-        } catch (e: Exception) {
-            R.drawable.country_default // Imagen por defecto si no existe
-        }
+    val context = LocalContext.current
+
+    val imageResId = remember(countryName) {
+        val imageName = "country_${countryName.lowercase().replace(" ", "_")}"
+        context.resources.getIdentifier(imageName, "drawable", context.packageName)
+            .takeIf { it != 0 } ?: R.drawable.country_default
     }
 
     Column(
@@ -43,8 +41,6 @@ fun CountryScreen(navController: NavController, countryName: String) {
             .padding(16.dp),
         verticalArrangement = Arrangement.Top
     ) {
-
-
         Spacer(modifier = Modifier.height(4.dp))
 
         // Country Title + Favorite Button
@@ -60,7 +56,7 @@ fun CountryScreen(navController: NavController, countryName: String) {
             )
 
             // Heart Icon (en drawable heart.png)
-            IconButton(onClick = { /* Acción cuando se marca como favorito */ }) {
+            IconButton(onClick = { /* In the future we'll have here like logic */ }) {
                 Icon(
                     painter = painterResource(id = R.drawable.heart),
                     contentDescription = "Favorite",
@@ -87,7 +83,7 @@ fun CountryScreen(navController: NavController, countryName: String) {
         // Search Bar
         OutlinedTextField(
             value = "",
-            onValueChange = { /* Manejar la búsqueda cuando la base de datos esté lista */ },
+            onValueChange = { /* In the future we'll have here search logic */ },
             placeholder = { Text("Search for information") },
             leadingIcon = {
                 Icon(imageVector = Icons.Default.Search, contentDescription = "Search Icon")
@@ -110,7 +106,9 @@ fun CountryScreen(navController: NavController, countryName: String) {
     }
 }
 
-// **Category Grid Layout**
+
+
+// Category Grid Layout
 @Composable
 fun CategoryGrid(navController: NavController, modifier: Modifier = Modifier) {
     val categories = listOf("General Info", "Health", "Visa", "Security", "News", "Transport")
@@ -132,7 +130,7 @@ fun CategoryGrid(navController: NavController, modifier: Modifier = Modifier) {
     }
 }
 
-// **Category Item as a Button**
+// Category Item as a Button
 @Composable
 fun CategoryItem(name: String, navController: NavController) {
     val route = when (name) {

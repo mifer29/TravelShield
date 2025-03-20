@@ -16,12 +16,19 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import es.uc3m.android.travelshield.R
 import androidx.compose.ui.res.stringResource
-
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun HomeScreen(navController: NavController) {
-    val countries = listOf(stringResource(R.string.australia),
-        stringResource(R.string.usa), stringResource(R.string.thailand),
+
+    val context = LocalContext.current
+    val resources = context.resources
+
+    // Define the list of countries to display
+    val countries = listOf(
+        stringResource(R.string.australia),
+        stringResource(R.string.usa),
+        stringResource(R.string.thailand),
         stringResource(R.string.switzerland)
     )
 
@@ -39,6 +46,7 @@ fun HomeScreen(navController: NavController) {
                 .align(Alignment.CenterHorizontally)
         )
 
+        // Create rows of countries, chunked to fit 2 countries per row
         for (row in countries.chunked(2)) {
             Row(
                 modifier = Modifier
@@ -47,9 +55,13 @@ fun HomeScreen(navController: NavController) {
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 row.forEach { country ->
+                    val imageName = "country_${country.lowercase()}"
+                    val imageRes = resources.getIdentifier(imageName, "drawable", context.packageName)
+                        .takeIf { it != 0 } ?: R.drawable.country_default
+
                     CountryBox(
                         countryName = country,
-                        imageRes = getImageRes(country),
+                        imageRes = imageRes,
                         onClick = { navController.navigate("country/$country") }
                     )
                 }
@@ -58,6 +70,8 @@ fun HomeScreen(navController: NavController) {
     }
 }
 
+
+// A composable that displays a box with an image and the country name
 @Composable
 fun CountryBox(countryName: String, imageRes: Int, onClick: () -> Unit) {
     Column(
@@ -79,18 +93,6 @@ fun CountryBox(countryName: String, imageRes: Int, onClick: () -> Unit) {
     }
 }
 
-fun getImageRes(countryName: String): Int {
-    val resourceId = try {
-        val resName = "country_${countryName.lowercase()}"
-        // Searching for image with that name
-        val resId = R.drawable::class.java.getDeclaredField(resName).getInt(null)
-        resId
-    } catch (e: Exception) {
-        // If not country image found with that name, default image
-        R.drawable.country_default
-    }
-    return resourceId
-}
 
 @Preview(showBackground = true)
 @Composable

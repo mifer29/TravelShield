@@ -35,10 +35,13 @@ import es.uc3m.android.travelshield.R
 
 @Composable
 fun ProfileScreen(navController: NavController) {
+
     var profileImage by remember { mutableStateOf<Bitmap?>(null) }
+    // Android context (permissions and gallery)
     val context = LocalContext.current
     var showDialog by remember { mutableStateOf(false) }
 
+    // Launchers for camera and gallery
     val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         profileImage = handleCameraResult(result)
     }

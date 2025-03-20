@@ -59,4 +59,6 @@
     <string name="go_back">Go Back</string>
 
     <string name="image">Image</string>
+    <string name="camera">Camera</string>
+    <string name="gallery">Gallery</string>
 </resources>

@@ -25,7 +25,7 @@ fun NewsScreen(navController: NavController) {
             Text(text = stringResource(R.string.categories_news))
             Spacer(modifier = Modifier.height(16.dp))
             Button(onClick = { navController.popBackStack() }) {
-                Text(text = "Go Back")
+                Text(text = stringResource(R.string.go_back))
             }
         }
     }

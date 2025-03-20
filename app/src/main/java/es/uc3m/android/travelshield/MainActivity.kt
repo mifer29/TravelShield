@@ -12,8 +12,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
+import es.uc3m.android.travelshield.viewmodel.CountryViewModel
 
 import es.uc3m.android.travelshield.screens.CountryScreen
 import es.uc3m.android.travelshield.screens.HomeScreen
@@ -87,13 +89,14 @@ fun BottomNavigationBar(navController: NavHostController) {
 
 @Composable
 fun NavigationGraph(navController: NavHostController, modifier: Modifier) {
+    val countryViewModel: CountryViewModel = viewModel()
     NavHost(
         navController = navController,
-        startDestination = NavGraph.Login.route,
+        startDestination = NavGraph.Home.route,
         modifier = modifier
     ) {
         // Pantallas generales
-        composable(NavGraph.Home.route) { HomeScreen(navController) }
+        composable(NavGraph.Home.route) { HomeScreen(navController, countryViewModel) }
         composable(NavGraph.Map.route) { MapScreen(navController) }
         composable(NavGraph.Profile.route) { ProfileScreen(navController) }
 

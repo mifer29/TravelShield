@@ -1,29 +1,33 @@
 package es.uc3m.android.travelshield.screens
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import es.uc3m.android.travelshield.R
-import androidx.compose.ui.res.stringResource
+import es.uc3m.android.travelshield.viewmodel.CountryViewModel
+import es.uc3m.android.travelshield.viewmodel.CountryDoc
+import androidx.compose.runtime.getValue
+
+
 
 
 @Composable
-fun HomeScreen(navController: NavController) {
-    val countries = listOf(stringResource(R.string.australia),
-        stringResource(R.string.usa), stringResource(R.string.thailand),
-        stringResource(R.string.switzerland)
-    )
+fun HomeScreen(navController: NavController, viewModel: CountryViewModel) {
+    // Collecting the countries state from the ViewModel
+    val countries by viewModel.countries.collectAsState()
 
     Column(
         modifier = Modifier
@@ -39,62 +43,44 @@ fun HomeScreen(navController: NavController) {
                 .align(Alignment.CenterHorizontally)
         )
 
-        for (row in countries.chunked(2)) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                row.forEach { country ->
-                    CountryBox(
-                        countryName = country,
-                        imageRes = getImageRes(country),
-                        onClick = { navController.navigate("country/$country") }
-                    )
-                }
+        // Display the countries in a lazy column
+        LazyColumn(modifier = Modifier.fillMaxSize()) {
+            items(countries) { country ->
+                // Pass the navController to the CountryItem
+                CountryItem(country = country, navController = navController)
             }
         }
     }
 }
 
 @Composable
-fun CountryBox(countryName: String, imageRes: Int, onClick: () -> Unit) {
+fun CountryItem(country: CountryDoc, navController: NavController) {
     Column(
         modifier = Modifier
-            .width(150.dp)
-            .clickable { onClick() },
-        horizontalAlignment = Alignment.CenterHorizontally
+            .fillMaxWidth()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.Start
     ) {
-        Image(
-            painter = painterResource(id = imageRes),
-            contentDescription = "$countryName image",
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(100.dp),
-            contentScale = ContentScale.Crop
+        // Country Name
+        Text(
+            text = "Country: ${country.Name}", // Keep this one
+            fontSize = 18.sp,
+            style = MaterialTheme.typography.bodyLarge
         )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(text = countryName, fontSize = 16.sp)
+
+
+        // Vaccine Information
+        Text(
+            text = "Vaccine: ${country.Vaccine}",
+            fontSize = 14.sp,
+            style = MaterialTheme.typography.bodyMedium
+        )
+
     }
 }
 
-fun getImageRes(countryName: String): Int {
-    val resourceId = try {
-        val resName = "country_${countryName.lowercase()}"
-        // Searching for image with that name
-        val resId = R.drawable::class.java.getDeclaredField(resName).getInt(null)
-        resId
-    } catch (e: Exception) {
-        // If not country image found with that name, default image
-        R.drawable.country_default
-    }
-    return resourceId
-}
 
-@Preview(showBackground = true)
-@Composable
-fun HomeScreenPreview() {
-    val navController = rememberNavController()
-    HomeScreen(navController)
-}
+
+
+
+

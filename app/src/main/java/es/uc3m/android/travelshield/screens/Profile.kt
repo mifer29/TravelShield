@@ -97,7 +97,7 @@ fun ProfileScreen(navController: NavController) {
                         Column(
                             modifier = Modifier.fillMaxWidth(),
                             verticalArrangement = Arrangement.spacedBy(8.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally // Alinea los botones en el centro
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Button(onClick = {
                                 showDialog = false
@@ -107,13 +107,13 @@ fun ProfileScreen(navController: NavController) {
                                     requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
                                 }
                             }) {
-                                Text(stringResource(id = R.string.profile_stats_countries))
+                                Text(stringResource(id = R.string.camera))
                             }
                             Button(onClick = {
                                 showDialog = false
                                 galleryLauncher.launch("image/*")
                             }) {
-                                Text(stringResource(id = R.string.profile_stats_reviews))
+                                Text(stringResource(id = R.string.gallery))
                             }
                             Button(onClick = { showDialog = false }) {
                                 Text(stringResource(id = R.string.log_out))

@@ -1,32 +1,32 @@
 package es.uc3m.android.travelshield.screens
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavController
 import es.uc3m.android.travelshield.R
 import es.uc3m.android.travelshield.viewmodel.CountryViewModel
 import es.uc3m.android.travelshield.viewmodel.CountryDoc
-import androidx.compose.runtime.getValue
-
-
-
 
 @Composable
 fun HomeScreen(navController: NavController, viewModel: CountryViewModel) {
-    // Collecting the countries state from the ViewModel
     val countries by viewModel.countries.collectAsState()
 
     Column(
@@ -34,53 +34,107 @@ fun HomeScreen(navController: NavController, viewModel: CountryViewModel) {
             .fillMaxSize()
             .padding(16.dp)
     ) {
+        TopSection()
+        Spacer(modifier = Modifier.height(16.dp))
+
         Text(
-            text = "Trending Countries",
-            fontSize = 28.sp,
+            text = "Trending Destinations",
+            fontSize = 24.sp,
             style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier
-                .padding(bottom = 16.dp)
-                .align(Alignment.CenterHorizontally)
+            modifier = Modifier.padding(bottom = 8.dp)
         )
 
-        // Display the countries in a lazy column
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
+        LazyRow(modifier = Modifier.fillMaxWidth()) {
             items(countries) { country ->
-                // Pass the navController to the CountryItem
-                CountryItem(country = country, navController = navController)
+                CountryCard(country, navController)
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = "Popular Destinations",
+            fontSize = 24.sp,
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        LazyRow(modifier = Modifier.fillMaxWidth()) {
+            items(countries) { country ->
+                CountryCard(country, navController)
             }
         }
     }
 }
 
 @Composable
-fun CountryItem(country: CountryDoc, navController: NavController) {
+fun TopSection() {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.Start
+        modifier = Modifier.fillMaxWidth()
     ) {
-        // Country Name
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Welcome to TravelShield!",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Light
+            )
+            Icon(
+                imageVector = Icons.Default.Notifications,
+                contentDescription = "Notifications"
+            )
+        }
         Text(
-            text = "Country: ${country.Name}", // Keep this one
-            fontSize = 18.sp,
-            style = MaterialTheme.typography.bodyLarge
+            text = "Where to next?",
+            fontSize = 28.sp,
+            fontWeight = FontWeight.Bold
         )
-
-
-        // Vaccine Information
-        Text(
-            text = "Vaccine: ${country.Vaccine}",
-            fontSize = 14.sp,
-            style = MaterialTheme.typography.bodyMedium
-        )
-
+        Spacer(modifier = Modifier.height(8.dp))
+        SearchBar()
     }
 }
 
+@Composable
+fun SearchBar() {
+    TextField(
+        value = "",
+        onValueChange = {},
+        placeholder = { Text("Search for your new adventure") },
+        leadingIcon = {
+            Icon(imageVector = Icons.Default.Notifications, contentDescription = "Search")
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(50.dp),
+        shape = RoundedCornerShape(12.dp)
+    )
+}
 
-
-
-
-
+@Composable
+fun CountryCard(country: CountryDoc, navController: NavController) {
+    Column(
+        modifier = Modifier
+            .width(200.dp)
+            .padding(8.dp)
+            .clickable { /* AJUSTAR NAVEGACIÓN PÁGINAS */ },
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.country_default), // CAMBIAR!!
+            contentDescription = country.name,
+            modifier = Modifier
+                .height(120.dp)
+                .fillMaxWidth(),
+            contentScale = ContentScale.Crop
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = country.name,
+            fontSize = 18.sp,
+            style = MaterialTheme.typography.bodyLarge
+        )
+    }
+}

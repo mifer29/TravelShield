@@ -6,5 +6,4 @@ data class CountryDoc(
     @get:Exclude var id: String? = null,
     val name: String = "",
     val vaccine: String = ""
-
 )

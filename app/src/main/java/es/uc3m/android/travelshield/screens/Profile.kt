@@ -29,15 +29,19 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import es.uc3m.android.travelshield.R
+import es.uc3m.android.travelshield.viewmodel.UserInfoRetrieval
 
 @Composable
-fun ProfileScreen(navController: NavController) {
+fun ProfileScreen(navController: NavController, userInfoViewModel: UserInfoRetrieval = viewModel()) {
     var profileImage by remember { mutableStateOf<Bitmap?>(null) }
     val context = LocalContext.current
     var showDialog by remember { mutableStateOf(false) }
+
+    val userInfo by userInfoViewModel.userInfo.collectAsState()
 
     val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         profileImage = handleCameraResult(result)
@@ -123,7 +127,7 @@ fun ProfileScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(8.dp))
 
             // Name and location
-            Text(text = "First Last Name", style = MaterialTheme.typography.headlineSmall)
+            Text(text = userInfo?.let { "${it.name} ${it.surname}" } ?: "Loading...", style = MaterialTheme.typography.headlineSmall)
             Text(text = "Location", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
 
             Spacer(modifier = Modifier.height(12.dp))

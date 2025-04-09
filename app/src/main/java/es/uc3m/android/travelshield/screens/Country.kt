@@ -43,8 +43,6 @@ fun CountryScreen(navController: NavController, countryName: String) {
             .padding(16.dp),
         verticalArrangement = Arrangement.Top
     ) {
-
-
         Spacer(modifier = Modifier.height(4.dp))
 
         // Country Title + Favorite Button
@@ -103,6 +101,7 @@ fun CountryScreen(navController: NavController, countryName: String) {
         // Categorías
         CategoryGrid(
             navController = navController,
+            countryName = countryName, // Pass the country name here
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
@@ -112,7 +111,7 @@ fun CountryScreen(navController: NavController, countryName: String) {
 
 // **Category Grid Layout**
 @Composable
-fun CategoryGrid(navController: NavController, modifier: Modifier = Modifier) {
+fun CategoryGrid(navController: NavController, countryName: String, modifier: Modifier = Modifier) {
     val categories = listOf("General Info", "Health", "Visa", "Security", "News", "Transport")
 
     Column(
@@ -125,7 +124,7 @@ fun CategoryGrid(navController: NavController, modifier: Modifier = Modifier) {
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 for (category in row) {
-                    CategoryItem(name = category, navController = navController)
+                    CategoryItem(name = category, navController = navController, countryName = countryName)
                 }
             }
         }
@@ -134,14 +133,14 @@ fun CategoryGrid(navController: NavController, modifier: Modifier = Modifier) {
 
 // **Category Item as a Button**
 @Composable
-fun CategoryItem(name: String, navController: NavController) {
+fun CategoryItem(name: String, navController: NavController, countryName: String) {
     val route = when (name) {
-        "General Info" -> NavGraph.GeneralInfo.route
-        "Health" -> NavGraph.Health.route
-        "Visa" -> NavGraph.Visa.route
-        "Security" -> NavGraph.Security.route
-        "News" -> NavGraph.News.route
-        "Transport" -> NavGraph.Transport.route
+        "General Info" -> NavGraph.GeneralInfo.createRoute(countryName)
+        "Health" -> NavGraph.Health.createRoute(countryName)
+        "Visa" -> NavGraph.Visa.createRoute(countryName)
+        "Security" -> NavGraph.Security.createRoute(countryName)
+        "News" -> NavGraph.News.createRoute(countryName)
+        "Transport" -> NavGraph.Transport.createRoute(countryName)
         else -> NavGraph.Home.route // Fallback (puede cambiarse según lo necesario)
     }
 
@@ -156,7 +155,10 @@ fun CategoryItem(name: String, navController: NavController) {
     }
 
     Button(
-        onClick = { navController.navigate(route) }, // Navegar a la categoría específica
+        onClick = {
+            // Correctly navigate using the createRoute method
+            navController.navigate(route)
+        },
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier.size(100.dp),
         colors = ButtonDefaults.buttonColors(
@@ -181,9 +183,10 @@ fun CategoryItem(name: String, navController: NavController) {
     }
 }
 
+
 @Preview(showBackground = true)
 @Composable
 fun PreviewCountryScreen() {
     val navController = rememberNavController() // Mock NavController for preview
-    CountryScreen(navController = navController, "USA")
+    CountryScreen(navController = navController, countryName = "USA")
 }

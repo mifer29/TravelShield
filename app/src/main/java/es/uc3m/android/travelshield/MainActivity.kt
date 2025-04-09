@@ -16,7 +16,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import es.uc3m.android.travelshield.viewmodel.CountryViewModel
-
 import es.uc3m.android.travelshield.screens.CountryScreen
 import es.uc3m.android.travelshield.screens.HomeScreen
 import es.uc3m.android.travelshield.screens.MapScreen
@@ -90,31 +89,53 @@ fun BottomNavigationBar(navController: NavHostController) {
 @Composable
 fun NavigationGraph(navController: NavHostController, modifier: Modifier) {
     val countryViewModel: CountryViewModel = viewModel()
+
     NavHost(
         navController = navController,
         startDestination = NavGraph.Home.route,
         modifier = modifier
     ) {
-        // Pantallas generales
+        // General Screens
         composable(NavGraph.Home.route) { HomeScreen(navController, countryViewModel) }
         composable(NavGraph.Map.route) { MapScreen(navController) }
         composable(NavGraph.Profile.route) { ProfileScreen(navController) }
 
+        // Country Screen
         composable("country/{countryName}") { backStackEntry ->
             val countryName = backStackEntry.arguments?.getString("countryName") ?: "Unknown"
             CountryScreen(navController, countryName)
         }
+
+        // Login and SignUp Screens
         composable(NavGraph.Login.route) { LoginScreen(navController) }
         composable(NavGraph.SignUp.route) { SignUpScreen(navController) }
         composable(NavGraph.Settings.route) { SettingsScreen(navController) }
 
-        // Pantallas de categorías
-        composable(NavGraph.GeneralInfo.route) { GeneralInfoScreen(navController) }
-        composable(NavGraph.Health.route) { HealthScreen(navController) }
-        composable(NavGraph.News.route) { NewsScreen(navController) }
-        composable(NavGraph.Security.route) { SecurityScreen(navController) }
-        composable(NavGraph.Transport.route) { TranportScreen(navController) }
-        composable(NavGraph.Visa.route) { VisaScreen(navController) }
+        // Category Screens (Updated routes with 'categories/' prefix)
+        composable("categories/general_info/{countryName}") { backStackEntry ->
+            val countryName = backStackEntry.arguments?.getString("countryName") ?: "Unknown"
+            GeneralInfoScreen(navController, countryName)
+        }
+        composable("categories/health/{countryName}") { backStackEntry ->
+            val countryName = backStackEntry.arguments?.getString("countryName") ?: "Unknown"
+            HealthScreen(navController, countryName)
+        }
+        composable("categories/visa/{countryName}") { backStackEntry ->
+            val countryName = backStackEntry.arguments?.getString("countryName") ?: "Unknown"
+            VisaScreen(navController, countryName)
+        }
+        composable("categories/security/{countryName}") { backStackEntry ->
+            val countryName = backStackEntry.arguments?.getString("countryName") ?: "Unknown"
+            SecurityScreen(navController, countryName)
+        }
+        composable("categories/news/{countryName}") { backStackEntry ->
+            val countryName = backStackEntry.arguments?.getString("countryName") ?: "Unknown"
+            NewsScreen(navController, countryName)
+        }
+        composable("categories/transport/{countryName}") { backStackEntry ->
+            val countryName = backStackEntry.arguments?.getString("countryName") ?: "Unknown"
+            TransportScreen(navController, countryName)
+        }
     }
 }
 

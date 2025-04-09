@@ -11,9 +11,6 @@ import kotlinx.coroutines.flow.StateFlow
 import android.util.Log
 import com.google.firebase.firestore.toObject
 
-
-
-
 private const val COUNTRIES_COLLECTION = "countries"
 
 class CountryViewModel : ViewModel() {
@@ -23,12 +20,13 @@ class CountryViewModel : ViewModel() {
     private val _toastMessage = MutableStateFlow<String?>(null)
     val toastMessage: StateFlow<String?> get() = _toastMessage
 
-    private val firestore = FirebaseFirestore.getInstance("travelshield-db")
+    private val firestore = FirebaseFirestore.getInstance("travelshield-db") // Custom DB name
 
     init {
         fetchCountries()
     }
 
+    // Fetch countries from Firestore
     fun fetchCountries() {
         viewModelScope.launch {
             firestore.collection(COUNTRIES_COLLECTION).get()
@@ -39,39 +37,43 @@ class CountryViewModel : ViewModel() {
                     _countries.value = countryList
                 }
                 .addOnFailureListener { exception ->
-                    _toastMessage.value = exception.message
+                    _toastMessage.value = "Failed to fetch countries: ${exception.message}"
+                    Log.e("CountryViewModel", "Error fetching countries", exception)
                 }
         }
     }
 
-    fun addCountry(title: String, body: String) {
+    // Add a new country to Firestore
+    fun addCountry(countryDoc: CountryDoc) {
         viewModelScope.launch {
-            val country = CountryDoc(name = title,  vaccine = body)
             firestore.collection(COUNTRIES_COLLECTION)
-                .add(country)
+                .add(countryDoc)
                 .addOnSuccessListener {
                     fetchCountries() // Refresh the list after adding
                 }
                 .addOnFailureListener { exception ->
-                    _toastMessage.value = exception.message
+                    _toastMessage.value = "Failed to add country: ${exception.message}"
+                    Log.e("CountryViewModel", "Error adding country", exception)
                 }
         }
     }
 
-    fun updateCountry(id: String, title: String, body: String) {
+    // Update an existing country in Firestore
+    fun updateCountry(id: String, updatedCountry: CountryDoc) {
         viewModelScope.launch {
-            val updatedCountry = CountryDoc(name = title, vaccine = body)
             firestore.collection(COUNTRIES_COLLECTION).document(id)
                 .set(updatedCountry)
                 .addOnSuccessListener {
                     fetchCountries() // Refresh the list after updating
                 }
                 .addOnFailureListener { exception ->
-                    _toastMessage.value = exception.message
+                    _toastMessage.value = "Failed to update country: ${exception.message}"
+                    Log.e("CountryViewModel", "Error updating country", exception)
                 }
         }
     }
 
+    // Delete a country from Firestore
     fun deleteCountry(id: String) {
         viewModelScope.launch {
             firestore.collection(COUNTRIES_COLLECTION).document(id)
@@ -80,19 +82,14 @@ class CountryViewModel : ViewModel() {
                     fetchCountries() // Refresh the list after deleting
                 }
                 .addOnFailureListener { exception ->
-                    _toastMessage.value = exception.message
+                    _toastMessage.value = "Failed to delete country: ${exception.message}"
+                    Log.e("CountryViewModel", "Error deleting country", exception)
                 }
         }
     }
 
+    // Show a toast message for UI feedback
     fun showToast(message: String?) {
         _toastMessage.value = message
     }
-
 }
-
-
-
-
-
-

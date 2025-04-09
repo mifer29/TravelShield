@@ -115,15 +115,17 @@ fun SearchBar() {
 
 @Composable
 fun CountryCard(country: CountryDoc, navController: NavController) {
+    val imageResId = getCountryImageResId(country.name)
+
     Column(
         modifier = Modifier
             .width(200.dp)
             .padding(8.dp)
-            .clickable { /* AJUSTAR NAVEGACIÓN PÁGINAS */ },
+            .clickable { navController.navigate("Country/${country.name}") },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            painter = painterResource(id = R.drawable.country_default), // CAMBIAR!!
+            painter = painterResource(id = imageResId),
             contentDescription = country.name,
             modifier = Modifier
                 .height(120.dp)
@@ -136,5 +138,16 @@ fun CountryCard(country: CountryDoc, navController: NavController) {
             fontSize = 18.sp,
             style = MaterialTheme.typography.bodyLarge
         )
+    }
+}
+
+
+// This function should be in an auxiliary functions file
+fun getCountryImageResId(countryName: String): Int {
+    val imageName = "country_${countryName.lowercase().replace(" ", "_")}"
+    return try {
+        R.drawable::class.java.getField(imageName).getInt(null)
+    } catch (e: Exception) {
+        R.drawable.country_default
     }
 }

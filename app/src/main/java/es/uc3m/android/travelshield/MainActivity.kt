@@ -12,21 +12,19 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
-import androidx.compose.ui.res.stringResource
-
-
-// Screens
+import es.uc3m.android.travelshield.viewmodel.CountryViewModel
 import es.uc3m.android.travelshield.screens.CountryScreen
 import es.uc3m.android.travelshield.screens.HomeScreen
 import es.uc3m.android.travelshield.screens.MapScreen
 import es.uc3m.android.travelshield.screens.ProfileScreen
 import es.uc3m.android.travelshield.screens.LoginScreen
+import es.uc3m.android.travelshield.screens.SettingsScreen
 import es.uc3m.android.travelshield.screens.SignUpScreen
 import es.uc3m.android.travelshield.screens.categories.*
 
-// Main activity that initializes the TravelShield app
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,7 +34,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-// Composable function that sets up the main application structure
 @Composable
 fun TravelShieldApp() {
     val navController = rememberNavController()
@@ -55,7 +52,6 @@ fun TravelShieldApp() {
     }
 }
 
-// Bottom navigation bar for main screens
 @Composable
 fun BottomNavigationBar(navController: NavHostController) {
     val items = listOf(
@@ -76,20 +72,13 @@ fun BottomNavigationBar(navController: NavHostController) {
                         launchSingleTop = true
                     }
                 },
-                label = {
-                    when (index) {
-                        0 -> Text(text = stringResource(R.string.home))
-                        1 -> Text(text = stringResource(R.string.map))
-                        2 -> Text(text = stringResource(R.string.profile))
-                        else -> Text(text = stringResource(R.string.home))
-                    }
-                },
+                label = { Text(text = item.route.replaceFirstChar { it.uppercase() }) },
                 icon = {
                     when (index) {
-                        0 -> Icon(imageVector = Icons.Default.Home, contentDescription = stringResource(R.string.home))
-                        1 -> Icon(imageVector = Icons.Default.Place, contentDescription = stringResource(R.string.map))
-                        2 -> Icon(imageVector = Icons.Default.Person, contentDescription = stringResource(R.string.profile))
-                        else -> Icon(imageVector = Icons.Default.Home, contentDescription = stringResource(R.string.home))
+                        0 -> Icon(imageVector = Icons.Default.Home, contentDescription = item.route)
+                        1 -> Icon(imageVector = Icons.Default.Place, contentDescription = item.route)
+                        2 -> Icon(imageVector = Icons.Default.Person, contentDescription = item.route)
+                        else -> Icon(imageVector = Icons.Default.Home, contentDescription = item.route)
                     }
                 }
             )
@@ -97,36 +86,56 @@ fun BottomNavigationBar(navController: NavHostController) {
     }
 }
 
-
-// Navigation graph that defines the routes for the app
 @Composable
 fun NavigationGraph(navController: NavHostController, modifier: Modifier) {
+    val countryViewModel: CountryViewModel = viewModel()
+
     NavHost(
         navController = navController,
-        startDestination = NavGraph.Login.route,
+        startDestination = NavGraph.Home.route,
         modifier = modifier
     ) {
-        // Main screens
-        composable(NavGraph.Home.route) { HomeScreen(navController) }
+        // General Screens
+        composable(NavGraph.Home.route) { HomeScreen(navController, countryViewModel) }
         composable(NavGraph.Map.route) { MapScreen(navController) }
         composable(NavGraph.Profile.route) { ProfileScreen(navController) }
 
-        // Country screen with dynamic parameter
-        composable("${NavGraph.Country.route}/{countryName}") { backStackEntry ->
+        // Country Screen
+        composable("country/{countryName}") { backStackEntry ->
             val countryName = backStackEntry.arguments?.getString("countryName") ?: "Unknown"
             CountryScreen(navController, countryName)
         }
 
+        // Login and SignUp Screens
         composable(NavGraph.Login.route) { LoginScreen(navController) }
         composable(NavGraph.SignUp.route) { SignUpScreen(navController) }
+        composable(NavGraph.Settings.route) { SettingsScreen(navController) }
 
-        // Category screens
-        composable(NavGraph.GeneralInfo.route) { GeneralInfoScreen(navController) }
-        composable(NavGraph.Health.route) { HealthScreen(navController) }
-        composable(NavGraph.News.route) { NewsScreen(navController) }
-        composable(NavGraph.Security.route) { SecurityScreen(navController) }
-        composable(NavGraph.Transport.route) { TranportScreen(navController) }
-        composable(NavGraph.Visa.route) { VisaScreen(navController) }
+        // Category Screens (Updated routes with 'categories/' prefix)
+        composable("categories/general_info/{countryName}") { backStackEntry ->
+            val countryName = backStackEntry.arguments?.getString("countryName") ?: "Unknown"
+            GeneralInfoScreen(navController, countryName)
+        }
+        composable("categories/health/{countryName}") { backStackEntry ->
+            val countryName = backStackEntry.arguments?.getString("countryName") ?: "Unknown"
+            HealthScreen(navController, countryName)
+        }
+        composable("categories/visa/{countryName}") { backStackEntry ->
+            val countryName = backStackEntry.arguments?.getString("countryName") ?: "Unknown"
+            VisaScreen(navController, countryName)
+        }
+        composable("categories/security/{countryName}") { backStackEntry ->
+            val countryName = backStackEntry.arguments?.getString("countryName") ?: "Unknown"
+            SecurityScreen(navController, countryName)
+        }
+        composable("categories/news/{countryName}") { backStackEntry ->
+            val countryName = backStackEntry.arguments?.getString("countryName") ?: "Unknown"
+            NewsScreen(navController, countryName)
+        }
+        composable("categories/transport/{countryName}") { backStackEntry ->
+            val countryName = backStackEntry.arguments?.getString("countryName") ?: "Unknown"
+            TransportScreen(navController, countryName)
+        }
     }
 }
 

@@ -29,20 +29,20 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import es.uc3m.android.travelshield.R
-import androidx.compose.ui.res.stringResource
+import es.uc3m.android.travelshield.viewmodel.UserInfoRetrieval
 
 @Composable
-fun ProfileScreen(navController: NavController) {
-
+fun ProfileScreen(navController: NavController, userInfoViewModel: UserInfoRetrieval = viewModel()) {
     var profileImage by remember { mutableStateOf<Bitmap?>(null) }
-    // Android context (permissions and gallery)
     val context = LocalContext.current
     var showDialog by remember { mutableStateOf(false) }
 
-    // Launchers for camera and gallery
+    val userInfo by userInfoViewModel.userInfo.collectAsState()
+
     val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         profileImage = handleCameraResult(result)
     }
@@ -69,19 +69,19 @@ fun ProfileScreen(navController: NavController) {
                 if (profileImage != null) {
                     Image(
                         bitmap = profileImage!!.asImageBitmap(),
-                        contentDescription = stringResource(id = R.string.profile),
+                        contentDescription = "Profile Picture",
                         modifier = Modifier.size(100.dp).clip(CircleShape).border(2.dp, Color.Gray, CircleShape)
                     )
                 } else {
                     Image(
                         painter = painterResource(id = R.drawable.profile_default),
-                        contentDescription = stringResource(id = R.string.profile),
+                        contentDescription = "Profile Picture",
                         modifier = Modifier.size(100.dp).clip(CircleShape).border(2.dp, Color.Gray, CircleShape)
                     )
                 }
                 Icon(
                     imageVector = Icons.Default.Edit,
-                    contentDescription = stringResource(id = R.string.profile),
+                    contentDescription = "Edit Profile",
                     modifier = Modifier.size(24.dp).background(Color.White, CircleShape).padding(4.dp).clickable {
                         showDialog = true
                     }
@@ -91,13 +91,13 @@ fun ProfileScreen(navController: NavController) {
             if (showDialog) {
                 AlertDialog(
                     onDismissRequest = { showDialog = false },
-                    title = { Text(stringResource(id = R.string.profile)) },
-                    text = { Text(stringResource(id = R.string.login_message)) },
+                    title = { Text("Select Profile Picture") },
+                    text = { Text("Choose an option") },
                     confirmButton = {
                         Column(
                             modifier = Modifier.fillMaxWidth(),
                             verticalArrangement = Arrangement.spacedBy(8.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
+                            horizontalAlignment = Alignment.CenterHorizontally // Alinea los botones en el centro
                         ) {
                             Button(onClick = {
                                 showDialog = false
@@ -107,16 +107,16 @@ fun ProfileScreen(navController: NavController) {
                                     requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
                                 }
                             }) {
-                                Text(stringResource(id = R.string.camera))
+                                Text("Take photo")
                             }
                             Button(onClick = {
                                 showDialog = false
                                 galleryLauncher.launch("image/*")
                             }) {
-                                Text(stringResource(id = R.string.gallery))
+                                Text("Choose from gallery")
                             }
                             Button(onClick = { showDialog = false }) {
-                                Text(stringResource(id = R.string.log_out))
+                                Text("Cancel")
                             }
                         }
                     }
@@ -127,8 +127,8 @@ fun ProfileScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(8.dp))
 
             // Name and location
-            Text(text = stringResource(id = R.string.provisional_profile_name), style = MaterialTheme.typography.headlineSmall)
-            Text(text = stringResource(id = R.string.provisional_profile_location), style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
+            Text(text = userInfo?.let { "${it.name} ${it.surname}" } ?: "Loading...", style = MaterialTheme.typography.headlineSmall)
+            Text(text = "Location", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
 
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -137,9 +137,9 @@ fun ProfileScreen(navController: NavController) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                ProfileStat("0", stringResource(id = R.string.profile_stats_countries))
-                ProfileStat("0", stringResource(id = R.string.profile_stats_reviews))
-                ProfileStat("0", stringResource(id = R.string.profile_stats_likes))
+                ProfileStat("0", "Countries traveled")
+                ProfileStat("0", "Reviews written")
+                ProfileStat("0", "Likes given")
             }
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -153,12 +153,11 @@ fun ProfileScreen(navController: NavController) {
                     }
                 }
             ) {
-                Text(stringResource(id = R.string.log_out))
+                Text("Log Out")
             }
         }
     }
 }
-
 
 fun launchCamera(cameraLauncher: androidx.activity.result.ActivityResultLauncher<Intent>) {
     val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)

@@ -22,18 +22,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import es.uc3m.android.travelshield.NavGraph
 import androidx.compose.runtime.remember
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun CountryScreen(navController: NavController, countryName: String) {
+    val countryImageName = "country_${countryName.lowercase().replace(" ", "_")}"
 
-    val context = LocalContext.current
-
-    val imageResId = remember(countryName) {
-        val imageName = "country_${countryName.lowercase().replace(" ", "_")}"
-        context.resources.getIdentifier(imageName, "drawable", context.packageName)
-            .takeIf { it != 0 } ?: R.drawable.country_default
+    // Obtener ID de la imagen en drawable
+    val imageResId = remember(countryImageName) {
+        try {
+            val resId = R.drawable::class.java.getField(countryImageName).getInt(null)
+            resId
+        } catch (e: Exception) {
+            R.drawable.country_default // Imagen por defecto si no existe
+        }
     }
 
     Column(
@@ -56,15 +57,14 @@ fun CountryScreen(navController: NavController, countryName: String) {
                 fontWeight = FontWeight.Bold
             )
 
-            // Heart Icon
-            IconButton(onClick = { /* In the future we'll have here like logic */ }) {
+            // Heart Icon (en drawable heart.png)
+            IconButton(onClick = { /* Acción cuando se marca como favorito */ }) {
                 Icon(
                     painter = painterResource(id = R.drawable.heart),
-                    contentDescription = stringResource(R.string.favourite_icon),
+                    contentDescription = "Favorite",
                     tint = Color.Gray
                 )
             }
-
         }
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -72,7 +72,7 @@ fun CountryScreen(navController: NavController, countryName: String) {
         // Country Image
         Image(
             painter = painterResource(id = imageResId),
-            contentDescription = "$countryName " + stringResource(R.string.image),
+            contentDescription = "$countryName Image",
             modifier = Modifier
                 .fillMaxWidth()
                 .height(200.dp)
@@ -85,13 +85,10 @@ fun CountryScreen(navController: NavController, countryName: String) {
         // Search Bar
         OutlinedTextField(
             value = "",
-            onValueChange = { /* In the future we'll have here search logic */ },
-            placeholder = { Text(stringResource(R.string.search_bar)) },
+            onValueChange = { /* Manejar la búsqueda cuando la base de datos esté lista */ },
+            placeholder = { Text("Search for information") },
             leadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = stringResource(R.string.search_icon)
-                )
+                Icon(imageVector = Icons.Default.Search, contentDescription = "Search Icon")
             },
             shape = RoundedCornerShape(12.dp),
             modifier = Modifier
@@ -99,12 +96,12 @@ fun CountryScreen(navController: NavController, countryName: String) {
                 .height(50.dp)
         )
 
-
         Spacer(modifier = Modifier.height(16.dp))
 
         // Categorías
         CategoryGrid(
             navController = navController,
+            countryName = countryName, // Pass the country name here
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
@@ -112,18 +109,10 @@ fun CountryScreen(navController: NavController, countryName: String) {
     }
 }
 
-
-// Category Grid Layout
+// **Category Grid Layout**
 @Composable
-fun CategoryGrid(navController: NavController, modifier: Modifier = Modifier) {
-    val categories = listOf(
-        stringResource(R.string.categories_general_info),
-        stringResource(R.string.categories_health),
-        stringResource(R.string.categories_visa),
-        stringResource(R.string.categories_security),
-        stringResource(R.string.categories_news),
-        stringResource(R.string.categories_transport)
-    )
+fun CategoryGrid(navController: NavController, countryName: String, modifier: Modifier = Modifier) {
+    val categories = listOf("General Info", "Health", "Visa", "Security", "News", "Transport")
 
     Column(
         modifier = modifier,
@@ -135,43 +124,41 @@ fun CategoryGrid(navController: NavController, modifier: Modifier = Modifier) {
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 for (category in row) {
-                    CategoryItem(name = category, navController = navController)
+                    CategoryItem(name = category, navController = navController, countryName = countryName)
                 }
             }
         }
     }
 }
 
-// Category Item as a Button
+// **Category Item as a Button**
 @Composable
-fun CategoryItem(name: String, navController: NavController) {
-    val context = LocalContext.current
+fun CategoryItem(name: String, navController: NavController, countryName: String) {
+    val route = when (name) {
+        "General Info" -> NavGraph.GeneralInfo.createRoute(countryName)
+        "Health" -> NavGraph.Health.createRoute(countryName)
+        "Visa" -> NavGraph.Visa.createRoute(countryName)
+        "Security" -> NavGraph.Security.createRoute(countryName)
+        "News" -> NavGraph.News.createRoute(countryName)
+        "Transport" -> NavGraph.Transport.createRoute(countryName)
+        else -> NavGraph.Home.route // Fallback (puede cambiarse según lo necesario)
+    }
 
-    // Mapping of categories to their routes
-    val categoryRoutes = mapOf(
-        context.getString(R.string.categories_general_info) to NavGraph.GeneralInfo.route,
-        context.getString(R.string.categories_health) to NavGraph.Health.route,
-        context.getString(R.string.categories_visa) to NavGraph.Visa.route,
-        context.getString(R.string.categories_security) to NavGraph.Security.route,
-        context.getString(R.string.categories_news) to NavGraph.News.route,
-        context.getString(R.string.categories_transport) to NavGraph.Transport.route
-    )
-
-    // Mapping of the categories to their images
-    val categoryImages = mapOf(
-        context.getString(R.string.categories_general_info) to R.drawable.categories_info,
-        context.getString(R.string.categories_health) to R.drawable.categories_hospital,
-        context.getString(R.string.categories_visa) to R.drawable.categories_visa,
-        context.getString(R.string.categories_security) to R.drawable.categories_security,
-        context.getString(R.string.categories_news) to R.drawable.categories_news,
-        context.getString(R.string.categories_transport) to R.drawable.categories_transport
-    )
-
-    val route = categoryRoutes[name] ?: NavGraph.Home.route
-    val imageResId = categoryImages[name] ?: R.drawable.categories_info // Default
+    val imageResId = when (name) {
+        "General Info" -> R.drawable.categories_info
+        "Health" -> R.drawable.categories_hospital
+        "Visa" -> R.drawable.categories_visa
+        "Security" -> R.drawable.categories_security
+        "News" -> R.drawable.categories_news
+        "Transport" -> R.drawable.categories_transport
+        else -> R.drawable.categories_info // Default to general info icon if something is missing
+    }
 
     Button(
-        onClick = { navController.navigate(route) },
+        onClick = {
+            // Correctly navigate using the createRoute method
+            navController.navigate(route)
+        },
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier.size(100.dp),
         colors = ButtonDefaults.buttonColors(
@@ -185,7 +172,7 @@ fun CategoryItem(name: String, navController: NavController) {
         ) {
             Image(
                 painter = painterResource(id = imageResId),
-                contentDescription = name,
+                contentDescription = "$name Icon",
                 modifier = Modifier.size(40.dp)
             )
 
@@ -197,11 +184,9 @@ fun CategoryItem(name: String, navController: NavController) {
 }
 
 
-
-
 @Preview(showBackground = true)
 @Composable
 fun PreviewCountryScreen() {
     val navController = rememberNavController() // Mock NavController for preview
-    CountryScreen(navController = navController, stringResource(R.string.usa))
+    CountryScreen(navController = navController, countryName = "USA")
 }

@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Alignment
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
@@ -33,7 +34,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import es.uc3m.android.travelshield.R
+import es.uc3m.android.travelshield.viewmodel.Review
 import es.uc3m.android.travelshield.viewmodel.UserInfoRetrieval
+import es.uc3m.android.travelshield.viewmodel.UserReviewsViewModel
 
 @Composable
 fun ProfileScreen(navController: NavController, userInfoViewModel: UserInfoRetrieval = viewModel()) {
@@ -56,6 +59,9 @@ fun ProfileScreen(navController: NavController, userInfoViewModel: UserInfoRetri
             launchCamera(cameraLauncher)
         }
     }
+    val userReviewsViewModel: UserReviewsViewModel = viewModel()
+    val reviews by userReviewsViewModel.reviews.collectAsState()
+
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -144,6 +150,15 @@ fun ProfileScreen(navController: NavController, userInfoViewModel: UserInfoRetri
 
             Spacer(modifier = Modifier.height(20.dp))
 
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text("My Reviews", style = MaterialTheme.typography.titleMedium)
+                Spacer(modifier = Modifier.height(8.dp))
+                reviews.forEach { review ->
+                    ReviewItem(review)
+                    Divider()
+                }
+            }
+
             // Log out button
             Button(
                 onClick = {
@@ -183,6 +198,23 @@ fun ProfileStat(value: String, label: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(text = value, style = MaterialTheme.typography.titleMedium)
         Text(text = label, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+    }
+}
+
+
+@Composable
+fun ReviewItem(review: Review) {
+    Column(modifier = Modifier.padding(vertical = 8.dp)) {
+        Text(text = review.country, style = MaterialTheme.typography.titleSmall)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            repeat(review.rating.toInt()) {
+                Icon(Icons.Default.Star, contentDescription = "Star", tint = Color.LightGray)
+            }
+            if (review.rating - review.rating.toInt() >= 0.5) {
+                Icon(Icons.Default.Star, contentDescription = "Half Star", tint = Color.Blue)
+            }
+        }
+        Text(text = review.comment, style = MaterialTheme.typography.bodyMedium)
     }
 }
 

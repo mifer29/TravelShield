@@ -1,12 +1,15 @@
 package es.uc3m.android.travelshield.screens
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,7 +24,9 @@ import es.uc3m.android.travelshield.R
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import es.uc3m.android.travelshield.NavGraph
-import androidx.compose.runtime.remember
+
+import androidx.lifecycle.viewmodel.compose.viewModel
+import es.uc3m.android.travelshield.viewmodel.Review
 
 @Composable
 fun CountryScreen(navController: NavController, countryName: String) {
@@ -37,11 +42,14 @@ fun CountryScreen(navController: NavController, countryName: String) {
         }
     }
 
+
+
+    // Make the entire column scrollable by wrapping it with a Scrollable Column
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Top
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState())
     ) {
         Spacer(modifier = Modifier.height(4.dp))
 
@@ -101,11 +109,69 @@ fun CountryScreen(navController: NavController, countryName: String) {
         // Categorías
         CategoryGrid(
             navController = navController,
-            countryName = countryName, // Pass the country name here
+            countryName = countryName,
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
         )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Reviews Section
+        Text(
+            text = "Reviews",
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(vertical = 8.dp)
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Write Review Button
+        Button(
+            onClick = { navController.navigate(NavGraph.WriteReview.createRoute(countryName)) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            shape = RoundedCornerShape(12.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            )
+        ) {
+            Text("Write a Review", fontSize = 16.sp)
+        }
+    }
+}
+
+// **Review Item to display individual reviews**
+@Composable
+fun ReviewItemCountry(review: Review) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text(
+                text = review.comment,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Normal,
+                color = Color.Gray
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Rating: ${review.rating}",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "Reviewed by: ${review.userId}",
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Light
+            )
+        }
     }
 }
 
@@ -116,7 +182,7 @@ fun CategoryGrid(navController: NavController, countryName: String, modifier: Mo
 
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.SpaceEvenly // Distributes rows evenly
+        verticalArrangement = Arrangement.spacedBy(16.dp) // Adds spacing between rows
     ) {
         for (row in categories.chunked(3)) { // 3 items per row
             Row(
@@ -182,7 +248,6 @@ fun CategoryItem(name: String, navController: NavController, countryName: String
         }
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable

@@ -23,7 +23,9 @@ import es.uc3m.android.travelshield.screens.ProfileScreen
 import es.uc3m.android.travelshield.screens.LoginScreen
 import es.uc3m.android.travelshield.screens.SettingsScreen
 import es.uc3m.android.travelshield.screens.SignUpScreen
+import es.uc3m.android.travelshield.screens.WriteReviewScreen
 import es.uc3m.android.travelshield.screens.categories.*
+import es.uc3m.android.travelshield.ui.theme.TravelShieldTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,21 +38,26 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun TravelShieldApp() {
-    val navController = rememberNavController()
-    val currentRoute by navController.currentBackStackEntryFlow.collectAsState(initial = navController.currentBackStackEntry)
+    TravelShieldTheme(dynamicColor = false) { // Fuerza los colores definidos en color.kt
+        val navController = rememberNavController()
+        val currentRoute by navController.currentBackStackEntryFlow.collectAsState(
+            initial = navController.currentBackStackEntry
+        )
 
-    Scaffold(
-        bottomBar = {
-            if (currentRoute?.destination?.route != NavGraph.Login.route &&
-                currentRoute?.destination?.route != NavGraph.SignUp.route)
-            {
-                BottomNavigationBar(navController)
+        Scaffold(
+            bottomBar = {
+                if (currentRoute?.destination?.route != NavGraph.Login.route &&
+                    currentRoute?.destination?.route != NavGraph.SignUp.route
+                ) {
+                    BottomNavigationBar(navController)
+                }
             }
+        ) { paddingValues ->
+            NavigationGraph(navController, Modifier.padding(paddingValues))
         }
-    ) { paddingValues ->
-        NavigationGraph(navController, Modifier.padding(paddingValues))
     }
 }
+
 
 @Composable
 fun BottomNavigationBar(navController: NavHostController) {
@@ -61,7 +68,9 @@ fun BottomNavigationBar(navController: NavHostController) {
     )
     var selectedItem by remember { mutableStateOf(0) }
 
-    NavigationBar {
+    NavigationBar(
+        containerColor = MaterialTheme.colorScheme.primary // Fondo de la barra
+    ) {
         items.forEachIndexed { index, item ->
             NavigationBarItem(
                 selected = index == selectedItem,
@@ -80,10 +89,18 @@ fun BottomNavigationBar(navController: NavHostController) {
                         2 -> Icon(imageVector = Icons.Default.Person, contentDescription = item.route)
                         else -> Icon(imageVector = Icons.Default.Home, contentDescription = item.route)
                     }
-                }
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = MaterialTheme.colorScheme.onPrimary,
+                    unselectedIconColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f),
+                    selectedTextColor = MaterialTheme.colorScheme.onPrimary,
+                    unselectedTextColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f),
+                    indicatorColor = MaterialTheme.colorScheme.secondary // Fondo bajo el icono/texto seleccionado
+                )
             )
         }
     }
+
 }
 
 @Composable
@@ -136,6 +153,11 @@ fun NavigationGraph(navController: NavHostController, modifier: Modifier) {
             val countryName = backStackEntry.arguments?.getString("countryName") ?: "Unknown"
             TransportScreen(navController, countryName)
         }
+        composable("write_review/{countryName}") { backStackEntry ->
+            val countryName = backStackEntry.arguments?.getString("countryName") ?: ""
+            WriteReviewScreen(countryName = countryName, navController = navController)
+        }
+
     }
 }
 

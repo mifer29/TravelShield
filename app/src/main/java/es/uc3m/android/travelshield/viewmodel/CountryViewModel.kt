@@ -42,7 +42,7 @@ class CountryViewModel : ViewModel() {
                 }
         }
     }
-
+    // IGUAL PODEMOS PONER ESTAS FUNCIONES EN UNA SCREEN AUXILIAR PARA METER PAÍSES MÁS FÁCIL
     // Add a new country to Firestore
     fun addCountry(countryDoc: CountryDoc) {
         viewModelScope.launch {

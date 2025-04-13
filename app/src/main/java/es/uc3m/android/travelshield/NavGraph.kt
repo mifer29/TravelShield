@@ -53,4 +53,8 @@ sealed class NavGraph(val route: String) {
     data object Visa : NavGraph(VISA_ROUTE) {
         fun createRoute(countryName: String) = "categories/visa/$countryName"
     }
+
+    data object WriteReview {
+        fun createRoute(countryName: String) = "write_review/$countryName"
+    }
 }

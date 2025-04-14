@@ -1,7 +1,5 @@
 package es.uc3m.android.travelshield.viewmodel
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestore
@@ -44,17 +42,20 @@ class CountryViewModel : ViewModel() {
     }
     // IGUAL PODEMOS PONER ESTAS FUNCIONES EN UNA SCREEN AUXILIAR PARA METER PAÍSES MÁS FÁCIL
     // Add a new country to Firestore
-    fun addCountry(countryDoc: CountryDoc) {
+    fun addCountry(vararg countryDocs: CountryDoc) {
         viewModelScope.launch {
-            firestore.collection(COUNTRIES_COLLECTION)
-                .add(countryDoc)
-                .addOnSuccessListener {
-                    fetchCountries() // Refresh the list after adding
-                }
-                .addOnFailureListener { exception ->
-                    _toastMessage.value = "Failed to add country: ${exception.message}"
-                    Log.e("CountryViewModel", "Error adding country", exception)
-                }
+            countryDocs.forEach { countryDoc ->
+                firestore.collection(COUNTRIES_COLLECTION)
+                    .add(countryDoc)
+                    .addOnSuccessListener {
+                        Log.d("CountryViewModel", "Added country: ${countryDoc.name}")
+                        fetchCountries() // Refresh after each, or move outside the loop
+                    }
+                    .addOnFailureListener { exception ->
+                        _toastMessage.value = "Failed to add ${countryDoc.name}: ${exception.message}"
+                        Log.e("CountryViewModel", "Error adding country: ${countryDoc.name}", exception)
+                    }
+            }
         }
     }
 

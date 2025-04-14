@@ -34,17 +34,21 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import es.uc3m.android.travelshield.R
+import es.uc3m.android.travelshield.viewmodel.LikeCountViewModel
 import es.uc3m.android.travelshield.viewmodel.Review
 import es.uc3m.android.travelshield.viewmodel.UserInfoRetrieval
 import es.uc3m.android.travelshield.viewmodel.UserReviewsViewModel
 
 @Composable
-fun ProfileScreen(navController: NavController, userInfoViewModel: UserInfoRetrieval = viewModel()) {
+fun ProfileScreen(navController: NavController,
+                  userInfoViewModel: UserInfoRetrieval = viewModel(),
+                  likeCountViewModel: LikeCountViewModel = viewModel()) {
     var profileImage by remember { mutableStateOf<Bitmap?>(null) }
     val context = LocalContext.current
     var showDialog by remember { mutableStateOf(false) }
 
     val userInfo by userInfoViewModel.userInfo.collectAsState()
+    val likeCount by likeCountViewModel.likeCount.collectAsState()
 
     val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         profileImage = handleCameraResult(result)
@@ -145,7 +149,7 @@ fun ProfileScreen(navController: NavController, userInfoViewModel: UserInfoRetri
             ) {
                 ProfileStat("0", "Countries traveled")
                 ProfileStat("0", "Reviews written")
-                ProfileStat("0", "Likes given")
+                ProfileStat(likeCount.toString(), "Likes given")
             }
 
             Spacer(modifier = Modifier.height(20.dp))

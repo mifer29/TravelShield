@@ -24,8 +24,9 @@ import es.uc3m.android.travelshield.R
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import es.uc3m.android.travelshield.NavGraph
-
+import es.uc3m.android.travelshield.viewmodel.LikeViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import es.uc3m.android.travelshield.viewmodel.LikeCountViewModel
 import es.uc3m.android.travelshield.viewmodel.Review
 
 @Composable
@@ -42,7 +43,16 @@ fun CountryScreen(navController: NavController, countryName: String) {
         }
     }
 
+    val likeCountViewModel: LikeCountViewModel = viewModel()
+    val likeViewModel: LikeViewModel = remember {
+        LikeViewModel(likeCountViewModel)
+    }
+    val liked by likeViewModel.liked.collectAsState()
 
+    // Load like state when screen is composed
+    LaunchedEffect(countryName) {
+        likeViewModel.loadLikeStatus(countryName)
+    }
 
     // Make the entire column scrollable by wrapping it with a Scrollable Column
     Column(
@@ -66,11 +76,13 @@ fun CountryScreen(navController: NavController, countryName: String) {
             )
 
             // Heart Icon (en drawable heart.png)
-            IconButton(onClick = { /* Acción cuando se marca como favorito */ }) {
+            IconButton(onClick = {
+                likeViewModel.toggleLike(countryName)
+            }) {
                 Icon(
                     painter = painterResource(id = R.drawable.heart),
                     contentDescription = "Favorite",
-                    tint = Color.Gray
+                    tint = if (liked) Color.Red else Color.Gray
                 )
             }
         }

@@ -64,6 +64,14 @@ fun HomeScreen(navController: NavController, viewModel: CountryViewModel) {
                 CountryCard(country, navController)
             }
         }
+
+        // FOR DEV USE! UNCOMMENT FOR MASSIVE COUNTRY UPLOAD
+        //Spacer(modifier = Modifier.height(24.dp))
+        //Button(onClick = {
+        //    navController.navigate("upload_countries")
+        //}) {
+        //    Text("Upload Countries")
+        //}
     }
 }
 

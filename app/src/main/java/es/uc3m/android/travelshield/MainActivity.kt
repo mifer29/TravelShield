@@ -17,6 +17,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import es.uc3m.android.travelshield.viewmodel.CountryViewModel
 import es.uc3m.android.travelshield.screens.CountryScreen
+import es.uc3m.android.travelshield.screens.CountryUploadScreen
 import es.uc3m.android.travelshield.screens.HomeScreen
 import es.uc3m.android.travelshield.screens.MapScreen
 import es.uc3m.android.travelshield.screens.ProfileScreen
@@ -109,7 +110,7 @@ fun NavigationGraph(navController: NavHostController, modifier: Modifier) {
 
     NavHost(
         navController = navController,
-        startDestination = NavGraph.Home.route,
+        startDestination = NavGraph.Login.route,
         modifier = modifier
     ) {
         // General Screens
@@ -157,7 +158,9 @@ fun NavigationGraph(navController: NavHostController, modifier: Modifier) {
             val countryName = backStackEntry.arguments?.getString("countryName") ?: ""
             WriteReviewScreen(countryName = countryName, navController = navController)
         }
-
+        composable(NavGraph.UploadCountries.route) {
+            CountryUploadScreen(viewModel = countryViewModel)
+        }
     }
 }
 

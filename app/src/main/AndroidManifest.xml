@@ -20,7 +20,6 @@
         android:theme="@style/Theme.TravelShield"
         tools:targetApi="31">
 
-        <!-- ✅ ESTA ES LA LÍNEA QUE FALTABA -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="${MAPS_API_KEY}" />

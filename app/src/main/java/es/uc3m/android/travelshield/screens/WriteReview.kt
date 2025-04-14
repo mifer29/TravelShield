@@ -12,6 +12,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import es.uc3m.android.travelshield.viewmodel.Review
 import es.uc3m.android.travelshield.viewmodel.UserReviewsViewModel
 import kotlinx.coroutines.launch
@@ -22,15 +24,45 @@ fun WriteReviewScreen(countryName: String, navController: NavController) {
     var reviewText by remember { mutableStateOf("") }
     var rating by remember { mutableStateOf(0f) }
     var isSubmitting by remember { mutableStateOf(false) }
+    var userName by remember { mutableStateOf("Anonymous") } // Default value
     val viewModel: UserReviewsViewModel = viewModel()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
+    // Fetch the username from Firestore
+    fun fetchUserName(userId: String) {
+        val db = FirebaseFirestore.getInstance()
+        val userRef = db.collection("users").document(userId)
+
+        userRef.get().addOnSuccessListener { document ->
+            if (document != null && document.exists()) {
+                // Fetch the 'name' field from Firestore
+                userName = document.getString("name") ?: "Anonymous"
+            } else {
+                userName = "Anonymous"
+            }
+        }.addOnFailureListener { exception ->
+            userName = "Anonymous" // Fallback to "Anonymous" on failure
+            Toast.makeText(context, "Error fetching user data", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     // Submit Review
     fun submitReview() {
         if (reviewText.isNotBlank()) {
+            val userId = FirebaseAuth.getInstance().currentUser?.uid
+
+            if (userId == null) {
+                Toast.makeText(context, "User not authenticated", Toast.LENGTH_SHORT).show()
+                return
+            }
+
+            // Fetch the username before submitting the review
+            fetchUserName(userId)
+
             val review = Review(
-                userId = "dummy_user_id",  // You can fetch the actual user ID from FirebaseAuth
+                userId = userId,
+                userName = userName, // Use the fetched userName
                 country = countryName,
                 rating = rating.toDouble(),
                 comment = reviewText,
@@ -68,7 +100,8 @@ fun WriteReviewScreen(countryName: String, navController: NavController) {
             label = { Text("Your review") },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(200.dp)
+                .height(200.dp),
+            enabled = !isSubmitting // Disable while submitting
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -79,7 +112,8 @@ fun WriteReviewScreen(countryName: String, navController: NavController) {
             onValueChange = { rating = it },
             valueRange = 0f..5f,
             steps = 4,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !isSubmitting // Disable while submitting
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -97,3 +131,5 @@ fun WriteReviewScreen(countryName: String, navController: NavController) {
         }
     }
 }
+
+

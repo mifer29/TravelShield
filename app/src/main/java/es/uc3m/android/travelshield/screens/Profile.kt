@@ -14,7 +14,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -28,6 +30,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -66,117 +69,132 @@ fun ProfileScreen(navController: NavController,
     val userReviewsViewModel: UserReviewsViewModel = viewModel()
     val reviews by userReviewsViewModel.reviews.collectAsState()
 
-
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.TopCenter
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize().padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Box(contentAlignment = Alignment.TopEnd) {
-                if (profileImage != null) {
-                    Image(
-                        bitmap = profileImage!!.asImageBitmap(),
-                        contentDescription = "Profile Picture",
-                        modifier = Modifier.size(100.dp).clip(CircleShape).border(2.dp, Color.Gray, CircleShape)
-                    )
-                } else {
-                    Image(
-                        painter = painterResource(id = R.drawable.profile_default),
-                        contentDescription = "Profile Picture",
-                        modifier = Modifier.size(100.dp).clip(CircleShape).border(2.dp, Color.Gray, CircleShape)
+        ScrollableColumn(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+            // Center profile image and name
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Box(contentAlignment = Alignment.TopEnd) {
+                    if (profileImage != null) {
+                        Image(
+                            bitmap = profileImage!!.asImageBitmap(),
+                            contentDescription = "Profile Picture",
+                            modifier = Modifier.size(100.dp).clip(CircleShape).border(2.dp, Color.Gray, CircleShape)
+                        )
+                    } else {
+                        Image(
+                            painter = painterResource(id = R.drawable.profile_default),
+                            contentDescription = "Profile Picture",
+                            modifier = Modifier.size(100.dp).clip(CircleShape).border(2.dp, Color.Gray, CircleShape)
+                        )
+                    }
+                    // Ensure the Edit Icon is placed on top of the profile image and clickable
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "Edit Profile",
+                        modifier = Modifier
+                            .size(24.dp)
+                            .background(Color.White, CircleShape)
+                            .padding(4.dp)
+                            .clickable {
+                                showDialog = true // Trigger the dialog to show
+                            }
+                            .align(Alignment.TopEnd) // Ensure it's positioned correctly on top-right corner
                     )
                 }
-                Icon(
-                    imageVector = Icons.Default.Edit,
-                    contentDescription = "Edit Profile",
-                    modifier = Modifier.size(24.dp).background(Color.White, CircleShape).padding(4.dp).clickable {
-                        showDialog = true
-                    }
-                )
-            }
 
-            if (showDialog) {
-                AlertDialog(
-                    onDismissRequest = { showDialog = false },
-                    title = { Text("Select Profile Picture") },
-                    text = { Text("Choose an option") },
-                    confirmButton = {
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally // Alinea los botones en el centro
-                        ) {
-                            Button(onClick = {
-                                showDialog = false
-                                if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-                                    launchCamera(cameraLauncher)
-                                } else {
-                                    requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
-                                }
-                            }) {
-                                Text("Take photo")
-                            }
-                            Button(onClick = {
-                                showDialog = false
-                                galleryLauncher.launch("image/*")
-                            }) {
-                                Text("Choose from gallery")
-                            }
-                            Button(onClick = { showDialog = false }) {
-                                Text("Cancel")
-                            }
+                // Name and location centered
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(text = userInfo?.let { "${it.name} ${it.surname}" } ?: "Loading...", style = MaterialTheme.typography.headlineSmall, textAlign = TextAlign.Center)
+                Text(text = "Location", style = MaterialTheme.typography.bodyMedium, color = Color.Gray, textAlign = TextAlign.Center)
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Statistics centered
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    ProfileStat("0", "Countries traveled")
+                    ProfileStat("0", "Reviews written")
+                    ProfileStat(likeCount.toString(), "Likes given")
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                // Reviews section
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Text("My Reviews", style = MaterialTheme.typography.titleMedium)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    reviews.forEach { review ->
+                        ReviewItem(review)
+                        Divider()
+                    }
+                }
+
+                // Log out button
+                Button(
+                    onClick = {
+                        navController.navigate("login") {
+                            popUpTo("home") { inclusive = true }
+                            launchSingleTop = true
                         }
                     }
-                )
-            }
-
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Name and location
-            Text(text = userInfo?.let { "${it.name} ${it.surname}" } ?: "Loading...", style = MaterialTheme.typography.headlineSmall)
-            Text(text = "Location", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Statistics
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                ProfileStat("0", "Countries traveled")
-                ProfileStat("0", "Reviews written")
-                ProfileStat(likeCount.toString(), "Likes given")
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Text("My Reviews", style = MaterialTheme.typography.titleMedium)
-                Spacer(modifier = Modifier.height(8.dp))
-                reviews.forEach { review ->
-                    ReviewItem(review)
-                    Divider()
+                ) {
+                    Text("Log Out")
                 }
-            }
-
-            // Log out button
-            Button(
-                onClick = {
-                    navController.navigate("login") {
-                        popUpTo("home") { inclusive = true }
-                        launchSingleTop = true
-                    }
-                }
-            ) {
-                Text("Log Out")
             }
         }
     }
+
+    // Dialog for changing the profile picture
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text("Select Profile Picture") },
+            text = { Text("Choose an option") },
+            confirmButton = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally // Align buttons in the center
+                ) {
+                    Button(onClick = {
+                        showDialog = false
+                        if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                            launchCamera(cameraLauncher)
+                        } else {
+                            requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+                        }
+                    }) {
+                        Text("Take photo")
+                    }
+                    Button(onClick = {
+                        showDialog = false
+                        galleryLauncher.launch("image/*")
+                    }) {
+                        Text("Choose from gallery")
+                    }
+                    Button(onClick = { showDialog = false }) {
+                        Text("Cancel")
+                    }
+                }
+            }
+        )
+    }
 }
+
+@Composable
+fun ScrollableColumn(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
+    Column(modifier = modifier.verticalScroll(rememberScrollState()), content = content)
+}
+
+
 
 fun launchCamera(cameraLauncher: androidx.activity.result.ActivityResultLauncher<Intent>) {
     val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)

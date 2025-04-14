@@ -50,4 +50,19 @@ class LikeViewModel(
             likeCountViewModel?.loadLikeCount()
         }
     }
+
+    private val _likedCountries = MutableStateFlow<List<String>>(emptyList())
+    val likedCountries: StateFlow<List<String>> = _likedCountries
+
+    fun loadLikedCountries() {
+        val userId = auth.currentUser?.uid ?: return
+        firestore.collection("likes")
+            .document(userId)
+            .collection("countries")
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val names = snapshot.documents.map { it.id }
+                _likedCountries.value = names
+            }
+    }
 }

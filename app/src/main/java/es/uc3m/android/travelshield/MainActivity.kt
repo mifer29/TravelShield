@@ -16,6 +16,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import es.uc3m.android.travelshield.viewmodel.CountryViewModel
+import es.uc3m.android.travelshield.viewmodel.LikeViewModel
 import es.uc3m.android.travelshield.screens.CountryScreen
 import es.uc3m.android.travelshield.screens.CountryUploadScreen
 import es.uc3m.android.travelshield.screens.HomeScreen
@@ -27,6 +28,8 @@ import es.uc3m.android.travelshield.screens.SignUpScreen
 import es.uc3m.android.travelshield.screens.WriteReviewScreen
 import es.uc3m.android.travelshield.screens.categories.*
 import es.uc3m.android.travelshield.ui.theme.TravelShieldTheme
+
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -107,6 +110,7 @@ fun BottomNavigationBar(navController: NavHostController) {
 @Composable
 fun NavigationGraph(navController: NavHostController, modifier: Modifier) {
     val countryViewModel: CountryViewModel = viewModel()
+    val likeViewModel: LikeViewModel = viewModel()
 
     NavHost(
         navController = navController,
@@ -114,7 +118,7 @@ fun NavigationGraph(navController: NavHostController, modifier: Modifier) {
         modifier = modifier
     ) {
         // General Screens
-        composable(NavGraph.Home.route) { HomeScreen(navController, countryViewModel) }
+        composable(NavGraph.Home.route) { HomeScreen(navController, countryViewModel, likeViewModel) }
         composable(NavGraph.Map.route) { MapScreen(navController) }
         composable(NavGraph.Profile.route) { ProfileScreen(navController) }
 

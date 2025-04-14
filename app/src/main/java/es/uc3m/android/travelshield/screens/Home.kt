@@ -8,9 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -24,17 +22,34 @@ import androidx.navigation.NavController
 import es.uc3m.android.travelshield.R
 import es.uc3m.android.travelshield.viewmodel.CountryViewModel
 import es.uc3m.android.travelshield.viewmodel.CountryDoc
+import es.uc3m.android.travelshield.viewmodel.LikeViewModel
 
 @Composable
-fun HomeScreen(navController: NavController, viewModel: CountryViewModel) {
-    val countries by viewModel.countries.collectAsState()
+fun HomeScreen(
+    navController: NavController,
+    countryViewModel: CountryViewModel,
+    likeViewModel: LikeViewModel
+) {
+    val countries by countryViewModel.countries.collectAsState()
+    val likedCountries by likeViewModel.likedCountries.collectAsState()
+    val searchQuery = remember { mutableStateOf("") }
+
+    LaunchedEffect(Unit) {
+        likeViewModel.loadLikedCountries()
+    }
+
+    val filteredCountries = countries.filter {
+        it.name.contains(searchQuery.value.trim(), ignoreCase = true)
+    }
+
+    val likedCountryDocs = countries.filter { it.name in likedCountries }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        TopSection()
+        TopSection(searchQuery)
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
@@ -44,39 +59,39 @@ fun HomeScreen(navController: NavController, viewModel: CountryViewModel) {
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
-        LazyRow(modifier = Modifier.fillMaxWidth()) {
-            items(countries) { country ->
-                CountryCard(country, navController)
+        if (filteredCountries.isEmpty()) {
+            Text("No destinations match your search.")
+        } else {
+            LazyRow(modifier = Modifier.fillMaxWidth()) {
+                items(filteredCountries) { country ->
+                    CountryCard(country, navController)
+                }
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Popular Destinations",
+            text = "Liked Destinations",
             fontSize = 24.sp,
             style = MaterialTheme.typography.titleLarge,
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
-        LazyRow(modifier = Modifier.fillMaxWidth()) {
-            items(countries) { country ->
-                CountryCard(country, navController)
+        if (likedCountryDocs.isEmpty()) {
+            Text("You haven't liked any countries yet.")
+        } else {
+            LazyRow(modifier = Modifier.fillMaxWidth()) {
+                items(likedCountryDocs) { country ->
+                    CountryCard(country, navController)
+                }
             }
         }
-
-        // FOR DEV USE! UNCOMMENT FOR MASSIVE COUNTRY UPLOAD
-        //Spacer(modifier = Modifier.height(24.dp))
-        //Button(onClick = {
-        //    navController.navigate("upload_countries")
-        //}) {
-        //    Text("Upload Countries")
-        //}
     }
 }
 
 @Composable
-fun TopSection() {
+fun TopSection(searchQuery: MutableState<String>) {
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -101,15 +116,15 @@ fun TopSection() {
             fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(8.dp))
-        SearchBar()
+        SearchBar(searchQuery)
     }
 }
 
 @Composable
-fun SearchBar() {
+fun SearchBar(searchQuery: MutableState<String>) {
     TextField(
-        value = "",
-        onValueChange = {},
+        value = searchQuery.value,
+        onValueChange = { searchQuery.value = it },
         placeholder = { Text("Search for your new adventure") },
         leadingIcon = {
             Icon(imageVector = Icons.Default.Notifications, contentDescription = "Search")
@@ -147,10 +162,15 @@ fun CountryCard(country: CountryDoc, navController: NavController) {
             style = MaterialTheme.typography.bodyLarge
         )
     }
+    // FOR DEV USE! UNCOMMENT FOR MASSIVE COUNTRY UPLOAD
+    //Spacer(modifier = Modifier.height(24.dp))
+    //Button(onClick = {
+    //    navController.navigate("upload_countries")
+    //}) {
+    //    Text("Upload Countries")
+    //}
 }
 
-
-// This function should be in an auxiliary functions file
 fun getCountryImageResId(countryName: String): Int {
     val imageName = "country_${countryName.lowercase().replace(" ", "_")}"
     return try {

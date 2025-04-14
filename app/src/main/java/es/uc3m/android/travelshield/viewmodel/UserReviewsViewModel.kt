@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.toObject
-import es.uc3m.android.travelshield.viewmodel.Review
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -29,7 +28,8 @@ class UserReviewsViewModel : ViewModel() {
         fetchUserReviews()
     }
 
-    private fun fetchUserReviews() {
+    // Fetch reviews for the authenticated user
+    fun fetchUserReviews() {
         viewModelScope.launch {
             val userId = auth.currentUser?.uid
             if (userId == null) {
@@ -49,15 +49,36 @@ class UserReviewsViewModel : ViewModel() {
                 }
                 .addOnFailureListener { exception ->
                     _toastMessage.value = "Failed to fetch reviews: ${exception.message}"
-                    Log.e(TAG, "Error fetching reviews", exception)
+                    Log.e(TAG, "Error fetching user reviews", exception)
                 }
         }
     }
 
-    // Function to add a review to Firestore
+    // Fetch reviews for a specific country
+    fun fetchReviewsByCountry(country: String) {
+        viewModelScope.launch {
+            firestore.collection(REVIEWS_COLLECTION)
+                .whereEqualTo("country", country)
+                .get()
+                .addOnSuccessListener { result ->
+                    val reviewList = result.mapNotNull { doc ->
+                        doc.toObject<Review>()
+                    }
+                    _reviews.value = reviewList
+                }
+                .addOnFailureListener { exception ->
+                    _toastMessage.value = "Failed to fetch reviews: ${exception.message}"
+                    Log.e(TAG, "Error fetching reviews by country", exception)
+                }
+        }
+    }
+
+    // Add a review to Firestore
     fun addReview(review: Review) {
         viewModelScope.launch {
             val userId = auth.currentUser?.uid
+            val userName = auth.currentUser?.displayName ?: "Anonymous"  // Get the user's name (or default to "Anonymous")
+
             if (userId == null) {
                 _toastMessage.value = "User not authenticated."
                 Log.e(TAG, "User ID is null")
@@ -67,6 +88,7 @@ class UserReviewsViewModel : ViewModel() {
             try {
                 val reviewData = hashMapOf(
                     "userId" to userId,
+                    "userName" to userName,  // Add userName to the review
                     "country" to review.country,
                     "rating" to review.rating,
                     "comment" to review.comment,
@@ -77,7 +99,7 @@ class UserReviewsViewModel : ViewModel() {
                     .add(reviewData)
                     .addOnSuccessListener {
                         _toastMessage.value = "Review added successfully!"
-                        fetchUserReviews() // Refresh reviews after adding
+                        fetchUserReviews()  // Refresh user reviews after adding a new one
                     }
                     .addOnFailureListener { exception ->
                         _toastMessage.value = "Failed to add review: ${exception.message}"

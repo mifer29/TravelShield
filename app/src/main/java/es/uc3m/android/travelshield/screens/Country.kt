@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -28,6 +29,7 @@ import es.uc3m.android.travelshield.viewmodel.LikeViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import es.uc3m.android.travelshield.viewmodel.LikeCountViewModel
 import es.uc3m.android.travelshield.viewmodel.Review
+import es.uc3m.android.travelshield.viewmodel.UserReviewsViewModel
 
 @Composable
 fun CountryScreen(navController: NavController, countryName: String) {
@@ -53,6 +55,14 @@ fun CountryScreen(navController: NavController, countryName: String) {
     LaunchedEffect(countryName) {
         likeViewModel.loadLikeStatus(countryName)
     }
+
+    // Reviews ViewModel
+    val userReviewsViewModel: UserReviewsViewModel = viewModel()
+    LaunchedEffect(countryName) {
+        userReviewsViewModel.fetchReviewsByCountry(countryName) // Trigger reviews fetch
+    }
+
+    val userReviews by userReviewsViewModel.reviews.collectAsState()
 
     // Make the entire column scrollable by wrapping it with a Scrollable Column
     Column(
@@ -105,7 +115,7 @@ fun CountryScreen(navController: NavController, countryName: String) {
         // Search Bar
         OutlinedTextField(
             value = "",
-            onValueChange = { /* Manejar la búsqueda cuando la base de datos esté lista */ },
+            onValueChange = { /* Handle search when DB is ready */ },
             placeholder = { Text("Search for information") },
             leadingIcon = {
                 Icon(imageVector = Icons.Default.Search, contentDescription = "Search Icon")
@@ -138,6 +148,15 @@ fun CountryScreen(navController: NavController, countryName: String) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Display Reviews
+        if (userReviews.isNotEmpty()) {
+            userReviews.forEach { review ->
+                ReviewItemCountry(review = review)
+            }
+        } else {
+            Text("No reviews available.")
+        }
+
         // Write Review Button
         Button(
             onClick = { navController.navigate(NavGraph.WriteReview.createRoute(countryName)) },
@@ -155,31 +174,50 @@ fun CountryScreen(navController: NavController, countryName: String) {
     }
 }
 
+
 // **Review Item to display individual reviews**
 @Composable
 fun ReviewItemCountry(review: Review) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
+        Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 text = review.comment,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Normal,
                 color = Color.Gray
             )
+
             Spacer(modifier = Modifier.height(8.dp))
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                repeat(review.rating.toInt()) {
+                    Icon(
+                        imageVector = Icons.Default.Star,
+                        contentDescription = "Star",
+                        tint = Color.Gray,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+                if (review.rating - review.rating.toInt() >= 0.5) {
+                    Icon(
+                        imageVector = Icons.Default.Star,
+                        contentDescription = "Half Star",
+                        tint = Color.Gray,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(6.dp))
+
             Text(
-                text = "Rating: ${review.rating}",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "Reviewed by: ${review.userId}",
+                text = "Reviewed by: ${review.userName ?: review.userId}",
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Light
             )

@@ -30,6 +30,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
@@ -41,17 +42,21 @@ import es.uc3m.android.travelshield.viewmodel.LikeCountViewModel
 import es.uc3m.android.travelshield.viewmodel.Review
 import es.uc3m.android.travelshield.viewmodel.UserInfoRetrieval
 import es.uc3m.android.travelshield.viewmodel.UserReviewsViewModel
+import es.uc3m.android.travelshield.viewmodel.TripViewModel
+import es.uc3m.android.travelshield.viewmodel.Trip
 
 @Composable
 fun ProfileScreen(navController: NavController,
                   userInfoViewModel: UserInfoRetrieval = viewModel(),
-                  likeCountViewModel: LikeCountViewModel = viewModel()) {
+                  likeCountViewModel: LikeCountViewModel = viewModel(),
+                  tripViewModel: TripViewModel = viewModel()) {
     var profileImage by remember { mutableStateOf<Bitmap?>(null) }
     val context = LocalContext.current
     var showDialog by remember { mutableStateOf(false) }
 
     val userInfo by userInfoViewModel.userInfo.collectAsState()
     val likeCount by likeCountViewModel.likeCount.collectAsState()
+    val trips by tripViewModel.trips.collectAsState() // Fetch trips
 
     val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         profileImage = handleCameraResult(result)
@@ -68,6 +73,10 @@ fun ProfileScreen(navController: NavController,
     }
     val userReviewsViewModel: UserReviewsViewModel = viewModel()
     val reviews by userReviewsViewModel.reviews.collectAsState()
+    var showAddTripDialog by remember { mutableStateOf(false) }
+    var newTripCountry by remember { mutableStateOf(TextFieldValue("")) }
+    var newTripDate by remember { mutableStateOf("") }
+
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -137,6 +146,27 @@ fun ProfileScreen(navController: NavController,
                     }
                 }
 
+                // My Trips Section
+                // My Trips Section
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Text("My Trips", style = MaterialTheme.typography.titleMedium)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    trips.forEach { trip ->
+                        ProfileTripItem(trip)
+                        Divider()
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Button(
+                        onClick = { showAddTripDialog = true },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Add New Trip")
+                    }
+                }
+
+
                 // Log out button
                 Button(
                     onClick = {
@@ -187,6 +217,22 @@ fun ProfileScreen(navController: NavController,
             }
         )
     }
+    if (showAddTripDialog) {
+        AddTripDialog(
+            onDismiss = { showAddTripDialog = false },
+            onAddTrip = { country, startDate ->
+                tripViewModel.addTrip(Trip(country = country, startDate = startDate))
+                newTripCountry = TextFieldValue("")
+                newTripDate = ""
+                showAddTripDialog = false
+            },
+            country = newTripCountry,
+            setCountry = { newTripCountry = it },
+            startDate = newTripDate,
+            setStartDate = { newTripDate = it }
+        )
+    }
+
 }
 
 @Composable
@@ -194,7 +240,13 @@ fun ScrollableColumn(modifier: Modifier = Modifier, content: @Composable ColumnS
     Column(modifier = modifier.verticalScroll(rememberScrollState()), content = content)
 }
 
-
+@Composable
+fun ProfileTripItem(trip: Trip) {
+    Column(modifier = Modifier.padding(vertical = 8.dp)) {
+        Text(text = "Trip to: ${trip.country}", style = MaterialTheme.typography.titleSmall)
+        Text(text = "Start Date: ${trip.startDate}", style = MaterialTheme.typography.bodyMedium)
+    }
+}
 
 fun launchCamera(cameraLauncher: androidx.activity.result.ActivityResultLauncher<Intent>) {
     val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
@@ -223,7 +275,6 @@ fun ProfileStat(value: String, label: String) {
     }
 }
 
-
 @Composable
 fun ReviewItem(review: Review) {
     Column(modifier = Modifier.padding(vertical = 8.dp)) {
@@ -244,5 +295,5 @@ fun ReviewItem(review: Review) {
 @Composable
 fun ProfileScreenPreview() {
     val navController = rememberNavController()
-    ProfileScreen(navController)
+    ProfileScreen(navController = navController)
 }

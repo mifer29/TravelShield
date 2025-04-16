@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">TravelShield</string>
+    <string name="australia">Australia</string>
+    <string name="usa">USA</string>
+    <string name="thailand">Thailand</string>
+    <string name="switzerland">Switzerland</string>
+    <string name="add_country">Add Country</string>
+    <string name="delete">Delete Country</string>
+    <string name="add">Add Country</string>
+    <string name="cancel">Cancel Country</string>
+    <string name="name">Name</string>
+    <string name="vaccine">Vaccine</string>
+    <string name="update">Update</string>
+    <string name="edit_country">Edit country</string>
+    <string name="settings_language">Language</string>
+    <string name="spanish">Spanish</string>
+    <string name="english">English</string>
+
+</resources>

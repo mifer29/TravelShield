@@ -44,50 +44,73 @@ import es.uc3m.android.travelshield.viewmodel.UserInfoRetrieval
 import es.uc3m.android.travelshield.viewmodel.UserReviewsViewModel
 import es.uc3m.android.travelshield.viewmodel.TripViewModel
 import es.uc3m.android.travelshield.viewmodel.Trip
+import androidx.compose.material.icons.filled.Settings
+import es.uc3m.android.travelshield.NavGraph
+import es.uc3m.android.travelshield.screens.SettingsScreen
+import android.util.Log
+import androidx.compose.ui.zIndex
 
 @Composable
-fun ProfileScreen(navController: NavController,
-                  userInfoViewModel: UserInfoRetrieval = viewModel(),
-                  likeCountViewModel: LikeCountViewModel = viewModel(),
-                  tripViewModel: TripViewModel = viewModel()) {
+fun ProfileScreen(
+    navController: NavController,
+    userInfoViewModel: UserInfoRetrieval = viewModel(),
+    likeCountViewModel: LikeCountViewModel = viewModel(),
+    tripViewModel: TripViewModel = viewModel()
+) {
     var profileImage by remember { mutableStateOf<Bitmap?>(null) }
     val context = LocalContext.current
     var showDialog by remember { mutableStateOf(false) }
 
     val userInfo by userInfoViewModel.userInfo.collectAsState()
     val likeCount by likeCountViewModel.likeCount.collectAsState()
-    val trips by tripViewModel.trips.collectAsState() // Fetch trips
+    val trips by tripViewModel.trips.collectAsState()
 
     val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         profileImage = handleCameraResult(result)
     }
-
     val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         profileImage = handleGalleryResult(uri, context)
     }
-
     val requestCameraPermissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-        if (isGranted) {
-            launchCamera(cameraLauncher)
-        }
+        if (isGranted) launchCamera(cameraLauncher)
     }
+
     val userReviewsViewModel: UserReviewsViewModel = viewModel()
     val reviews by userReviewsViewModel.reviews.collectAsState()
+
     var showAddTripDialog by remember { mutableStateOf(false) }
     var newTripCountry by remember { mutableStateOf(TextFieldValue("")) }
     var newTripDate by remember { mutableStateOf("") }
 
-
     Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.TopCenter
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
     ) {
-        ScrollableColumn(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-            // Center profile image and name
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxWidth()
-            ) {
+
+
+        // BOTÓN DE AJUSTES ARRIBA A LA DERECHA
+        IconButton(
+            onClick = {
+                Log.d("SettingsButton", "Clicked")
+                navController.navigate(NavGraph.SettingsScreen.route)
+            },
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .zIndex(1f) // 👈 Añadir esto
+        )
+        {
+            Icon(
+                imageVector = Icons.Default.Settings,
+                contentDescription = "Settings"
+            )
+        }
+
+
+
+        ScrollableColumn(modifier = Modifier.fillMaxSize()) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+                // Imagen de perfil + botón de editar
                 Box(contentAlignment = Alignment.TopEnd) {
                     if (profileImage != null) {
                         Image(
@@ -102,7 +125,7 @@ fun ProfileScreen(navController: NavController,
                             modifier = Modifier.size(100.dp).clip(CircleShape).border(2.dp, Color.Gray, CircleShape)
                         )
                     }
-                    // Ensure the Edit Icon is placed on top of the profile image and clickable
+
                     Icon(
                         imageVector = Icons.Default.Edit,
                         contentDescription = "Edit Profile",
@@ -110,21 +133,17 @@ fun ProfileScreen(navController: NavController,
                             .size(24.dp)
                             .background(Color.White, CircleShape)
                             .padding(4.dp)
-                            .clickable {
-                                showDialog = true // Trigger the dialog to show
-                            }
-                            .align(Alignment.TopEnd) // Ensure it's positioned correctly on top-right corner
+                            .clickable { showDialog = true }
+                            .align(Alignment.TopEnd)
                     )
                 }
 
-                // Name and location centered
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(text = userInfo?.let { "${it.name} ${it.surname}" } ?: "Loading...", style = MaterialTheme.typography.headlineSmall, textAlign = TextAlign.Center)
-                Text(text = "Location", style = MaterialTheme.typography.bodyMedium, color = Color.Gray, textAlign = TextAlign.Center)
+                Text(text = userInfo?.let { "${it.name} ${it.surname}" } ?: "Loading...", style = MaterialTheme.typography.headlineSmall)
+                Text(text = "Location", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Statistics centered
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly
@@ -136,7 +155,6 @@ fun ProfileScreen(navController: NavController,
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // Reviews section
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Text("My Reviews", style = MaterialTheme.typography.titleMedium)
                     Spacer(modifier = Modifier.height(8.dp))
@@ -146,8 +164,6 @@ fun ProfileScreen(navController: NavController,
                     }
                 }
 
-                // My Trips Section
-                // My Trips Section
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Text("My Trips", style = MaterialTheme.typography.titleMedium)
                     Spacer(modifier = Modifier.height(8.dp))
@@ -158,16 +174,11 @@ fun ProfileScreen(navController: NavController,
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    Button(
-                        onClick = { showAddTripDialog = true },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
+                    Button(onClick = { showAddTripDialog = true }, modifier = Modifier.fillMaxWidth()) {
                         Text("Add New Trip")
                     }
                 }
 
-
-                // Log out button
                 Button(
                     onClick = {
                         navController.navigate("login") {
@@ -182,7 +193,6 @@ fun ProfileScreen(navController: NavController,
         }
     }
 
-    // Dialog for changing the profile picture
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
@@ -192,7 +202,7 @@ fun ProfileScreen(navController: NavController,
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally // Align buttons in the center
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Button(onClick = {
                         showDialog = false
@@ -217,6 +227,7 @@ fun ProfileScreen(navController: NavController,
             }
         )
     }
+
     if (showAddTripDialog) {
         AddTripDialog(
             onDismiss = { showAddTripDialog = false },
@@ -232,7 +243,6 @@ fun ProfileScreen(navController: NavController,
             setStartDate = { newTripDate = it }
         )
     }
-
 }
 
 @Composable

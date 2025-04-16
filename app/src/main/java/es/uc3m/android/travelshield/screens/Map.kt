@@ -1,30 +1,31 @@
 package es.uc3m.android.travelshield.screens
 
-import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
-import com.google.maps.android.data.geojson.GeoJsonLayer
-import com.google.maps.android.data.geojson.GeoJsonPolygonStyle
-import es.uc3m.android.travelshield.R
-import kotlinx.coroutines.*
-import org.json.JSONObject
+import es.uc3m.android.travelshield.viewmodel.CountryViewModel
+import androidx.compose.material3.OutlinedTextField
+import com.google.android.gms.maps.CameraUpdateFactory
+import es.uc3m.android.travelshield.viewmodel.CountryDoc
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.foundation.shape.RoundedCornerShape
 
 @Composable
-fun MapScreen(navController: NavController) {
-    val context = LocalContext.current
-
+fun MapScreen(navController: NavController, countryViewModel: CountryViewModel) {
+    val countries by countryViewModel.countries.collectAsState()
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(LatLng(20.0, 0.0), 2f)
     }
@@ -34,55 +35,89 @@ fun MapScreen(navController: NavController) {
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState
         ) {
-            // Hook para obtener el mapa real
-            MapEffect(Unit) { map ->
-                // Creamos una corrutina para no bloquear la UI
-                CoroutineScope(Dispatchers.Main).launch {
-                    loadGeoJsonLayer(context, map)
-                }
+            countries.forEach { country ->
+                Marker(
+                    state = MarkerState(
+                        position = LatLng(country.genInfo.lat, country.genInfo.long)
+                    ),
+                    title = country.name
+                )
             }
         }
+
         Column(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .padding(16.dp),
+                .padding(16.dp)
+                .fillMaxWidth(0.9f),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = "MAP",
-                style = MaterialTheme.typography.headlineMedium
-            )
+            CountrySearchBar(countries, cameraPositionState)
         }
     }
 }
 
-suspend fun loadGeoJsonLayer(context: Context, map: GoogleMap) {
-    try {
-        // Leemos el archivo en segundo plano
-        val json = withContext(Dispatchers.IO) {
-            val inputStream = context.resources.openRawResource(R.raw.world)
-            val jsonString = inputStream.bufferedReader().use { it.readText() }
-            JSONObject(jsonString)
-        }
+@Composable
+fun CountrySearchBar(
+    countries: List<CountryDoc>,
+    cameraPositionState: CameraPositionState
+) {
+    var searchQuery by remember { mutableStateOf("") }
+    var showSuggestions by remember { mutableStateOf(false) }
 
-        val layer = GeoJsonLayer(map, json)
+    val filteredSuggestions = countries.filter {
+        it.name.contains(searchQuery.trim(), ignoreCase = true)
+    }
 
-        var count = 0
-        for (feature in layer.features) {
-            val type = feature.geometry.geometryType
-            if (type == "Polygon" || type == "MultiPolygon") {
-                val style = GeoJsonPolygonStyle().apply {
-                    setFillColor(0x5534A853)  // semitransparente
-                    setStrokeColor(0xFF34A853.toInt())
-                    setStrokeWidth(1f)
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .pointerInput(Unit) {
+                detectTapGestures(onTap = {
+                    showSuggestions = false
+                })
+            }
+    ) {
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = {
+                searchQuery = it
+                showSuggestions = it.isNotBlank() && filteredSuggestions.isNotEmpty()
+            },
+            placeholder = { Text("Search country...") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            singleLine = true
+        )
+
+        if (showSuggestions) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surface)
+                    .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(4.dp))
+                    .clip(RoundedCornerShape(4.dp))
+            ) {
+                filteredSuggestions.forEach { country ->
+                    Text(
+                        text = country.name,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                searchQuery = country.name
+                                showSuggestions = false // 👈 Ocultar sugerencias
+                                val latLng = LatLng(country.genInfo.lat, country.genInfo.long)
+                                cameraPositionState.move(
+                                    CameraUpdateFactory.newLatLngZoom(latLng, 5f)
+                                )
+                            }
+                            .padding(12.dp),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
                 }
-                feature.polygonStyle = style
-                count++
             }
         }
-        layer.addLayerToMap()
-
-    } catch (e: Exception) {
-        Log.e("GeoJSON", "Error al cargar el GeoJSON", e)
     }
 }

@@ -31,8 +31,11 @@ data class GenInfo(
     val culture: String = "",
     val description: String = "",
     val food: String = "",
-    val history: String = ""
+    val history: String = "",
+    val lat: Double = 0.0,
+    val long: Double = 0.0
 )
+
 
 data class Health(
     val emergency: Emergency = Emergency(),

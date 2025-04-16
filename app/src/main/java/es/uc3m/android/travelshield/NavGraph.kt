@@ -26,10 +26,7 @@ sealed class NavGraph(val route: String) {
     data object Categories : NavGraph(CATEGORIES_ROUTE)
     data object Login : NavGraph(LOGIN_ROUTE)
     data object SignUp : NavGraph(SIGNUP_ROUTE)
-
-    data object Settings : NavGraph("$SETTING_ROUTE/{source}") {
-        fun createRoute(source: String) = "$SETTING_ROUTE/$source"
-    }
+    data object SettingsScreen  : NavGraph(SETTING_ROUTE)
 
     // Categories with countryName as dynamic parameter
     data object GeneralInfo : NavGraph(GENERAL_INFO_ROUTE) {

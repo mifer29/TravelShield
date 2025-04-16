@@ -28,6 +28,7 @@ import es.uc3m.android.travelshield.screens.SignUpScreen
 import es.uc3m.android.travelshield.screens.WriteReviewScreen
 import es.uc3m.android.travelshield.screens.categories.*
 import es.uc3m.android.travelshield.ui.theme.TravelShieldTheme
+import es.uc3m.android.travelshield.screens.ProfileScreen
 
 
 
@@ -119,7 +120,7 @@ fun NavigationGraph(navController: NavHostController, modifier: Modifier) {
     ) {
         // General Screens
         composable(NavGraph.Home.route) { HomeScreen(navController, countryViewModel, likeViewModel) }
-        composable(NavGraph.Map.route) { MapScreen(navController) }
+        composable(NavGraph.Map.route) { MapScreen(navController, countryViewModel) }
         composable(NavGraph.Profile.route) { ProfileScreen(navController) }
 
         // Country Screen
@@ -131,7 +132,7 @@ fun NavigationGraph(navController: NavHostController, modifier: Modifier) {
         // Login and SignUp Screens
         composable(NavGraph.Login.route) { LoginScreen(navController) }
         composable(NavGraph.SignUp.route) { SignUpScreen(navController) }
-        composable(NavGraph.Settings.route) { SettingsScreen(navController) }
+        composable(NavGraph.SettingsScreen.route) { SettingsScreen(navController) }
 
         // Category Screens (Updated routes with 'categories/' prefix)
         composable("categories/general_info/{countryName}") { backStackEntry ->

@@ -163,21 +163,21 @@ fun ProfileScreen(
                         Divider()
                     }
                 }
-
+                Spacer(modifier = Modifier.height(20.dp))
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Text("My Trips", style = MaterialTheme.typography.titleMedium)
                     Spacer(modifier = Modifier.height(8.dp))
-                    trips.forEach { trip ->
-                        ProfileTripItem(trip)
-                        Divider()
-                    }
 
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Button(onClick = { showAddTripDialog = true }, modifier = Modifier.fillMaxWidth()) {
-                        Text("Add New Trip")
+                    Button(
+                        onClick = {
+                            navController.navigate("trips")
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Go to My Trips")
                     }
                 }
+
 
                 Button(
                     onClick = {

@@ -15,7 +15,7 @@ const val NEWS_ROUTE = "categories/news/{countryName}"
 const val SECURITY_ROUTE = "categories/security/{countryName}"
 const val TRANSPORT_ROUTE = "categories/transport/{countryName}"
 const val VISA_ROUTE = "categories/visa/{countryName}"
-
+const val TRIPS_ROUTE = "trips"
 const val UPLOAD_COUNTRIES_ROUTE = "upload_countries"
 
 sealed class NavGraph(val route: String) {
@@ -27,7 +27,7 @@ sealed class NavGraph(val route: String) {
     data object Login : NavGraph(LOGIN_ROUTE)
     data object SignUp : NavGraph(SIGNUP_ROUTE)
     data object SettingsScreen  : NavGraph(SETTING_ROUTE)
-
+    data object Trips : NavGraph(TRIPS_ROUTE)
     // Categories with countryName as dynamic parameter
     data object GeneralInfo : NavGraph(GENERAL_INFO_ROUTE) {
         fun createRoute(countryName: String) = "categories/general_info/$countryName"

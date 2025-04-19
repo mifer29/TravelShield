@@ -29,7 +29,8 @@ import es.uc3m.android.travelshield.screens.WriteReviewScreen
 import es.uc3m.android.travelshield.screens.categories.*
 import es.uc3m.android.travelshield.ui.theme.TravelShieldTheme
 import es.uc3m.android.travelshield.screens.ProfileScreen
-
+import es.uc3m.android.travelshield.screens.TripsScreen
+import es.uc3m.android.travelshield.viewmodel.TripViewModel
 
 
 class MainActivity : ComponentActivity() {
@@ -166,6 +167,10 @@ fun NavigationGraph(navController: NavHostController, modifier: Modifier) {
         composable(NavGraph.UploadCountries.route) {
             CountryUploadScreen(viewModel = countryViewModel)
         }
+        composable(NavGraph.Trips.route) {
+            TripsScreen(navController = navController)
+        }
+
     }
 }
 

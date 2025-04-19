@@ -9,22 +9,20 @@ import com.google.firebase.firestore.ktx.toObject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import java.util.Date
 
 private const val TAG = "TripViewModel"
 private const val TRIPS_COLLECTION = "trips"
-
 
 class TripViewModel : ViewModel() {
 
     private val _trips = MutableStateFlow<List<Trip>>(emptyList())
     val trips: StateFlow<List<Trip>> get() = _trips
 
-    private val firestore = FirebaseFirestore.getInstance()
+    private val firestore = FirebaseFirestore.getInstance("travelshield-db")
     private val auth = FirebaseAuth.getInstance()
 
     init {
-        fetchTrips()
+        fetchTrips() // Initial fetch when the ViewModel is created
     }
 
     private fun fetchTrips() {
@@ -35,11 +33,13 @@ class TripViewModel : ViewModel() {
         }
 
         firestore.collection(TRIPS_COLLECTION)
-            .whereEqualTo("userId", userId)
-            .orderBy("timestamp")
+            .whereEqualTo("userId", userId) // Fetch trips for the current user
             .get()
             .addOnSuccessListener { result ->
-                _trips.value = result.documents.mapNotNull { it.toObject<Trip>() }
+                // Map documents to the Trip model and update the state
+                val tripList = result.documents.mapNotNull { it.toObject<Trip>() }
+                _trips.value = tripList
+                Log.d(TAG, "Fetched trips: $tripList") // Log to verify fetched data
             }
             .addOnFailureListener { exception ->
                 Log.e(TAG, "Error fetching trips", exception)
@@ -53,12 +53,14 @@ class TripViewModel : ViewModel() {
             return
         }
 
-        val newTrip = trip.copy(userId = userId, timestamp = "today")
+        val newTrip = trip.copy(userId = userId)
 
         firestore.collection(TRIPS_COLLECTION)
             .add(newTrip)
             .addOnSuccessListener {
-                fetchTrips()
+                // Instead of fetching trips again, just update the local state
+                _trips.value = _trips.value + newTrip
+                Log.d(TAG, "Added new trip: $newTrip") // Log to verify the new trip added
             }
             .addOnFailureListener { exception ->
                 Log.e(TAG, "Error adding trip", exception)

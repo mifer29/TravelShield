@@ -57,7 +57,7 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore.ktx)
-
+    implementation(libs.coil.compose)
     implementation(libs.maps.compose)
     implementation(libs.maps.utils)
     implementation(libs.play.services.maps)

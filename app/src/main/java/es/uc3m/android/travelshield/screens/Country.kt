@@ -30,6 +30,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import es.uc3m.android.travelshield.viewmodel.LikeCountViewModel
 import es.uc3m.android.travelshield.viewmodel.Review
 import es.uc3m.android.travelshield.viewmodel.UserReviewsViewModel
+import coil.compose.rememberAsyncImagePainter
 
 @Composable
 fun CountryScreen(navController: NavController, countryName: String) {
@@ -73,17 +74,29 @@ fun CountryScreen(navController: NavController, countryName: String) {
     ) {
         Spacer(modifier = Modifier.height(4.dp))
 
-        // Country Title + Favorite Button
+        // Inside the Row that contains the country name and favorite button
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = countryName,
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                // Country Flag using Coil from URL
+                val flagUrl = "https://flagsapi.com/${countryName.take(2).uppercase()}/flat/64.png"
+                Image(
+                    painter = rememberAsyncImagePainter(flagUrl),
+                    contentDescription = "$countryName Flag",
+                    modifier = Modifier
+                        .size(32.dp)
+                        .padding(end = 8.dp)
+                )
+
+                Text(
+                    text = countryName,
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
 
             // Heart Icon (en drawable heart.png)
             IconButton(onClick = {
@@ -96,6 +109,7 @@ fun CountryScreen(navController: NavController, countryName: String) {
                 )
             }
         }
+
 
         Spacer(modifier = Modifier.height(8.dp))
 

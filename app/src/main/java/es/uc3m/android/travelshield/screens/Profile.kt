@@ -97,7 +97,7 @@ fun ProfileScreen(
             },
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .zIndex(1f) // 👈 Añadir esto
+                .zIndex(1f) // Añadir esto
         )
         {
             Icon(

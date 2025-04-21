@@ -1,8 +1,12 @@
 package es.uc3m.android.travelshield
 
+import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
@@ -11,7 +15,9 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
@@ -28,10 +34,8 @@ import es.uc3m.android.travelshield.screens.SignUpScreen
 import es.uc3m.android.travelshield.screens.WriteReviewScreen
 import es.uc3m.android.travelshield.screens.categories.*
 import es.uc3m.android.travelshield.ui.theme.TravelShieldTheme
-import es.uc3m.android.travelshield.screens.ProfileScreen
 import es.uc3m.android.travelshield.screens.TripsScreen
-import es.uc3m.android.travelshield.viewmodel.TripViewModel
-
+import es.uc3m.android.travelshield.notifications.NotificationHelper
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,6 +48,25 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun TravelShieldApp() {
+    val context = LocalContext.current
+    val notificationHelper = NotificationHelper(context)
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (!isGranted) {
+            Toast.makeText(
+                context, context.getString(R.string.permission_denied), Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
+
     TravelShieldTheme(dynamicColor = false) { // Fuerza los colores definidos en color.kt
         val navController = rememberNavController()
         val currentRoute by navController.currentBackStackEntryFlow.collectAsState(
@@ -63,7 +86,6 @@ fun TravelShieldApp() {
         }
     }
 }
-
 
 @Composable
 fun BottomNavigationBar(navController: NavHostController) {

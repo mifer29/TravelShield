@@ -5,10 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.Text
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,21 +13,25 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.firestore.FirebaseFirestore
+import es.uc3m.android.travelshield.viewmodel.WeatherViewModel
 import kotlinx.coroutines.tasks.await
 
 @Composable
 fun NewsScreen(navController: NavController, countryName: String) {
-    var newsInfo by remember { mutableStateOf<String>("Loading...") }
+    val weatherViewModel: WeatherViewModel = viewModel()
+    val weatherData by weatherViewModel.weatherData.collectAsState()
 
-    // Fetch news info from Firebase
+    var newsInfo by remember { mutableStateOf("Loading...") }
+
     LaunchedEffect(countryName) {
         newsInfo = fetchNewsInfoFromFirebase(countryName)
+        weatherViewModel.fetchWeather(countryName)
     }
 
-    // Remember scroll state for the News screen
     val scrollState = rememberScrollState()
 
     Box(
@@ -39,9 +40,9 @@ fun NewsScreen(navController: NavController, countryName: String) {
     ) {
         Column(
             modifier = Modifier
-                .padding(16.dp) // Add padding around the screen
+                .padding(16.dp)
                 .fillMaxWidth()
-                .verticalScroll(scrollState), // Make the column scrollable
+                .verticalScroll(scrollState),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
@@ -50,15 +51,33 @@ fun NewsScreen(navController: NavController, countryName: String) {
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
-            // Display the news in a card
             NewsCard("Latest News", newsInfo)
 
             Spacer(modifier = Modifier.height(16.dp))
-            Button(
-                onClick = { navController.popBackStack() },
-                modifier = Modifier.padding(top = 16.dp)
-            ) {
-                Text(text = "Go Back")
+
+            weatherData?.let {
+                val temperature = it.currentWeather?.temperature
+                val conditions = it.currentWeather?.description ?: "No description"
+
+                if (temperature != null) {
+                    Text(
+                        text = "Weather: $temperature°C, $conditions",
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                } else {
+                    Text(
+                        text = "Weather data not available",
+                        style = MaterialTheme.typography.bodyMedium.copy(color = Color.Gray),
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(onClick = { navController.popBackStack() }) {
+                Text("Go Back")
             }
         }
     }
@@ -69,32 +88,24 @@ fun NewsCard(title: String, content: String) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp) // Add vertical spacing between cards
-            .border(1.dp, Color.Gray, shape = RoundedCornerShape(8.dp)),
+            .padding(vertical = 8.dp)
+            .border(1.dp, Color.Gray, RoundedCornerShape(8.dp)),
         shape = RoundedCornerShape(8.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .padding(16.dp)
-        ) {
+        Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 text = title,
                 style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-                modifier = Modifier.padding(bottom = 8.dp) // Space between title and content
+                modifier = Modifier.padding(bottom = 8.dp)
             )
-            Text(
-                text = content,
-                style = MaterialTheme.typography.bodyMedium
-            )
+            Text(text = content, style = MaterialTheme.typography.bodyMedium)
         }
     }
 }
 
-// This is for handling news update in a asynchronous way
 suspend fun fetchNewsInfoFromFirebase(countryName: String): String {
-    val db = FirebaseFirestore.getInstance()
+    val db = FirebaseFirestore.getInstance("travelshield-db")
     return try {
-        // Adjust the path to your Firebase Firestore collection
         val doc = db.collection("countries").document(countryName).get().await()
         doc.getString("newsInfo") ?: "No news info available"
     } catch (e: Exception) {

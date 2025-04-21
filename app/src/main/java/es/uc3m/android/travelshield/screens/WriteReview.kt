@@ -2,6 +2,8 @@ package es.uc3m.android.travelshield.screens
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -16,6 +18,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import es.uc3m.android.travelshield.viewmodel.Review
 import es.uc3m.android.travelshield.viewmodel.UserReviewsViewModel
+import es.uc3m.android.travelshield.notifications.NotificationHelper
 import kotlinx.coroutines.launch
 
 @Composable
@@ -28,6 +31,7 @@ fun WriteReviewScreen(countryName: String, navController: NavController) {
     val viewModel: UserReviewsViewModel = viewModel()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val notificationHelper = NotificationHelper(context)
 
     // Fetch the username from Firestore
     fun fetchUserName(userId: String) {
@@ -73,6 +77,13 @@ fun WriteReviewScreen(countryName: String, navController: NavController) {
             scope.launch {
                 viewModel.addReview(review)
                 Toast.makeText(context, "Review submitted successfully!", Toast.LENGTH_SHORT).show()
+
+                // Trigger the notification after successful submission
+                notificationHelper.showNotification(
+                    "New Review Added",
+                    "You have successfully added a new review for $countryName."
+                )
+
                 isSubmitting = false
                 navController.popBackStack()
             }
@@ -85,6 +96,7 @@ fun WriteReviewScreen(countryName: String, navController: NavController) {
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
+            .verticalScroll(rememberScrollState())  // Add vertical scroll here
     ) {
         Text(
             text = "Write your review for $countryName",
@@ -131,5 +143,3 @@ fun WriteReviewScreen(countryName: String, navController: NavController) {
         }
     }
 }
-
-

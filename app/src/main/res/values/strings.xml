@@ -15,4 +15,5 @@
     <string name="settings_language">Idioma</string>
     <string name="spanish">Español</string>
     <string name="english">Inglés</string>
+    <string name="permission_denied">denied\n</string>
 </resources>

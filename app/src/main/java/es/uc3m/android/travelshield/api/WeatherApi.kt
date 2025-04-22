@@ -8,15 +8,16 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface WeatherApiService {
-    @GET("v1/weather:lookup") // Update based on your actual endpoint
+    @GET("v1/currentConditions:lookup")
     suspend fun getWeatherForLocation(
-        @Query("location") location: String, // Use "latitude,longitude" format
-        @Query("key") apiKey: String = "AIzaSyC_deu-i-xQrqCnw1i5u2NwOwFmj_S1WsE"
+        @Query("location.latitude") latitude: Double,
+        @Query("location.longitude") longitude: Double,
+        @Query("key") apiKey: String = "AIzaSyC_deu-i-xQrqCnw1i5u2NwOwFmj_S1WsE" // Replace this with your actual API key securely
     ): Response<WeatherResponse>
 }
 
 object WeatherApi {
-    private const val BASE_URL = "https://weather.googleapis.com/" // Example base URL
+    private const val BASE_URL = "https://weather.googleapis.com/"
 
     val retrofitService: WeatherApiService by lazy {
         Retrofit.Builder()

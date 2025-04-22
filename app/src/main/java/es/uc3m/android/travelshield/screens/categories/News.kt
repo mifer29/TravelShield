@@ -9,6 +9,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -26,10 +27,17 @@ fun NewsScreen(navController: NavController, countryName: String) {
     val weatherData by weatherViewModel.weatherData.collectAsState()
 
     var newsInfo by remember { mutableStateOf("Loading...") }
+    var weatherAvailable by remember { mutableStateOf(false) }
 
     LaunchedEffect(countryName) {
         newsInfo = fetchNewsInfoFromFirebase(countryName)
-        weatherViewModel.fetchWeather(countryName)
+        val coords = fetchLatLongFromFirebase(countryName)
+        coords?.let { (lat, lon) ->
+            weatherViewModel.fetchWeather(lat, lon)
+            weatherAvailable = true
+        } ?: run {
+            weatherAvailable = false
+        }
     }
 
     val scrollState = rememberScrollState()
@@ -55,14 +63,41 @@ fun NewsScreen(navController: NavController, countryName: String) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            weatherData?.let {
-                val temperature = it.currentWeather?.temperature
-                val conditions = it.currentWeather?.description ?: "No description"
+            if (weatherAvailable && weatherData != null) {
+                val temperature = weatherData?.temperature?.degrees
+                val feelsLike = weatherData?.feelsLikeTemperature?.degrees
+                val conditions = weatherData?.weatherCondition?.description?.text
+                val humidity = weatherData?.relativeHumidity
+                val windSpeed = weatherData?.wind?.speed?.value
+                val windGust = weatherData?.wind?.gust?.value
+                val windDirection = weatherData?.wind?.direction?.cardinal
 
-                if (temperature != null) {
+                // Main weather info card
+                if (temperature != null && conditions != null) {
                     Text(
-                        text = "Weather: $temperature°C, $conditions",
-                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                        text = "Weather in capital city",
+                        style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+
+                    // Temperature card
+                    WeatherCard(
+                        title = "Temperature",
+                        content = "$temperature°C",
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+
+                    // Feels like card
+                    WeatherCard(
+                        title = "Feels like",
+                        content = "$feelsLike°C",
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+
+                    // Conditions card
+                    WeatherCard(
+                        title = "Conditions",
+                        content = conditions ?: "No condition available",
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
                 } else {
@@ -72,6 +107,38 @@ fun NewsScreen(navController: NavController, countryName: String) {
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
                 }
+
+                // Additional weather details cards
+                if (humidity != null) {
+                    WeatherCard(
+                        title = "Humidity",
+                        content = "$humidity%",
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                }
+
+                if (windSpeed != null || windDirection != null) {
+                    // Wind speed and direction card
+                    WeatherCard(
+                        title = "Wind",
+                        content = "${windSpeed ?: 0.0} ${weatherData?.wind?.speed?.unit} at $windDirection",
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    if (windGust != null) {
+                        // Wind gust card
+                        WeatherCard(
+                            title = "Wind Gust",
+                            content = "$windGust ${weatherData?.wind?.gust?.unit}",
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
+                    }
+                }
+            } else {
+                Text(
+                    text = "Weather data not available",
+                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.Gray),
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -103,13 +170,59 @@ fun NewsCard(title: String, content: String) {
     }
 }
 
+@Composable
+fun WeatherCard(
+    title: String,
+    content: String,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+            .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
+            .shadow(4.dp, RoundedCornerShape(8.dp)),
+        shape = RoundedCornerShape(8.dp),
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            Text(
+                text = content,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+    }
+}
+
 suspend fun fetchNewsInfoFromFirebase(countryName: String): String {
     val db = FirebaseFirestore.getInstance("travelshield-db")
     return try {
-        val doc = db.collection("countries").document(countryName).get().await()
-        doc.getString("newsInfo") ?: "No news info available"
+        val doc = db.collection("countries").whereEqualTo("name", countryName).get().await().documents.firstOrNull()
+        doc?.getString("newsInfo") ?: "No news info available"
     } catch (e: Exception) {
         "Failed to load news info"
+    }
+}
+
+suspend fun fetchLatLongFromFirebase(countryName: String): Pair<Double, Double>? {
+    val db = FirebaseFirestore.getInstance("travelshield-db")
+    return try {
+        val querySnapshot = db.collection("countries")
+            .whereEqualTo("name", countryName)
+            .get()
+            .await()
+
+        val doc = querySnapshot.documents.firstOrNull()
+        val genInfo = doc?.get("genInfo") as? Map<*, *>
+        val lat = genInfo?.get("lat") as? Double
+        val lon = genInfo?.get("long") as? Double
+        if (lat != null && lon != null) Pair(lat, lon) else null
+    } catch (e: Exception) {
+        null
     }
 }
 

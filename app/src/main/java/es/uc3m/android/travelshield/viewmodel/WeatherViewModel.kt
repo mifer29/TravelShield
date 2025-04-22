@@ -9,19 +9,22 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class WeatherViewModel : ViewModel() {
+
     private val _weatherData = MutableStateFlow<WeatherResponse?>(null)
     val weatherData: StateFlow<WeatherResponse?> = _weatherData
 
-    fun fetchWeather(location: String) {
+    fun fetchWeather(latitude: Double, longitude: Double) {
         viewModelScope.launch {
             try {
-                val response = WeatherApi.retrofitService.getWeatherForLocation(location)
+                val response = WeatherApi.retrofitService.getWeatherForLocation(latitude, longitude)
                 if (response.isSuccessful) {
                     _weatherData.value = response.body()
                 } else {
+                    // Optional: log error or show fallback
                     _weatherData.value = null
                 }
             } catch (e: Exception) {
+                // Optional: log exception
                 _weatherData.value = null
             }
         }

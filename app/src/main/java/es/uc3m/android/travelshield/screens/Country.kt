@@ -7,7 +7,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -59,11 +58,24 @@ fun CountryScreen(navController: NavController, countryName: String) {
 
     // Reviews ViewModel
     val userReviewsViewModel: UserReviewsViewModel = viewModel()
+
+    // Trigger reviews fetch when the country name changes, but only once
+    val reviewsFetched = remember { mutableStateOf(false) }
+
     LaunchedEffect(countryName) {
-        userReviewsViewModel.fetchReviewsByCountry(countryName) // Trigger reviews fetch
+        if (!reviewsFetched.value) {
+            Log.d("CountryScreen", "Current country: $countryName")
+            userReviewsViewModel.fetchReviewsByCountry(countryName) // Trigger reviews fetch
+            reviewsFetched.value = true // Mark reviews as fetched
+        }
     }
 
     val userReviews by userReviewsViewModel.reviews.collectAsState()
+
+    // Log the fetched reviews
+    LaunchedEffect(userReviews) {
+        Log.d("CountryScreen", "Reviews fetched for $countryName: ${userReviews.size}")
+    }
 
     // Make the entire column scrollable by wrapping it with a Scrollable Column
     Column(
@@ -72,7 +84,7 @@ fun CountryScreen(navController: NavController, countryName: String) {
             .padding(16.dp)
             .verticalScroll(rememberScrollState())
     ) {
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(15.dp))
 
         // Inside the Row that contains the country name and favorite button
         Row(
@@ -110,8 +122,7 @@ fun CountryScreen(navController: NavController, countryName: String) {
             }
         }
 
-
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
         // Country Image
         Image(
@@ -126,21 +137,7 @@ fun CountryScreen(navController: NavController, countryName: String) {
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Search Bar
-        OutlinedTextField(
-            value = "",
-            onValueChange = { /* Handle search when DB is ready */ },
-            placeholder = { Text("Search for information") },
-            leadingIcon = {
-                Icon(imageVector = Icons.Default.Search, contentDescription = "Search Icon")
-            },
-            shape = RoundedCornerShape(12.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(30.dp))
 
         // Categorías
         CategoryGrid(
@@ -150,7 +147,7 @@ fun CountryScreen(navController: NavController, countryName: String) {
                 .fillMaxWidth()
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(30.dp))
 
         // Reviews Section
         Text(
@@ -160,7 +157,7 @@ fun CountryScreen(navController: NavController, countryName: String) {
             modifier = Modifier.padding(vertical = 8.dp)
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         // Display Reviews
         if (userReviews.isNotEmpty()) {
@@ -239,6 +236,7 @@ fun ReviewItemCountry(review: Review) {
     }
 }
 
+
 // **Category Grid Layout**
 @Composable
 fun CategoryGrid(navController: NavController, countryName: String, modifier: Modifier = Modifier) {
@@ -315,7 +313,6 @@ fun CategoryItem(name: String, navController: NavController, countryName: String
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewCountryScreen() {
-    val navController = rememberNavController() // Mock NavController for preview
-    CountryScreen(navController = navController, countryName = "USA")
+fun DefaultPreview() {
+    CountryScreen(navController = rememberNavController(), countryName = "USA")
 }

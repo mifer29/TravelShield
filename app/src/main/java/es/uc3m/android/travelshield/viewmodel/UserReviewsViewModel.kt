@@ -9,8 +9,10 @@ import com.google.firebase.firestore.toObject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 private const val REVIEWS_COLLECTION = "reviews"
+private const val USERS_COLLECTION = "users"
 private const val TAG = "UserReviewsViewModel"
 
 class UserReviewsViewModel : ViewModel() {
@@ -55,60 +57,93 @@ class UserReviewsViewModel : ViewModel() {
     }
 
     // Fetch reviews for a specific country
+    private var currentCountry: String? = null
+    private val _isFetching = MutableStateFlow(false)  // Track the fetching state
+    private val isFetching: StateFlow<Boolean> get() = _isFetching
+
     fun fetchReviewsByCountry(country: String) {
         viewModelScope.launch {
-            firestore.collection(REVIEWS_COLLECTION)
-                .whereEqualTo("country", country)
-                .get()
-                .addOnSuccessListener { result ->
-                    val reviewList = result.mapNotNull { doc ->
-                        doc.toObject<Review>()
-                    }
+            // Avoid fetching reviews if already in progress or if already fetched for this country
+            if (_isFetching.value || currentCountry == country) {
+                Log.d(TAG, "Reviews already loaded for country: $country")
+                return@launch
+            }
+
+            _isFetching.value = true
+            Log.d(TAG, "Fetching reviews for country: $country")
+
+            // Clear existing reviews only if we're fetching for a new country
+            _reviews.value = emptyList()
+            currentCountry = country
+
+            try {
+                val result = firestore.collection(REVIEWS_COLLECTION)
+                    .whereEqualTo("country", country)
+                    .get()
+                    .await()  // Using `await` for better control
+
+                val reviewList = result.mapNotNull { doc ->
+                    doc.toObject<Review>()
+                }
+                Log.d(TAG, "Firestore query result: ${reviewList.size} reviews found for country: $country")
+                Log.d(TAG, "Mapped reviews: ${reviewList.size} reviews for $country")
+
+                // Only update reviews if we are still fetching for the target country
+                if (currentCountry == country) {
                     _reviews.value = reviewList
                 }
-                .addOnFailureListener { exception ->
+            } catch (exception: Exception) {
+                if (currentCountry == country) {
                     _toastMessage.value = "Failed to fetch reviews: ${exception.message}"
                     Log.e(TAG, "Error fetching reviews by country", exception)
                 }
+            } finally {
+                _isFetching.value = false
+            }
         }
     }
+
+
+
 
     // Add a review to Firestore
     fun addReview(review: Review) {
         viewModelScope.launch {
             val userId = auth.currentUser?.uid
-            val userName = auth.currentUser?.displayName ?: "Anonymous"  // Get the user's name (or default to "Anonymous")
-
             if (userId == null) {
                 _toastMessage.value = "User not authenticated."
                 Log.e(TAG, "User ID is null")
                 return@launch
             }
 
-            try {
-                val reviewData = hashMapOf(
-                    "userId" to userId,
-                    "userName" to userName,  // Add userName to the review
-                    "country" to review.country,
-                    "rating" to review.rating,
-                    "comment" to review.comment,
-                    "timestamp" to review.timestamp
-                )
+            firestore.collection(USERS_COLLECTION).document(userId).get()
+                .addOnSuccessListener { userDoc ->
+                    val userName = userDoc.getString("name") ?: "Anonymous"
 
-                firestore.collection(REVIEWS_COLLECTION)
-                    .add(reviewData)
-                    .addOnSuccessListener {
-                        _toastMessage.value = "Review added successfully!"
-                        fetchUserReviews()  // Refresh user reviews after adding a new one
-                    }
-                    .addOnFailureListener { exception ->
-                        _toastMessage.value = "Failed to add review: ${exception.message}"
-                        Log.e(TAG, "Error adding review", exception)
-                    }
-            } catch (e: Exception) {
-                _toastMessage.value = "Error: ${e.message}"
-                Log.e(TAG, "Exception while adding review", e)
-            }
+                    val reviewData = hashMapOf(
+                        "userId" to userId,
+                        "userName" to userName,
+                        "country" to review.country,
+                        "rating" to review.rating,
+                        "comment" to review.comment,
+                        "timestamp" to review.timestamp
+                    )
+
+                    firestore.collection(REVIEWS_COLLECTION)
+                        .add(reviewData)
+                        .addOnSuccessListener {
+                            _toastMessage.value = "Review added successfully!"
+                            fetchUserReviews()
+                        }
+                        .addOnFailureListener { exception ->
+                            _toastMessage.value = "Failed to add review: ${exception.message}"
+                            Log.e(TAG, "Error adding review", exception)
+                        }
+                }
+                .addOnFailureListener { exception ->
+                    _toastMessage.value = "Failed to fetch user name: ${exception.message}"
+                    Log.e(TAG, "Error fetching user name", exception)
+                }
         }
     }
 }

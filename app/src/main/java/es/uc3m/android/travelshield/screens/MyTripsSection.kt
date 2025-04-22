@@ -3,6 +3,8 @@ package es.uc3m.android.travelshield.screens
 import android.app.DatePickerDialog
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -27,6 +29,7 @@ fun TripsScreen(
 
     Column(modifier = Modifier
         .fillMaxWidth()
+        .verticalScroll(rememberScrollState())
         .padding(16.dp)) {
         Text("My Trips", style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.height(8.dp))

@@ -12,12 +12,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.*
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.lifecycle.viewmodel.compose.viewModel
 import es.uc3m.android.travelshield.R
+import es.uc3m.android.travelshield.viewmodel.SettingsViewModel
 import java.util.*
 import androidx.compose.ui.res.stringResource
 
 @Composable
 fun SettingsScreen(navController: NavController) {
+    // Access the SettingsViewModel
+    val settingsViewModel: SettingsViewModel = viewModel()
+
+    // Collect the current dark mode setting from the ViewModel
+    val isDarkMode by settingsViewModel.isDarkMode.collectAsState()
+
+    // Define the current language and dark mode options
     val context = LocalContext.current
     val currentLang = remember { getCurrentLanguage() }
     var selectedLanguage by remember { mutableStateOf(currentLang) }
@@ -40,6 +49,7 @@ fun SettingsScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Language Options
         languages.forEach { lang ->
             LanguageOptionRow(
                 label = lang.displayName,
@@ -49,6 +59,33 @@ fun SettingsScreen(navController: NavController) {
                     setLocaleAndRestart(context, lang.code)
                 }
             )
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Dark Mode Toggle
+        Text(
+            text = stringResource(R.string.settings_dark_mode),
+            style = MaterialTheme.typography.titleLarge
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    // Toggle dark mode on click
+                    settingsViewModel.setDarkMode(!isDarkMode)
+                },
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Switch(
+                checked = isDarkMode,
+                onCheckedChange = { settingsViewModel.setDarkMode(it) }
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(text = if (isDarkMode) stringResource(R.string.enabled) else stringResource(R.string.disabled))
         }
     }
 }
@@ -81,6 +118,6 @@ fun setLocaleAndRestart(context: Context, languageCode: String) {
     config.setLocale(locale)
     context.resources.updateConfiguration(config, context.resources.displayMetrics)
 
-    // Reinicia la actividad actual para aplicar el idioma
+    // Restart the activity to apply the language change
     (context as? Activity)?.recreate()
 }

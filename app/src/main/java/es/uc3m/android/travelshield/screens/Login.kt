@@ -21,6 +21,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import es.uc3m.android.travelshield.NavGraph
 import es.uc3m.android.travelshield.viewmodel.AuthViewModel
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 
 @Composable
 fun LoginScreen(navController: NavController, authViewModel: AuthViewModel = viewModel()) {
@@ -43,15 +45,26 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel = vie
     }
 
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
         Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(16.dp)
+            verticalArrangement = Arrangement.Center
         ) {
             val logo: Painter = painterResource(id = R.drawable.logo_travelshield)
-            Image(painter = logo, contentDescription = "App Logo", modifier = Modifier.size(100.dp).clip(RoundedCornerShape(16.dp)))
+            Image(
+                painter = logo,
+                contentDescription = "App Logo",
+                modifier = Modifier
+                    .size(100.dp)
+                    .clip(RoundedCornerShape(16.dp))
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
             Text(text = "Login", style = MaterialTheme.typography.headlineMedium)
@@ -82,7 +95,6 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel = vie
             )
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Use Firebase authentication
             Button(
                 onClick = { authViewModel.login(email, password) },
                 modifier = Modifier.fillMaxWidth()

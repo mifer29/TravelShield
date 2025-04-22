@@ -1,42 +1,38 @@
 package es.uc3m.android.travelshield.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
-import androidx.compose.material3.lightColorScheme
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Turk40,
-    secondary = Turk40,
-    tertiary = Turk40
+    primary = TurkDark,
+    secondary = TurkDark,
+    tertiary = TurkDark,
+    background = TurkDarkBackground,
+    surface = TurkDarkSurface,
+    onPrimary = WhiteDark,
+    onSecondary = WhiteDark,
+    onBackground = WhiteDark,
+    onSurface = WhiteDark
 )
 
 private val LightColorScheme = lightColorScheme(
     primary = Turk40,
     secondary = TurkWhite40,
-    tertiary = TurkBlue40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    tertiary = TurkBlue40,
+    background = TurkLightBackground,
+    surface = TurkLightSurface,
+    onPrimary = Grey,
+    onSecondary = Grey,
+    onBackground = Grey,
+    onSurface = Grey
 )
 
 @Composable
 fun TravelShieldTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
@@ -45,7 +41,6 @@ fun TravelShieldTheme(
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }

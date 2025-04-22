@@ -15,5 +15,8 @@
     <string name="settings_language">Idioma</string>
     <string name="spanish">Español</string>
     <string name="english">Inglés</string>
-    <string name="permission_denied">denied\n</string>
+    <string name="permission_denied">Denied\n</string>
+    <string name="settings_dark_mode">Dark Mode\n</string>
+    <string name="enabled">Enabled</string>
+    <string name="disabled">Disabled</string>
 </resources>

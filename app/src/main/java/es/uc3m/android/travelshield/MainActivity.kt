@@ -36,6 +36,7 @@ import es.uc3m.android.travelshield.screens.categories.*
 import es.uc3m.android.travelshield.ui.theme.TravelShieldTheme
 import es.uc3m.android.travelshield.screens.TripsScreen
 import es.uc3m.android.travelshield.notifications.NotificationHelper
+import es.uc3m.android.travelshield.viewmodel.SettingsViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,6 +51,9 @@ class MainActivity : ComponentActivity() {
 fun TravelShieldApp() {
     val context = LocalContext.current
     val notificationHelper = NotificationHelper(context)
+
+    val settingsViewModel: SettingsViewModel = viewModel()
+    val isDarkMode by settingsViewModel.isDarkMode.collectAsState()
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -67,7 +71,7 @@ fun TravelShieldApp() {
         }
     }
 
-    TravelShieldTheme(dynamicColor = false) { // Fuerza los colores definidos en color.kt
+    TravelShieldTheme(darkTheme = isDarkMode, dynamicColor = false) { // Fuerza los colores definidos en color.kt
         val navController = rememberNavController()
         val currentRoute by navController.currentBackStackEntryFlow.collectAsState(
             initial = navController.currentBackStackEntry

@@ -74,7 +74,7 @@ fun ProfileScreen(
         if (isGranted) launchCamera(cameraLauncher)
     }
 
-    // 🔁 Refrescar perfil al volver desde edit_profile
+    //Refrescar perfil al volver desde edit_profile
     LaunchedEffect(Unit) {
         navController.currentBackStackEntryFlow.collect { backStackEntry ->
             if (backStackEntry.destination.route == NavGraph.Profile.route) {
@@ -170,6 +170,15 @@ fun ProfileScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
+        Button(
+            onClick = {
+                navController.navigate("trips")
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Go to My Trips")
+        }
+        Spacer(modifier = Modifier.height(24.dp))
         Button(
             onClick = { navController.navigate("edit_profile") },
             modifier = Modifier.fillMaxWidth()

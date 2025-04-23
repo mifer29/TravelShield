@@ -22,33 +22,47 @@ fun TripsScreen(
     navController: NavController
 ) {
     val tripViewModel: TripViewModel = viewModel()
-    val trips by tripViewModel.trips.collectAsState() // Asegúrate de que `trips` es un Flow/List
+    val trips by tripViewModel.trips.collectAsState()
     var isDialogOpen by remember { mutableStateOf(false) }
     var newTripCountry by remember { mutableStateOf(TextFieldValue("")) }
     var newTripDate by remember { mutableStateOf("") }
 
-    Column(modifier = Modifier
-        .fillMaxWidth()
-        .verticalScroll(rememberScrollState())
-        .padding(16.dp)) {
-        Text("My Trips", style = MaterialTheme.typography.titleMedium)
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Render trips only if they are not empty
+    Spacer(modifier = Modifier.height(10.dp))
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 24.dp, vertical = 16.dp)
+    ) {
+        Text(
+            text = "My Trips",
+            style = MaterialTheme.typography.headlineLarge, // Bigger title
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(24.dp))
         if (trips.isNotEmpty()) {
             trips.forEach { trip ->
-                TripItem(trip) {
-
-                }
-                Spacer(modifier = Modifier.height(8.dp))
+                TripItem(trip = trip, onClick = {})
+                Spacer(modifier = Modifier.height(12.dp))
             }
         } else {
-            Text("No trips found", style = MaterialTheme.typography.bodyMedium)
+            Text(
+                "No trips found",
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(16.dp))
         }
 
         Button(
             onClick = { isDialogOpen = true },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp)
         ) {
             Text("Add New Trip")
         }
@@ -57,13 +71,10 @@ fun TripsScreen(
             AddTripDialog(
                 onDismiss = { isDialogOpen = false },
                 onAddTrip = { country, startDate ->
-                    // No timestamp logic here anymore
                     tripViewModel.addTrip(Trip(country = country, startDate = startDate))
                     newTripCountry = TextFieldValue("")
                     newTripDate = ""
                     isDialogOpen = false
-
-
                 },
                 country = newTripCountry,
                 setCountry = { newTripCountry = it },
@@ -74,18 +85,29 @@ fun TripsScreen(
     }
 }
 
+
 @Composable
 fun TripItem(trip: Trip, onClick: () -> Unit) {
-    Column(
+    Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(vertical = 8.dp)
+            .fillMaxWidth(),
+        shape = MaterialTheme.shapes.medium,
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
-        Text(text = "Trip to: ${trip.country}", style = MaterialTheme.typography.titleSmall)
-        Text(text = "Start Date: ${trip.startDate}", style = MaterialTheme.typography.bodyMedium)
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = "Trip to: ${trip.country}",
+                style = MaterialTheme.typography.titleMedium
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "Start Date: ${trip.startDate}",
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
     }
 }
+
 
 @Composable
 fun AddTripDialog(
@@ -149,3 +171,4 @@ fun AddTripDialog(
         }
     )
 }
+

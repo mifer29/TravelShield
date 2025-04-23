@@ -10,7 +10,9 @@ import kotlinx.coroutines.launch
 
 data class UserInfo(
     val name: String = "",
-    val surname: String = ""
+    val surname: String = "",
+    val profileImageUrl: String = "" // Nuevo campo
+
 )
 
 class UserInfoRetrieval : ViewModel() {
@@ -32,11 +34,31 @@ class UserInfoRetrieval : ViewModel() {
                 .addOnSuccessListener { document ->
                     val name = document.getString("name") ?: ""
                     val surname = document.getString("surname") ?: ""
-                    _userInfo.value = UserInfo(name, surname)
+                    val imageUrl = document.getString("profileImageUrl") ?: "" // si no existe aún, será ""
+
+                    _userInfo.value = UserInfo(name, surname, imageUrl)
                 }
                 .addOnFailureListener {
                     // handle error if needed
                 }
         }
     }
+    fun updateUserInfo(name: String, surname: String, imageUrl: String? = null) {
+        val uid = auth.currentUser?.uid ?: return
+        val userRef = firestore.collection("users").document(uid)
+
+        val updates = mutableMapOf<String, Any>(
+            "name" to name,
+            "surname" to surname
+        )
+
+        if (!imageUrl.isNullOrEmpty()) {
+            updates["profileImageUrl"] = imageUrl
+        }
+
+        userRef.update(updates).addOnSuccessListener {
+            fetchUserInfo()
+        }
+    }
+
 }

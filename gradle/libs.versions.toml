@@ -54,6 +54,7 @@ maps-utils = { module = "com.google.maps.android:android-maps-utils", version.re
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 play-services-maps = { module = "com.google.android.gms:play-services-maps", version.ref = "play-services-maps" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+firebase-storage = { module = "com.google.firebase:firebase-storage-ktx" }
 
 
 [plugins]

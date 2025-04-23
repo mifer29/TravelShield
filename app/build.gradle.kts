@@ -61,6 +61,8 @@ dependencies {
     implementation(libs.maps.compose)
     implementation(libs.maps.utils)
     implementation(libs.play.services.maps)
+    implementation(libs.firebase.storage)
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

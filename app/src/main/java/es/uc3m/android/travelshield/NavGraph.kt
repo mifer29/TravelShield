@@ -8,6 +8,7 @@ const val COUNTRY_ROUTE = "country/{countryName}"
 const val CATEGORIES_ROUTE = "categories"
 const val LOGIN_ROUTE = "login"
 const val SIGNUP_ROUTE = "signup"
+const val EDIT_PROFILE_ROUTE = "edit_profile"
 
 const val GENERAL_INFO_ROUTE = "categories/general_info/{countryName}"
 const val HEALTH_ROUTE = "categories/health/{countryName}"
@@ -58,4 +59,7 @@ sealed class NavGraph(val route: String) {
     }
 
     data object UploadCountries : NavGraph(UPLOAD_COUNTRIES_ROUTE)
+
+    data object EditProfile : NavGraph(EDIT_PROFILE_ROUTE)
+
 }

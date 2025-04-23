@@ -35,6 +35,7 @@ import es.uc3m.android.travelshield.screens.WriteReviewScreen
 import es.uc3m.android.travelshield.screens.categories.*
 import es.uc3m.android.travelshield.ui.theme.TravelShieldTheme
 import es.uc3m.android.travelshield.screens.TripsScreen
+import es.uc3m.android.travelshield.screens.EditProfileScreen
 import es.uc3m.android.travelshield.notifications.NotificationHelper
 import es.uc3m.android.travelshield.viewmodel.SettingsViewModel
 
@@ -196,6 +197,10 @@ fun NavigationGraph(navController: NavHostController, modifier: Modifier) {
         composable(NavGraph.Trips.route) {
             TripsScreen(navController = navController)
         }
+        composable(NavGraph.EditProfile.route) {
+            EditProfileScreen(navController = navController)
+        }
+
 
     }
 }

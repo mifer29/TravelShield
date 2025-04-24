@@ -47,8 +47,8 @@ class UserReviewsViewModel : ViewModel() {
                 .whereEqualTo("userId", userId)
                 .get()
                 .addOnSuccessListener { result ->
-                    val reviewList = result.mapNotNull { doc ->
-                        doc.toObject<Review>()
+                    val reviewList = result.map { doc ->
+                        doc.toObject<Review>().copy(reviewId = doc.id)
                     }
                     _reviews.value = reviewList
                     _reviewCount.value = reviewList.size
@@ -87,7 +87,7 @@ class UserReviewsViewModel : ViewModel() {
                     .await()  // Using `await` for better control
 
                 val reviewList = result.mapNotNull { doc ->
-                    doc.toObject<Review>()
+                    doc.toObject<Review>().copy(reviewId = doc.id)
                 }
                 Log.d(TAG, "Firestore query result: ${reviewList.size} reviews found for country: $country")
                 Log.d(TAG, "Mapped reviews: ${reviewList.size} reviews for $country")
@@ -132,7 +132,8 @@ class UserReviewsViewModel : ViewModel() {
 
                     firestore.collection(REVIEWS_COLLECTION)
                         .add(reviewData)
-                        .addOnSuccessListener {
+                        .addOnSuccessListener { documentRef ->
+                            val reviewWithId = review.copy(reviewId = documentRef.id)
                             _toastMessage.value = "Review added successfully!"
                             fetchUserReviews()
                         }
@@ -145,6 +146,18 @@ class UserReviewsViewModel : ViewModel() {
                     _toastMessage.value = "Failed to fetch user name: ${exception.message}"
                     Log.e(TAG, "Error fetching user name", exception)
                 }
+        }
+    }
+
+    // Delete review from firebase
+    fun deleteReview(reviewId: String) {
+        viewModelScope.launch {
+            try {
+                firestore.collection("reviews").document(reviewId).delete().await()
+                fetchUserReviews()
+            } catch (e: Exception) {
+                _toastMessage.value = "Error deleting review: ${e.message}"
+            }
         }
     }
 }

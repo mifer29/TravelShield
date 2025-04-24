@@ -63,6 +63,7 @@ dependencies {
     implementation(libs.play.services.maps)
     implementation(libs.firebase.storage)
     implementation(libs.firebase.storage.ktx)
+    implementation(libs.androidx.room.common.jvm)
 
 
     testImplementation(libs.junit)

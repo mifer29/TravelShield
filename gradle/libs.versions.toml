@@ -23,6 +23,7 @@ maps-compose = "2.11.4"
 maps-utils = "3.4.0"
 play-services-maps = "19.2.0"
 firebaseStorageKtx = "21.0.1"
+roomCommonJvm = "2.7.1"
 
 
 [libraries]
@@ -57,6 +58,7 @@ play-services-maps = { module = "com.google.android.gms:play-services-maps", ver
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 firebase-storage = { module = "com.google.firebase:firebase-storage-ktx" }
 firebase-storage-ktx = { group = "com.google.firebase", name = "firebase-storage-ktx", version.ref = "firebaseStorageKtx" }
+androidx-room-common-jvm = { group = "androidx.room", name = "room-common-jvm", version.ref = "roomCommonJvm" }
 
 
 [plugins]

@@ -20,6 +20,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
@@ -48,6 +49,10 @@ import java.io.ByteArrayOutputStream
 import androidx.core.content.ContextCompat
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.room.Delete
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun ProfileScreen(
@@ -166,7 +171,9 @@ fun ProfileScreen(
             Text("My Reviews", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
             reviews.forEach { review ->
-                ReviewItem(review)
+                ReviewItem(review) { reviewId ->
+                    userReviewsViewModel.deleteReview(reviewId)
+                }
                 Divider()
             }
         }
@@ -236,6 +243,7 @@ fun ProfileScreen(
         )
     }
 }
+
 @Composable
 fun ProfileStat(value: String, label: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -245,37 +253,42 @@ fun ProfileStat(value: String, label: String) {
 }
 
 @Composable
-fun ReviewItem(review: Review) {
+fun ReviewItem(review: Review, onDeleteClick: (String) -> Unit) {
+    val formattedDate = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault())
+        .format(Date(review.timestamp))
+
     Column(modifier = Modifier.padding(vertical = 8.dp)) {
 
-        // Country Name
-        Text(
-            text = review.country,
-            style = MaterialTheme.typography.bodyLarge.copy(
-                fontWeight = FontWeight.Bold
-            )
-        )
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        // Rating + Posted on (side by side)
+        // Country name and delete icon on the same row
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                if (review.rating == 0.0) {
-                    Text(
-                        text = "No rating",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.Gray
-                    )
-                } else {
+            Text(
+                text = review.country,
+                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
+            )
+
+            IconButton(onClick = { onDeleteClick(review.reviewId) }) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Delete Review"
+                )
+            }
+        }
+
+        // Rating and timestamp row
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            if (review.rating > 0) {
+                Row {
                     repeat(review.rating.toInt()) {
                         Icon(
                             imageVector = Icons.Default.Star,
-                            contentDescription = "Star",
+                            contentDescription = null,
                             tint = Color.Gray,
                             modifier = Modifier.size(18.dp)
                         )
@@ -289,22 +302,21 @@ fun ReviewItem(review: Review) {
                         )
                     }
                 }
+            } else {
+                Text("No Rating")
             }
 
             Text(
-                text = "Posted on ${review.timestamp}",
+                text = "Posted on $formattedDate",
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Gray
             )
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(4.dp))
 
-        // Comment
-        Text(
-            text = review.comment,
-            style = MaterialTheme.typography.bodyMedium
-        )
+        // Review text
+        Text(text = review.comment)
     }
 }
 

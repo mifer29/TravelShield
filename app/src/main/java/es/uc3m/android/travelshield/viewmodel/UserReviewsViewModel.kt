@@ -160,4 +160,31 @@ class UserReviewsViewModel : ViewModel() {
             }
         }
     }
+
+    // Update reviews
+    fun updateReview(reviewId: String, newComment: String, newRating: Double) {
+        viewModelScope.launch {
+            try {
+                val updateData = mapOf(
+                    "comment" to newComment,
+                    "rating" to newRating
+                )
+
+                firestore.collection(REVIEWS_COLLECTION)
+                    .document(reviewId)
+                    .update(updateData)
+                    .addOnSuccessListener {
+                        _toastMessage.value = "Review updated successfully!"
+                        fetchUserReviews() // Refresh the list
+                    }
+                    .addOnFailureListener { exception ->
+                        _toastMessage.value = "Failed to update review: ${exception.message}"
+                        Log.e(TAG, "Error updating review", exception)
+                    }
+            } catch (e: Exception) {
+                _toastMessage.value = "Unexpected error: ${e.message}"
+                Log.e(TAG, "Exception updating review", e)
+            }
+        }
+    }
 }

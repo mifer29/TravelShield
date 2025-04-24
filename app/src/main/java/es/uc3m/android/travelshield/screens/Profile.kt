@@ -31,11 +31,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
+import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -46,13 +48,9 @@ import es.uc3m.android.travelshield.NavGraph
 import es.uc3m.android.travelshield.R
 import es.uc3m.android.travelshield.viewmodel.*
 import java.io.ByteArrayOutputStream
-import androidx.core.content.ContextCompat
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
 import androidx.room.Delete
 import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import java.util.*
 
 @Composable
 fun ProfileScreen(
@@ -71,6 +69,8 @@ fun ProfileScreen(
     val reviews by userReviewsViewModel.reviews.collectAsState()
 
     val reviewCount by userReviewsViewModel.reviewCount.collectAsState()
+
+    var selectedReviewForEdit by remember { mutableStateOf<Review?>(null) }
 
     val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         profileImage = handleCameraResult(result)
@@ -152,7 +152,7 @@ fun ProfileScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        Column(modifier = Modifier.align(Alignment.CenterHorizontally), horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.align(Alignment.CenterHorizontally)) {
             Text(text = userInfo?.let { "${it.name} ${it.surname}" } ?: "Loading...", style = MaterialTheme.typography.headlineSmall)
             Text(text = "Location", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
         }
@@ -171,11 +171,24 @@ fun ProfileScreen(
             Text("My Reviews", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
             reviews.forEach { review ->
-                ReviewItem(review) { reviewId ->
-                    userReviewsViewModel.deleteReview(reviewId)
-                }
+                ReviewItem(
+                    review = review,
+                    onDeleteClick = { userReviewsViewModel.deleteReview(it) },
+                    onEditClick = { selectedReviewForEdit = it }
+                )
                 Divider()
             }
+        }
+
+        selectedReviewForEdit?.let { review ->
+            EditReviewDialog(
+                review = review,
+                onDismiss = { selectedReviewForEdit = null },
+                onConfirm = { newComment, newRating ->
+                    userReviewsViewModel.updateReview(review.reviewId, newComment, newRating.toDouble())
+                    selectedReviewForEdit = null
+                }
+            )
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -253,13 +266,11 @@ fun ProfileStat(value: String, label: String) {
 }
 
 @Composable
-fun ReviewItem(review: Review, onDeleteClick: (String) -> Unit) {
+fun ReviewItem(review: Review, onDeleteClick: (String) -> Unit, onEditClick: (Review) -> Unit) {
     val formattedDate = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault())
         .format(Date(review.timestamp))
 
     Column(modifier = Modifier.padding(vertical = 8.dp)) {
-
-        // Country name and delete icon on the same row
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -270,15 +281,16 @@ fun ReviewItem(review: Review, onDeleteClick: (String) -> Unit) {
                 style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
             )
 
-            IconButton(onClick = { onDeleteClick(review.reviewId) }) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = "Delete Review"
-                )
+            Row {
+                IconButton(onClick = { onEditClick(review) }) {
+                    Icon(Icons.Default.Edit, contentDescription = "Edit Review")
+                }
+                IconButton(onClick = { onDeleteClick(review.reviewId) }) {
+                    Icon(Icons.Default.Delete, contentDescription = "Delete Review")
+                }
             }
         }
 
-        // Rating and timestamp row
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
@@ -318,6 +330,50 @@ fun ReviewItem(review: Review, onDeleteClick: (String) -> Unit) {
         // Review text
         Text(text = review.comment)
     }
+}
+
+@Composable
+fun EditReviewDialog(
+    review: Review,
+    onDismiss: () -> Unit,
+    onConfirm: (String, Float) -> Unit
+) {
+    var updatedComment by remember { mutableStateOf(review.comment) }
+    var updatedRating by remember { mutableFloatStateOf(review.rating.toFloat()) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Edit Review") },
+        text = {
+            Column {
+                OutlinedTextField(
+                    value = updatedComment,
+                    onValueChange = { updatedComment = it },
+                    label = { Text("Comment") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text("Rating: ${updatedRating.toInt()}")
+                Slider(
+                    value = updatedRating,
+                    onValueChange = { updatedRating = it },
+                    valueRange = 0f..5f,
+                    steps = 4,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            Button(onClick = { onConfirm(updatedComment, updatedRating) }) {
+                Text("Save")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
 }
 
 fun launchCamera(cameraLauncher: androidx.activity.result.ActivityResultLauncher<Intent>) {

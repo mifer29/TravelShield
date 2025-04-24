@@ -92,13 +92,27 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel = vi
             )
             Spacer(modifier = Modifier.height(16.dp))
 
-            Button(
-                onClick = {
-                    authViewModel.signUp(name, surname, email, password)
-                },
-                modifier = Modifier.fillMaxWidth()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(text = "Sign Up")
+                Button(
+                    onClick = { navController.popBackStack() },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(text = "Go Back")
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                Button(
+                    onClick = {
+                        authViewModel.signUp(name, surname, email, password)
+                    },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(text = "Sign Up")
+                }
             }
         }
     }

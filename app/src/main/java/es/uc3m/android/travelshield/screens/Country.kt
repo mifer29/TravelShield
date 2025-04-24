@@ -192,50 +192,73 @@ fun ReviewItemCountry(review: Review) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            .padding(vertical = 4.dp),
+        shape = RoundedCornerShape(12.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
+
+            // Reviewer Name
             Text(
-                text = review.comment,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Normal,
-                color = Color.Gray
+                text = review.userName,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontWeight = FontWeight.Bold
+                )
             )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            // Rating + Posted on... (side by side)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Rating stars or "No rating"
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (review.rating == 0.0) {
+                        Text(
+                            text = "No rating",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Gray
+                        )
+                    } else {
+                        repeat(review.rating.toInt()) {
+                            Icon(
+                                imageVector = Icons.Default.Star,
+                                contentDescription = "Star",
+                                tint = Color.Gray,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                        if (review.rating - review.rating.toInt() >= 0.5) {
+                            Icon(
+                                imageVector = Icons.Default.Star,
+                                contentDescription = "Half Star",
+                                tint = Color.Gray,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                    }
+                }
+
+                // Timestamp
+                Text(
+                    text = "Posted on ${review.timestamp}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray
+                )
+            }
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                repeat(review.rating.toInt()) {
-                    Icon(
-                        imageVector = Icons.Default.Star,
-                        contentDescription = "Star",
-                        tint = Color.Gray,
-                        modifier = Modifier.size(18.dp)
-                    )
-                }
-                if (review.rating - review.rating.toInt() >= 0.5) {
-                    Icon(
-                        imageVector = Icons.Default.Star,
-                        contentDescription = "Half Star",
-                        tint = Color.Gray,
-                        modifier = Modifier.size(18.dp)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(6.dp))
-
+            // Review Comment
             Text(
-                text = "Reviewed by: ${review.userName ?: review.userId}",
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Light
+                text = review.comment,
+                style = MaterialTheme.typography.bodyMedium
             )
         }
     }
 }
-
 
 // **Category Grid Layout**
 @Composable

@@ -47,6 +47,7 @@ import es.uc3m.android.travelshield.viewmodel.*
 import java.io.ByteArrayOutputStream
 import androidx.core.content.ContextCompat
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 
 @Composable
 fun ProfileScreen(
@@ -76,7 +77,7 @@ fun ProfileScreen(
         if (isGranted) launchCamera(cameraLauncher)
     }
 
-    //Refrescar perfil al volver desde edit_profile
+    // Refrescar perfil al volver desde edit_profile
     LaunchedEffect(Unit) {
         navController.currentBackStackEntryFlow.collect { backStackEntry ->
             if (backStackEntry.destination.route == NavGraph.Profile.route) {
@@ -246,16 +247,64 @@ fun ProfileStat(value: String, label: String) {
 @Composable
 fun ReviewItem(review: Review) {
     Column(modifier = Modifier.padding(vertical = 8.dp)) {
-        Text(text = review.country, style = MaterialTheme.typography.titleSmall)
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            repeat(review.rating.toInt()) {
-                Icon(Icons.Default.Star, contentDescription = "Star", tint = Color.LightGray)
+
+        // Country Name
+        Text(
+            text = review.country,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                fontWeight = FontWeight.Bold
+            )
+        )
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        // Rating + Posted on (side by side)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (review.rating == 0.0) {
+                    Text(
+                        text = "No rating",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Gray
+                    )
+                } else {
+                    repeat(review.rating.toInt()) {
+                        Icon(
+                            imageVector = Icons.Default.Star,
+                            contentDescription = "Star",
+                            tint = Color.Gray,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                    if (review.rating - review.rating.toInt() >= 0.5) {
+                        Icon(
+                            imageVector = Icons.Default.Star,
+                            contentDescription = "Half Star",
+                            tint = Color.Gray,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                }
             }
-            if (review.rating - review.rating.toInt() >= 0.5) {
-                Icon(Icons.Default.Star, contentDescription = "Half Star", tint = Color.Blue)
-            }
+
+            Text(
+                text = "Posted on ${review.timestamp}",
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.Gray
+            )
         }
-        Text(text = review.comment, style = MaterialTheme.typography.bodyMedium)
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Comment
+        Text(
+            text = review.comment,
+            style = MaterialTheme.typography.bodyMedium
+        )
     }
 }
 

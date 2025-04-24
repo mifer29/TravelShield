@@ -20,6 +20,9 @@ import es.uc3m.android.travelshield.viewmodel.Review
 import es.uc3m.android.travelshield.viewmodel.UserReviewsViewModel
 import es.uc3m.android.travelshield.notifications.NotificationHelper
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun WriteReviewScreen(countryName: String, navController: NavController) {
@@ -64,13 +67,16 @@ fun WriteReviewScreen(countryName: String, navController: NavController) {
             // Fetch the username before submitting the review
             fetchUserName(userId)
 
+            val formattedTimestamp = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault())
+                .format(Date())
+
             val review = Review(
                 userId = userId,
                 userName = userName, // Use the fetched userName
                 country = countryName,
                 rating = rating.toDouble(),
                 comment = reviewText,
-                timestamp = System.currentTimeMillis().toString()
+                timestamp = formattedTimestamp
             )
 
             isSubmitting = true

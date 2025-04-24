@@ -107,9 +107,6 @@ class UserReviewsViewModel : ViewModel() {
         }
     }
 
-
-
-
     // Add a review to Firestore
     fun addReview(review: Review) {
         viewModelScope.launch {

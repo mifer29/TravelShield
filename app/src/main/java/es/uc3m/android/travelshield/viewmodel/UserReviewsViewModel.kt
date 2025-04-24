@@ -76,8 +76,7 @@ class UserReviewsViewModel : ViewModel() {
             _isFetching.value = true
             Log.d(TAG, "Fetching reviews for country: $country")
 
-            // Clear existing reviews only if we're fetching for a new country
-            _reviews.value = emptyList()
+
             currentCountry = country
 
             try {

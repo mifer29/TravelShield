@@ -73,9 +73,15 @@ fun CountryScreen(navController: NavController, countryName: String) {
     val userReviews by userReviewsViewModel.reviews.collectAsState()
 
     // Log the fetched reviews
+    var previousSize by remember { mutableStateOf(-1) }
+
     LaunchedEffect(userReviews) {
-        Log.d("CountryScreen", "Reviews fetched for $countryName: ${userReviews.size}")
+        if (userReviews.size != previousSize && userReviews.isNotEmpty()) {
+            Log.d("CountryScreen", "Reviews fetched for $countryName: ${userReviews.size}")
+            previousSize = userReviews.size
+        }
     }
+
 
     // Make the entire column scrollable by wrapping it with a Scrollable Column
     Column(

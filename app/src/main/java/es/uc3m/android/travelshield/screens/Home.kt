@@ -100,6 +100,7 @@ fun TopSection(searchQuery: MutableState<String>) {
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
+        Spacer(modifier = Modifier.height(16.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -117,6 +118,7 @@ fun TopSection(searchQuery: MutableState<String>) {
             )
 
         }
+        Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = "Where to next?",
             fontSize = 28.sp,
@@ -124,6 +126,7 @@ fun TopSection(searchQuery: MutableState<String>) {
         )
         Spacer(modifier = Modifier.height(8.dp))
         SearchBar(searchQuery)
+        Spacer(modifier = Modifier.height(25.dp))
     }
 }
 

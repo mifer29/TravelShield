@@ -20,6 +20,9 @@ class UserReviewsViewModel : ViewModel() {
     private val _reviews = MutableStateFlow<List<Review>>(emptyList())
     val reviews: StateFlow<List<Review>> get() = _reviews
 
+    private val _reviewCount = MutableStateFlow(0)
+    val reviewCount: StateFlow<Int> get() = _reviewCount
+
     private val _toastMessage = MutableStateFlow<String?>(null)
     val toastMessage: StateFlow<String?> get() = _toastMessage
 
@@ -48,6 +51,7 @@ class UserReviewsViewModel : ViewModel() {
                         doc.toObject<Review>()
                     }
                     _reviews.value = reviewList
+                    _reviewCount.value = reviewList.size
                 }
                 .addOnFailureListener { exception ->
                     _toastMessage.value = "Failed to fetch reviews: ${exception.message}"

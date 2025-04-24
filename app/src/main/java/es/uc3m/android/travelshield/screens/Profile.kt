@@ -64,6 +64,8 @@ fun ProfileScreen(
     val likeCount by likeCountViewModel.likeCount.collectAsState()
     val reviews by userReviewsViewModel.reviews.collectAsState()
 
+    val reviewCount by userReviewsViewModel.reviewCount.collectAsState()
+
     val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         profileImage = handleCameraResult(result)
     }
@@ -153,7 +155,7 @@ fun ProfileScreen(
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
             ProfileStat("0", "Countries traveled")
-            ProfileStat("0", "Reviews written")
+            ProfileStat(reviewCount.toString(), "Reviews written")
             ProfileStat(likeCount.toString(), "Likes given")
         }
 

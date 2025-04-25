@@ -16,6 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -28,7 +29,7 @@ import es.uc3m.android.travelshield.viewmodel.LikeViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import es.uc3m.android.travelshield.viewmodel.LikeCountViewModel
 import es.uc3m.android.travelshield.viewmodel.Review
-import es.uc3m.android.travelshield.viewmodel.UserReviewsViewModel
+import es.uc3m.android.travelshield.viewmodel.CountryReviewsViewModel
 import coil.compose.rememberAsyncImagePainter
 
 @Composable
@@ -57,30 +58,15 @@ fun CountryScreen(navController: NavController, countryName: String) {
     }
 
     // Reviews ViewModel
-    val userReviewsViewModel: UserReviewsViewModel = viewModel()
-
-    // Trigger reviews fetch when the country name changes, but only once
-    val reviewsFetched = remember { mutableStateOf(false) }
+    // Reviews ViewModel (now for all users, not just current)
+    val countryReviewsViewModel: CountryReviewsViewModel = viewModel()
 
     LaunchedEffect(countryName) {
-        if (!reviewsFetched.value) {
-            Log.d("CountryScreen", "Current country: $countryName")
-            userReviewsViewModel.fetchReviewsByCountry(countryName) // Trigger reviews fetch
-            reviewsFetched.value = true // Mark reviews as fetched
-        }
+        countryReviewsViewModel.fetchReviewsByCountry(countryName)
     }
 
-    val userReviews by userReviewsViewModel.reviews.collectAsState()
+    val countryReviews by countryReviewsViewModel.reviews.collectAsState()
 
-    // Log the fetched reviews
-    var previousSize by remember { mutableStateOf(-1) }
-
-    LaunchedEffect(userReviews) {
-        if (userReviews.size != previousSize && userReviews.isNotEmpty()) {
-            Log.d("CountryScreen", "Reviews fetched for $countryName: ${userReviews.size}")
-            previousSize = userReviews.size
-        }
-    }
 
 
     // Make the entire column scrollable by wrapping it with a Scrollable Column
@@ -157,7 +143,7 @@ fun CountryScreen(navController: NavController, countryName: String) {
 
         // Reviews Section
         Text(
-            text = "Reviews",
+            text = stringResource(R.string.reviews),
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(vertical = 8.dp)
@@ -165,14 +151,14 @@ fun CountryScreen(navController: NavController, countryName: String) {
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Display Reviews
-        if (userReviews.isNotEmpty()) {
-            userReviews.forEach { review ->
+        if (countryReviews.isNotEmpty()) {
+            countryReviews.forEach { review ->
                 ReviewItemCountry(review = review)
             }
         } else {
-            Text("No reviews available.")
+            Text(stringResource(R.string.no_reviews_available))
         }
+
 
         // Write Review Button
         Button(
@@ -186,7 +172,7 @@ fun CountryScreen(navController: NavController, countryName: String) {
                 contentColor = MaterialTheme.colorScheme.onPrimary
             )
         ) {
-            Text("Write a Review", fontSize = 16.sp)
+            Text(stringResource(R.string.write_a_review), fontSize = 16.sp)
         }
     }
 }
@@ -269,7 +255,11 @@ fun ReviewItemCountry(review: Review) {
 // **Category Grid Layout**
 @Composable
 fun CategoryGrid(navController: NavController, countryName: String, modifier: Modifier = Modifier) {
-    val categories = listOf("General Info", "Health", "Visa", "Security", "News", "Transport")
+    val categories = listOf(stringResource(R.string.general_info),
+        stringResource(R.string.health),
+        stringResource(R.string.visa), stringResource(R.string.security),
+        stringResource(R.string.news), stringResource(R.string.transport)
+    )
 
     Column(
         modifier = modifier,
@@ -292,22 +282,22 @@ fun CategoryGrid(navController: NavController, countryName: String, modifier: Mo
 @Composable
 fun CategoryItem(name: String, navController: NavController, countryName: String) {
     val route = when (name) {
-        "General Info" -> NavGraph.GeneralInfo.createRoute(countryName)
-        "Health" -> NavGraph.Health.createRoute(countryName)
-        "Visa" -> NavGraph.Visa.createRoute(countryName)
-        "Security" -> NavGraph.Security.createRoute(countryName)
-        "News" -> NavGraph.News.createRoute(countryName)
-        "Transport" -> NavGraph.Transport.createRoute(countryName)
+        stringResource(R.string.general_info) -> NavGraph.GeneralInfo.createRoute(countryName)
+        stringResource(R.string.health) -> NavGraph.Health.createRoute(countryName)
+        stringResource(R.string.visa) -> NavGraph.Visa.createRoute(countryName)
+        stringResource(R.string.security) -> NavGraph.Security.createRoute(countryName)
+        stringResource(R.string.news) -> NavGraph.News.createRoute(countryName)
+        stringResource(R.string.transport) -> NavGraph.Transport.createRoute(countryName)
         else -> NavGraph.Home.route // Fallback (puede cambiarse según lo necesario)
     }
 
     val imageResId = when (name) {
-        "General Info" -> R.drawable.categories_info
-        "Health" -> R.drawable.categories_hospital
-        "Visa" -> R.drawable.categories_visa
-        "Security" -> R.drawable.categories_security
-        "News" -> R.drawable.categories_news
-        "Transport" -> R.drawable.categories_transport
+        stringResource(R.string.general_info) -> R.drawable.categories_info
+        stringResource(R.string.health) -> R.drawable.categories_hospital
+        stringResource(R.string.visa) -> R.drawable.categories_visa
+        stringResource(R.string.security) -> R.drawable.categories_security
+        stringResource(R.string.news) -> R.drawable.categories_news
+        stringResource(R.string.transport) -> R.drawable.categories_transport
         else -> R.drawable.categories_info // Default to general info icon if something is missing
     }
 

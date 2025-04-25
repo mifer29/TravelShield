@@ -8,6 +8,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -16,6 +17,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import es.uc3m.android.travelshield.R
 import es.uc3m.android.travelshield.viewmodel.Review
 import es.uc3m.android.travelshield.viewmodel.UserReviewsViewModel
 import es.uc3m.android.travelshield.notifications.NotificationHelper
@@ -94,7 +96,8 @@ fun WriteReviewScreen(countryName: String, navController: NavController) {
                 navController.popBackStack()
             }
         } else {
-            Toast.makeText(context, "Review cannot be empty", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context,
+                context.getString(R.string.review_cannot_be_empty), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -105,7 +108,7 @@ fun WriteReviewScreen(countryName: String, navController: NavController) {
             .verticalScroll(rememberScrollState())  // Add vertical scroll here
     ) {
         Text(
-            text = "Write your review for $countryName",
+            text = stringResource(R.string.write_your_review_for, countryName),
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold
         )
@@ -115,7 +118,7 @@ fun WriteReviewScreen(countryName: String, navController: NavController) {
         OutlinedTextField(
             value = reviewText,
             onValueChange = { reviewText = it },
-            label = { Text("Your review") },
+            label = { Text(stringResource(R.string.your_review)) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(200.dp),
@@ -141,7 +144,7 @@ fun WriteReviewScreen(countryName: String, navController: NavController) {
             modifier = Modifier.fillMaxWidth(),
             enabled = !isSubmitting
         ) {
-            Text("Submit Review")
+            Text(stringResource(R.string.submit_review))
         }
 
         if (isSubmitting) {

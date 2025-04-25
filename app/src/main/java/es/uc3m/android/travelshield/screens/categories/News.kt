@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -18,6 +19,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.firestore.FirebaseFirestore
+import es.uc3m.android.travelshield.R
 import es.uc3m.android.travelshield.viewmodel.WeatherViewModel
 import kotlinx.coroutines.tasks.await
 
@@ -54,12 +56,12 @@ fun NewsScreen(navController: NavController, countryName: String) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "News for $countryName",
+                text = stringResource(R.string.news_for, countryName),
                 style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
-            NewsCard("Latest News", newsInfo)
+            NewsCard(stringResource(R.string.latest_news), newsInfo)
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -75,34 +77,34 @@ fun NewsScreen(navController: NavController, countryName: String) {
                 // Main weather info card
                 if (temperature != null && conditions != null) {
                     Text(
-                        text = "Weather in capital city",
+                        text = stringResource(R.string.weather_in_capital_city),
                         style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
 
                     // Temperature card
                     WeatherCard(
-                        title = "Temperature",
+                        title = stringResource(R.string.temperature),
                         content = "$temperature°C",
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
 
                     // Feels like card
                     WeatherCard(
-                        title = "Feels like",
+                        title = stringResource(R.string.feels_like),
                         content = "$feelsLike°C",
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
 
                     // Conditions card
                     WeatherCard(
-                        title = "Conditions",
+                        title = stringResource(R.string.conditions),
                         content = conditions ?: "No condition available",
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
                 } else {
                     Text(
-                        text = "Weather data not available",
+                        text = stringResource(R.string.weather_data_not_available),
                         style = MaterialTheme.typography.bodyMedium.copy(color = Color.Gray),
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
@@ -111,7 +113,7 @@ fun NewsScreen(navController: NavController, countryName: String) {
                 // Additional weather details cards
                 if (humidity != null) {
                     WeatherCard(
-                        title = "Humidity",
+                        title = stringResource(R.string.humidity),
                         content = "$humidity%",
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
@@ -120,14 +122,14 @@ fun NewsScreen(navController: NavController, countryName: String) {
                 if (windSpeed != null || windDirection != null) {
                     // Wind speed and direction card
                     WeatherCard(
-                        title = "Wind",
+                        title = stringResource(R.string.wind),
                         content = "${windSpeed ?: 0.0} ${weatherData?.wind?.speed?.unit} at $windDirection",
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
                     if (windGust != null) {
                         // Wind gust card
                         WeatherCard(
-                            title = "Wind Gust",
+                            title = stringResource(R.string.wind_gust),
                             content = "$windGust ${weatherData?.wind?.gust?.unit}",
                             modifier = Modifier.padding(bottom = 16.dp)
                         )
@@ -135,7 +137,7 @@ fun NewsScreen(navController: NavController, countryName: String) {
                 }
             } else {
                 Text(
-                    text = "Weather data not available",
+                    text = stringResource(R.string.weather_data_not_available),
                     style = MaterialTheme.typography.bodyMedium.copy(color = Color.Gray),
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
@@ -144,7 +146,7 @@ fun NewsScreen(navController: NavController, countryName: String) {
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(onClick = { navController.popBackStack() }) {
-                Text("Go Back")
+                Text(stringResource(R.string.go_back))
             }
         }
     }

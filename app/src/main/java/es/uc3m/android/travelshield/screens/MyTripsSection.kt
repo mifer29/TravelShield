@@ -9,10 +9,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import es.uc3m.android.travelshield.R
 import es.uc3m.android.travelshield.viewmodel.Trip
 import es.uc3m.android.travelshield.viewmodel.TripViewModel
 import java.util.*
@@ -35,7 +37,7 @@ fun TripsScreen(
             .padding(horizontal = 24.dp, vertical = 16.dp)
     ) {
         Text(
-            text = "My Trips",
+            text = stringResource(R.string.my_trips),
             style = MaterialTheme.typography.headlineLarge, // Bigger title
             modifier = Modifier
                 .fillMaxWidth()

@@ -18,6 +18,8 @@ import es.uc3m.android.travelshield.viewmodel.AuthViewModel
 
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.ui.res.stringResource
+import es.uc3m.android.travelshield.R
 
 @Composable
 fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel = viewModel()) {
@@ -60,7 +62,7 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel = vi
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
-                label = { Text("Name") },
+                label = { Text(stringResource(R.string.name)) },
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -68,7 +70,7 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel = vi
             OutlinedTextField(
                 value = surname,
                 onValueChange = { surname = it },
-                label = { Text("Surname") },
+                label = { Text(stringResource(R.string.surname)) },
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -76,7 +78,7 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel = vi
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                label = { Text("Email Address") },
+                label = { Text(stringResource(R.string.email_address)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 modifier = Modifier.fillMaxWidth()
             )
@@ -85,7 +87,7 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel = vi
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text("Password") },
+                label = { Text(stringResource(R.string.password)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier.fillMaxWidth()
@@ -100,7 +102,7 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel = vi
                     onClick = { navController.popBackStack() },
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text(text = "Go Back")
+                    Text(text = stringResource(R.string.go_back))
                 }
 
                 Spacer(modifier = Modifier.width(16.dp))
@@ -111,7 +113,7 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel = vi
                     },
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text(text = "Sign Up")
+                    Text(text = stringResource(R.string.sign_up))
                 }
             }
         }

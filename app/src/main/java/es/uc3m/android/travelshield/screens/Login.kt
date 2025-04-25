@@ -23,6 +23,7 @@ import es.uc3m.android.travelshield.NavGraph
 import es.uc3m.android.travelshield.viewmodel.AuthViewModel
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun LoginScreen(navController: NavController, authViewModel: AuthViewModel = viewModel()) {
@@ -71,7 +72,7 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel = vie
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Please log in or sign up first to view your profile.",
+                text = stringResource(R.string.please_log_in),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
@@ -79,7 +80,7 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel = vie
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                label = { Text("Email Address") },
+                label = { Text(stringResource(R.string.email_address)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 modifier = Modifier.fillMaxWidth()
             )
@@ -88,7 +89,7 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel = vie
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text("Password") },
+                label = { Text(stringResource(R.string.password)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier.fillMaxWidth()
@@ -99,7 +100,7 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel = vie
                 onClick = { authViewModel.login(email, password) },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = "Log In")
+                Text(text = stringResource(R.string.log_in))
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -108,7 +109,7 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel = vie
                 onClick = { navController.navigate(NavGraph.SignUp.route) },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = "Sign Up")
+                Text(text = stringResource(R.string.sign_up))
             }
         }
     }

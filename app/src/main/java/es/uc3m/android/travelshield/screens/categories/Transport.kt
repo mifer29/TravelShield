@@ -16,12 +16,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
+import es.uc3m.android.travelshield.R
 import es.uc3m.android.travelshield.viewmodel.CountryViewModel
 
 @Composable
@@ -48,16 +50,16 @@ fun TransportScreen(navController: NavController, countryName: String) {
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
-                text = "Transport Info for $countryName",
+                text = stringResource(R.string.transport_info_for, countryName),
                 style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
             if (country != null) {
                 // Display transport-related information in styled cards
-                TransportInfoCard("Public Transport", country.transport.public)
-                TransportInfoCard("Transport Apps", country.transport.apps)
-                TransportInfoCard("Airport to City", country.transport.airportToCity)
+                TransportInfoCard(stringResource(R.string.public_transport), country.transport.public)
+                TransportInfoCard(stringResource(R.string.transport_apps), country.transport.apps)
+                TransportInfoCard(stringResource(R.string.airport_to_city), country.transport.airportToCity)
             } else {
                 // Show loading or error state if country not found
                 Text(text = "Country not found!")
@@ -70,13 +72,13 @@ fun TransportScreen(navController: NavController, countryName: String) {
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/maps"))
                 context.startActivity(intent)
             }) {
-                Text(text = "View Transport on Maps")
+                Text(text = stringResource(R.string.view_transport_on_maps))
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(onClick = { navController.popBackStack() }) {
-                Text(text = "Go Back")
+                Text(text = stringResource(R.string.go_back))
             }
         }
     }

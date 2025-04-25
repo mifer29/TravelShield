@@ -60,51 +60,6 @@ class UserReviewsViewModel : ViewModel() {
         }
     }
 
-    // Fetch reviews for a specific country
-    private var currentCountry: String? = null
-    private val _isFetching = MutableStateFlow(false)  // Track the fetching state
-    private val isFetching: StateFlow<Boolean> get() = _isFetching
-
-    fun fetchReviewsByCountry(country: String) {
-        viewModelScope.launch {
-            // Avoid fetching reviews if already in progress or if already fetched for this country
-            if (_isFetching.value || currentCountry == country) {
-                Log.d(TAG, "Reviews already loaded for country: $country")
-                return@launch
-            }
-
-            _isFetching.value = true
-            Log.d(TAG, "Fetching reviews for country: $country")
-
-
-            currentCountry = country
-
-            try {
-                val result = firestore.collection(REVIEWS_COLLECTION)
-                    .whereEqualTo("country", country)
-                    .get()
-                    .await()  // Using `await` for better control
-
-                val reviewList = result.mapNotNull { doc ->
-                    doc.toObject<Review>().copy(reviewId = doc.id)
-                }
-                Log.d(TAG, "Firestore query result: ${reviewList.size} reviews found for country: $country")
-                Log.d(TAG, "Mapped reviews: ${reviewList.size} reviews for $country")
-
-                // Only update reviews if we are still fetching for the target country
-                if (currentCountry == country) {
-                    _reviews.value = reviewList
-                }
-            } catch (exception: Exception) {
-                if (currentCountry == country) {
-                    _toastMessage.value = "Failed to fetch reviews: ${exception.message}"
-                    Log.e(TAG, "Error fetching reviews by country", exception)
-                }
-            } finally {
-                _isFetching.value = false
-            }
-        }
-    }
 
     // Add a review to Firestore
     fun addReview(review: Review) {

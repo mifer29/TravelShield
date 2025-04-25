@@ -19,6 +19,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -26,6 +27,7 @@ import androidx.navigation.NavController
 import androidx.lifecycle.viewmodel.compose.viewModel
 import es.uc3m.android.travelshield.viewmodel.CountryViewModel
 import androidx.navigation.compose.rememberNavController
+import es.uc3m.android.travelshield.R
 
 @Composable
 fun SecurityScreen(navController: NavController, countryName: String) {
@@ -51,17 +53,17 @@ fun SecurityScreen(navController: NavController, countryName: String) {
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
-                text = "Security for $countryName",
+                text = stringResource(R.string.security_for, countryName),
                 style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
             if (country != null) {
                 // Display security-related information
-                SecurityInfoCard("Common Scams", country.security.commonScams.joinToString())
-                SecurityInfoCard("Crime Level", country.security.crimeLevel)
-                SecurityInfoCard("Police Emergency Number", country.security.emergencyContacts.police.toString())
-                SecurityInfoCard("Embassy Contact", country.security.emergencyContacts.embassy)
+                SecurityInfoCard(stringResource(R.string.common_scams), country.security.commonScams.joinToString())
+                SecurityInfoCard(stringResource(R.string.crime_level), country.security.crimeLevel)
+                SecurityInfoCard(stringResource(R.string.police_emergency_number), country.security.emergencyContacts.police.toString())
+                SecurityInfoCard(stringResource(R.string.embassy_contact), country.security.emergencyContacts.embassy)
             } else {
                 // Show loading or error state if country not found
                 Text(text = "Country not found!")
@@ -89,13 +91,13 @@ fun SecurityScreen(navController: NavController, countryName: String) {
                     modifier = Modifier.size(24.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(text = "Call Emergency")
+                Text(text = stringResource(R.string.call_emergency))
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(onClick = { navController.popBackStack() }) {
-                Text(text = "Go Back")
+                Text(text = stringResource(R.string.go_back))
             }
         }
     }
@@ -107,7 +109,11 @@ fun SecurityInfoCard(title: String, content: String) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp) // Add vertical spacing between cards
-            .border(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f), RoundedCornerShape(8.dp)),
+            .border(
+                1.dp,
+                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
+                RoundedCornerShape(8.dp)
+            ),
         shape = RoundedCornerShape(8.dp)
     ) {
         Column(

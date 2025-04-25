@@ -27,6 +27,7 @@ import es.uc3m.android.travelshield.viewmodel.CountryDoc
 import es.uc3m.android.travelshield.viewmodel.LikeViewModel
 import androidx.compose.material.icons.filled.Flight
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun HomeScreen(
@@ -58,14 +59,14 @@ fun HomeScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Trending Destinations",
+            text = stringResource(R.string.trending_destinations),
             fontSize = 24.sp,
             style = MaterialTheme.typography.titleLarge,
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
         if (filteredCountries.isEmpty()) {
-            Text("No destinations match your search.")
+            Text(stringResource(R.string.no_destinations))
         } else {
             LazyRow(modifier = Modifier.fillMaxWidth()) {
                 items(filteredCountries) { country ->
@@ -77,14 +78,14 @@ fun HomeScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Liked Destinations",
+            text = stringResource(R.string.liked_destinations),
             fontSize = 24.sp,
             style = MaterialTheme.typography.titleLarge,
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
         if (likedCountryDocs.isEmpty()) {
-            Text("You haven't liked any countries yet.")
+            Text(stringResource(R.string.you_haven_t_liked_any_countries_yet))
         } else {
             LazyRow(modifier = Modifier.fillMaxWidth()) {
                 items(likedCountryDocs) { country ->
@@ -107,7 +108,7 @@ fun TopSection(searchQuery: MutableState<String>) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Welcome to TravelShield!",
+                text = stringResource(R.string.welcome_to_travelshield),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Light
             )
@@ -120,7 +121,7 @@ fun TopSection(searchQuery: MutableState<String>) {
         }
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Where to next?",
+            text = stringResource(R.string.where_to_next),
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold
         )
@@ -135,7 +136,7 @@ fun SearchBar(searchQuery: MutableState<String>) {
     TextField(
         value = searchQuery.value,
         onValueChange = { searchQuery.value = it },
-        placeholder = { Text("Search for your new adventure") },
+        placeholder = { Text(stringResource(R.string.search_for_your_new_adventure)) },
         leadingIcon = {
             Icon(imageVector = Icons.Filled.Search, contentDescription = "Search")
         },

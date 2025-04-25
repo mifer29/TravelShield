@@ -8,10 +8,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import es.uc3m.android.travelshield.R
 import es.uc3m.android.travelshield.viewmodel.UserInfoRetrieval
 
 @Composable
@@ -33,12 +35,12 @@ fun EditProfileScreen(
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text("Edit Profile", style = MaterialTheme.typography.headlineMedium)
+        Text(stringResource(R.string.edit_profile), style = MaterialTheme.typography.headlineMedium)
 
         OutlinedTextField(
             value = name,
             onValueChange = { name = it },
-            label = { Text("Name") },
+            label = { Text(stringResource(R.string.name_profile)) },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
@@ -46,7 +48,7 @@ fun EditProfileScreen(
         OutlinedTextField(
             value = surname,
             onValueChange = { surname = it },
-            label = { Text("Surname") },
+            label = { Text(stringResource(R.string.surname_profile)) },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
@@ -57,16 +59,17 @@ fun EditProfileScreen(
                 val updatedSurname = if (surname.text.isNotBlank()) surname.text else userInfo?.surname ?: ""
 
                 userInfoViewModel.updateUserInfo(updatedName, updatedSurname)
-                Toast.makeText(context, "Profile updated", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context,
+                    context.getString(R.string.profile_updated), Toast.LENGTH_SHORT).show()
                 navController.popBackStack()
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Save Changes")
+            Text(stringResource(R.string.save_changes))
         }
 
         TextButton(onClick = { navController.popBackStack() }) {
-            Text("Cancel")
+            Text(stringResource(R.string.cancel))
         }
     }
 }

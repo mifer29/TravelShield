@@ -22,6 +22,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.res.stringResource
+import es.uc3m.android.travelshield.R
 
 @Composable
 fun MapScreen(navController: NavController, countryViewModel: CountryViewModel) {
@@ -84,7 +86,7 @@ fun CountrySearchBar(
                 searchQuery = it
                 showSuggestions = it.isNotBlank() && filteredSuggestions.isNotEmpty()
             },
-            placeholder = { Text("Search country...") },
+            placeholder = { Text(stringResource(R.string.search_country)) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
@@ -106,7 +108,7 @@ fun CountrySearchBar(
                             .fillMaxWidth()
                             .clickable {
                                 searchQuery = country.name
-                                showSuggestions = false // 👈 Ocultar sugerencias
+                                showSuggestions = false
                                 val latLng = LatLng(country.genInfo.lat, country.genInfo.long)
                                 cameraPositionState.move(
                                     CameraUpdateFactory.newLatLngZoom(latLng, 5f)

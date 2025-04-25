@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -94,7 +95,10 @@ fun ProfileScreen(
         }
     }
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp).verticalScroll(rememberScrollState())) {
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .padding(16.dp)
+        .verticalScroll(rememberScrollState())) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = {
                 navController.navigate(NavGraph.SettingsScreen.route)
@@ -140,7 +144,7 @@ fun ProfileScreen(
 
             Icon(
                 imageVector = Icons.Default.Edit,
-                contentDescription = "Edit Picture",
+                contentDescription = stringResource(R.string.edit_picture),
                 modifier = Modifier
                     .size(26.dp)
                     .background(Color.White, CircleShape)
@@ -160,15 +164,15 @@ fun ProfileScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-            ProfileStat("0", "Countries traveled")
-            ProfileStat(reviewCount.toString(), "Reviews written")
-            ProfileStat(likeCount.toString(), "Likes given")
+            ProfileStat("0", stringResource(R.string.countries_traveled))
+            ProfileStat(reviewCount.toString(), stringResource(R.string.reviews_written))
+            ProfileStat(likeCount.toString(), stringResource(R.string.likes_given))
         }
 
         Spacer(modifier = Modifier.height(20.dp))
 
         Column(modifier = Modifier.fillMaxWidth()) {
-            Text("My Reviews", style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(R.string.my_reviews), style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
             reviews.forEach { review ->
                 ReviewItem(
@@ -199,14 +203,14 @@ fun ProfileScreen(
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Go to My Trips")
+            Text(stringResource(R.string.go_to_my_trips))
         }
         Spacer(modifier = Modifier.height(24.dp))
         Button(
             onClick = { navController.navigate("edit_profile") },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Edit Profile Info")
+            Text(stringResource(R.string.edit_profile_info))
         }
 
         Spacer(modifier = Modifier.height(20.dp))
@@ -217,15 +221,15 @@ fun ProfileScreen(
                 launchSingleTop = true
             }
         }, modifier = Modifier.fillMaxWidth()) {
-            Text("Log Out")
+            Text(stringResource(R.string.log_out))
         }
     }
 
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
-            title = { Text("Select Profile Picture") },
-            text = { Text("Choose an option") },
+            title = { Text(stringResource(R.string.select_profile_picture)) },
+            text = { Text(stringResource(R.string.choose_an_option)) },
             confirmButton = {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
@@ -240,16 +244,16 @@ fun ProfileScreen(
                             requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
                         }
                     }) {
-                        Text("Take photo")
+                        Text(stringResource(R.string.take_photo))
                     }
                     Button(onClick = {
                         showDialog = false
                         galleryLauncher.launch("image/*")
                     }) {
-                        Text("Choose from gallery")
+                        Text(stringResource(R.string.choose_from_gallery))
                     }
                     Button(onClick = { showDialog = false }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.cancel))
                     }
                 }
             }
@@ -315,7 +319,7 @@ fun ReviewItem(review: Review, onDeleteClick: (String) -> Unit, onEditClick: (Re
                     }
                 }
             } else {
-                Text("No Rating")
+                Text(stringResource(R.string.no_rating))
             }
 
             Text(
@@ -343,17 +347,17 @@ fun EditReviewDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Edit Review") },
+        title = { Text(stringResource(R.string.edit_review)) },
         text = {
             Column {
                 OutlinedTextField(
                     value = updatedComment,
                     onValueChange = { updatedComment = it },
-                    label = { Text("Comment") },
+                    label = { Text(stringResource(R.string.comment)) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                Text("Rating: ${updatedRating.toInt()}")
+                Text(stringResource(R.string.rating, updatedRating.toInt()))
                 Slider(
                     value = updatedRating,
                     onValueChange = { updatedRating = it },
@@ -365,12 +369,12 @@ fun EditReviewDialog(
         },
         confirmButton = {
             Button(onClick = { onConfirm(updatedComment, updatedRating) }) {
-                Text("Save")
+                Text(stringResource(R.string.save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
         }
     )

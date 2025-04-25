@@ -114,7 +114,17 @@ fun BottomNavigationBar(navController: NavHostController) {
                         launchSingleTop = true
                     }
                 },
-                label = { Text(text = item.route.replaceFirstChar { it.uppercase() }) },
+                label = {
+                    Text(
+                        text = when (item.route) {
+                            NavGraph.Home.route -> stringResource(R.string.bottom_nav_home)
+                            NavGraph.Map.route -> stringResource(R.string.bottom_nav_map)
+                            NavGraph.Profile.route -> stringResource(R.string.bottom_nav_profile)
+                            else -> item.route
+                        }
+                    )
+                }
+                ,
                 icon = {
                     when (index) {
                         0 -> Icon(imageVector = Icons.Default.Home, contentDescription = item.route)

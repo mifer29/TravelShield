@@ -13,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -21,6 +22,7 @@ import androidx.navigation.compose.rememberNavController
 import es.uc3m.android.travelshield.viewmodel.CountryViewModel
 import es.uc3m.android.travelshield.viewmodel.CountryDoc
 import androidx.lifecycle.viewmodel.compose.viewModel
+import es.uc3m.android.travelshield.R
 
 @Composable
 fun HealthScreen(navController: NavController, countryName: String) {
@@ -49,27 +51,27 @@ fun HealthScreen(navController: NavController, countryName: String) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Health Info for ${country.name}",
+                    text = stringResource(R.string.health_info_for, country.name),
                     style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
                 // Create a Card to display each section of the health info
-                HealthInfoCard("Emergency Numbers", "Ambulance: ${country.health.emergency.ambulance}\nPoison Control: ${country.health.emergency.poisonControl}")
-                HealthInfoCard("Health Tips", country.health.tips)
-                HealthInfoCard("Vaccines", country.health.vaccines.joinToString(", "))
+                HealthInfoCard(stringResource(R.string.emergency_numbers), "Ambulance: ${country.health.emergency.ambulance}\nPoison Control: ${country.health.emergency.poisonControl}")
+                HealthInfoCard(stringResource(R.string.health_tips), country.health.tips)
+                HealthInfoCard(stringResource(R.string.vaccines), country.health.vaccines.joinToString(", "))
 
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(
                     onClick = { navController.popBackStack() },
                     modifier = Modifier.padding(top = 16.dp)
                 ) {
-                    Text(text = "Go Back")
+                    Text(text = stringResource(R.string.go_back))
                 }
             }
         } else {
             // Show loading or error state if country not found
-            Text(text = "Country not found!")
+            Text(text = stringResource(R.string.country_not_found))
         }
     }
 }

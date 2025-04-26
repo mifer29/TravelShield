@@ -39,6 +39,7 @@ import es.uc3m.android.travelshield.screens.EditProfileScreen
 import es.uc3m.android.travelshield.notifications.NotificationHelper
 import es.uc3m.android.travelshield.viewmodel.SettingsViewModel
 import es.uc3m.android.travelshield.screens.CountryReviewsScreen
+import es.uc3m.android.travelshield.screens.CompleteProfileScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -216,7 +217,9 @@ fun NavigationGraph(navController: NavHostController, modifier: Modifier) {
             val countryName = backStackEntry.arguments?.getString("countryName") ?: "Unknown"
             CountryReviewsScreen(navController, countryName)
         }
-
+        composable(route = NavGraph.CompleteProfile.route) {
+            CompleteProfileScreen(navController = navController) // La pantalla de CompleteProfile
+        }
 
 
     }

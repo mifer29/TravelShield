@@ -83,6 +83,6 @@ dependencies {
     implementation(libs.okhttp)
 
 
-
+    implementation(libs.google.play.services.auth)
 
 }

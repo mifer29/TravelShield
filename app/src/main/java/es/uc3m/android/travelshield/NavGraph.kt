@@ -28,7 +28,7 @@ sealed class NavGraph(val route: String) {
     data object Categories : NavGraph(CATEGORIES_ROUTE)
     data object Login : NavGraph(LOGIN_ROUTE)
     data object SignUp : NavGraph(SIGNUP_ROUTE)
-    data object SettingsScreen  : NavGraph(SETTING_ROUTE)
+    data object SettingsScreen : NavGraph(SETTING_ROUTE)
     data object Trips : NavGraph(TRIPS_ROUTE)
     // Categories with countryName as dynamic parameter
     data object GeneralInfo : NavGraph(GENERAL_INFO_ROUTE) {
@@ -63,10 +63,10 @@ sealed class NavGraph(val route: String) {
 
     data object EditProfile : NavGraph(EDIT_PROFILE_ROUTE)
 
+    // Agregar CompleteProfile aquí
+    data object CompleteProfile : NavGraph("complete_profile")
 
     data object CountryReviews {
         fun createRoute(countryName: String) = "country_reviews/$countryName"
     }
-
-
 }

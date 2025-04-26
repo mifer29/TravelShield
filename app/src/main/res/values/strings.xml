@@ -109,6 +109,7 @@
     <string name="visa_required">Visado requerido</string>
     <string name="visa_duration">Duración del visado</string>
     <string name="review_submitted_successfully">¡Reseña enviada exitosamente!</string>
+    <string name="default_web_client_id">752227044260-98lfj4n7frhl39ibhje63b65tdlc03r5.apps.googleusercontent.com</string>
 
 
 </resources>

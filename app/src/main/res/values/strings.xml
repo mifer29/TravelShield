@@ -108,6 +108,7 @@
     <string name="visa_info_for">Información de visado para %1$s</string>
     <string name="visa_required">Visado requerido</string>
     <string name="visa_duration">Duración del visado</string>
+    <string name="review_submitted_successfully">¡Reseña enviada exitosamente!</string>
 
 
 </resources>

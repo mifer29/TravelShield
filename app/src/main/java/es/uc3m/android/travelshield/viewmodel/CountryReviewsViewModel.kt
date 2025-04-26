@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.toObject
-import es.uc3m.android.travelshield.viewmodel.Review
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -27,8 +26,8 @@ class CountryReviewsViewModel : ViewModel() {
 
     fun fetchReviewsByCountry(country: String) {
         viewModelScope.launch {
-            if (_isFetching.value || currentCountry == country) {
-                Log.d(TAG, "Already fetched or fetching for country: $country")
+            if (_isFetching.value) {
+                Log.d(TAG, "Already fetching reviews for country: $country")
                 return@launch
             }
 
@@ -52,6 +51,22 @@ class CountryReviewsViewModel : ViewModel() {
                 Log.e(TAG, "Error fetching reviews by country", e)
             } finally {
                 _isFetching.value = false
+            }
+        }
+    }
+
+    fun deleteReview(reviewId: String) {
+        viewModelScope.launch {
+            try {
+                firestore.collection(REVIEWS_COLLECTION)
+                    .document(reviewId)
+                    .delete()
+                    .await()
+
+                currentCountry?.let { fetchReviewsByCountry(it) }
+
+            } catch (e: Exception) {
+                Log.e(TAG, "Error deleting review: ${e.message}")
             }
         }
     }

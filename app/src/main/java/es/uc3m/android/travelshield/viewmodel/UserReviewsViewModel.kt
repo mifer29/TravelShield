@@ -17,6 +17,9 @@ private const val TAG = "UserReviewsViewModel"
 
 class UserReviewsViewModel : ViewModel() {
 
+    private val firestore = FirebaseFirestore.getInstance("travelshield-db")
+    private val auth = FirebaseAuth.getInstance()
+
     private val _reviews = MutableStateFlow<List<Review>>(emptyList())
     val reviews: StateFlow<List<Review>> get() = _reviews
 
@@ -26,14 +29,13 @@ class UserReviewsViewModel : ViewModel() {
     private val _toastMessage = MutableStateFlow<String?>(null)
     val toastMessage: StateFlow<String?> get() = _toastMessage
 
-    private val firestore = FirebaseFirestore.getInstance("travelshield-db")
-    private val auth = FirebaseAuth.getInstance()
+    private val _userReview = MutableStateFlow<Review?>(null)
+    val userReview: StateFlow<Review?> get() = _userReview
 
     init {
         fetchUserReviews()
     }
 
-    // Fetch reviews for the authenticated user
     fun fetchUserReviews() {
         viewModelScope.launch {
             val userId = auth.currentUser?.uid
@@ -43,25 +45,44 @@ class UserReviewsViewModel : ViewModel() {
                 return@launch
             }
 
-            firestore.collection(REVIEWS_COLLECTION)
-                .whereEqualTo("userId", userId)
-                .get()
-                .addOnSuccessListener { result ->
-                    val reviewList = result.map { doc ->
-                        doc.toObject<Review>().copy(reviewId = doc.id)
-                    }
-                    _reviews.value = reviewList
-                    _reviewCount.value = reviewList.size
+            try {
+                val snapshot = firestore.collection(REVIEWS_COLLECTION)
+                    .whereEqualTo("userId", userId)
+                    .get()
+                    .await()
+
+                val reviewList = snapshot.map { doc ->
+                    doc.toObject<Review>().copy(reviewId = doc.id)
                 }
-                .addOnFailureListener { exception ->
-                    _toastMessage.value = "Failed to fetch reviews: ${exception.message}"
-                    Log.e(TAG, "Error fetching user reviews", exception)
-                }
+                _reviews.value = reviewList
+                _reviewCount.value = reviewList.size
+
+            } catch (e: Exception) {
+                _toastMessage.value = "Failed to fetch reviews: ${e.message}"
+                Log.e(TAG, "Error fetching user reviews", e)
+            }
         }
     }
 
+    fun fetchUserReviewForCountry(userId: String, countryName: String) {
+        viewModelScope.launch {
+            try {
+                val snapshot = firestore.collection(REVIEWS_COLLECTION)
+                    .whereEqualTo("userId", userId)
+                    .whereEqualTo("country", countryName)
+                    .get()
+                    .await()
 
-    // Add a review to Firestore
+                val review = snapshot.documents.firstOrNull()?.toObject(Review::class.java)
+                _userReview.value = review?.copy(reviewId = snapshot.documents.firstOrNull()?.id.orEmpty())
+
+            } catch (e: Exception) {
+                _userReview.value = null
+                Log.e(TAG, "Error fetching user review for country: ${e.message}")
+            }
+        }
+    }
+
     fun addReview(review: Review) {
         viewModelScope.launch {
             val userId = auth.currentUser?.uid
@@ -71,51 +92,55 @@ class UserReviewsViewModel : ViewModel() {
                 return@launch
             }
 
-            firestore.collection(USERS_COLLECTION).document(userId).get()
-                .addOnSuccessListener { userDoc ->
-                    val userName = userDoc.getString("name") ?: "Anonymous"
-
-                    val reviewData = hashMapOf(
-                        "userId" to userId,
-                        "userName" to userName,
-                        "country" to review.country,
-                        "rating" to review.rating,
-                        "comment" to review.comment,
-                        "timestamp" to review.timestamp
-                    )
-
-                    firestore.collection(REVIEWS_COLLECTION)
-                        .add(reviewData)
-                        .addOnSuccessListener { documentRef ->
-                            val reviewWithId = review.copy(reviewId = documentRef.id)
-                            _toastMessage.value = "Review added successfully!"
-                            fetchUserReviews()
-                        }
-                        .addOnFailureListener { exception ->
-                            _toastMessage.value = "Failed to add review: ${exception.message}"
-                            Log.e(TAG, "Error adding review", exception)
-                        }
-                }
-                .addOnFailureListener { exception ->
-                    _toastMessage.value = "Failed to fetch user name: ${exception.message}"
-                    Log.e(TAG, "Error fetching user name", exception)
-                }
-        }
-    }
-
-    // Delete review from firebase
-    fun deleteReview(reviewId: String) {
-        viewModelScope.launch {
             try {
-                firestore.collection("reviews").document(reviewId).delete().await()
+                val userDoc = firestore.collection(USERS_COLLECTION)
+                    .document(userId)
+                    .get()
+                    .await()
+
+                val userName = userDoc.getString("name") ?: "Anonymous"
+
+                val reviewData = hashMapOf(
+                    "userId" to userId,
+                    "userName" to userName,
+                    "country" to review.country,
+                    "rating" to review.rating,
+                    "comment" to review.comment,
+                    "timestamp" to review.timestamp
+                )
+
+                firestore.collection(REVIEWS_COLLECTION)
+                    .add(reviewData)
+                    .await()
+
+                _toastMessage.value = "Review added successfully!"
                 fetchUserReviews()
+
             } catch (e: Exception) {
-                _toastMessage.value = "Error deleting review: ${e.message}"
+                _toastMessage.value = "Failed to add review: ${e.message}"
+                Log.e(TAG, "Error adding review", e)
             }
         }
     }
 
-    // Update reviews
+    fun deleteReview(reviewId: String) {
+        viewModelScope.launch {
+            try {
+                firestore.collection(REVIEWS_COLLECTION)
+                    .document(reviewId)
+                    .delete()
+                    .await()
+
+                _toastMessage.value = "Review deleted successfully."
+                fetchUserReviews()
+
+            } catch (e: Exception) {
+                _toastMessage.value = "Error deleting review: ${e.message}"
+                Log.e(TAG, "Error deleting review", e)
+            }
+        }
+    }
+
     fun updateReview(reviewId: String, newComment: String, newRating: Double) {
         viewModelScope.launch {
             try {
@@ -127,17 +152,14 @@ class UserReviewsViewModel : ViewModel() {
                 firestore.collection(REVIEWS_COLLECTION)
                     .document(reviewId)
                     .update(updateData)
-                    .addOnSuccessListener {
-                        _toastMessage.value = "Review updated successfully!"
-                        fetchUserReviews() // Refresh the list
-                    }
-                    .addOnFailureListener { exception ->
-                        _toastMessage.value = "Failed to update review: ${exception.message}"
-                        Log.e(TAG, "Error updating review", exception)
-                    }
+                    .await()
+
+                _toastMessage.value = "Review updated successfully!"
+                fetchUserReviews()
+
             } catch (e: Exception) {
-                _toastMessage.value = "Unexpected error: ${e.message}"
-                Log.e(TAG, "Exception updating review", e)
+                _toastMessage.value = "Failed to update review: ${e.message}"
+                Log.e(TAG, "Error updating review", e)
             }
         }
     }

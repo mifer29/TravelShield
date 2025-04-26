@@ -2,6 +2,7 @@ package es.uc3m.android.travelshield.screens
 
 import android.util.Log
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,56 +21,41 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import es.uc3m.android.travelshield.R
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.compose.rememberNavController
-import es.uc3m.android.travelshield.NavGraph
-import es.uc3m.android.travelshield.viewmodel.LikeViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import es.uc3m.android.travelshield.viewmodel.LikeCountViewModel
-import es.uc3m.android.travelshield.viewmodel.Review
-import es.uc3m.android.travelshield.viewmodel.CountryReviewsViewModel
+import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import es.uc3m.android.travelshield.NavGraph
+import es.uc3m.android.travelshield.R
+import es.uc3m.android.travelshield.viewmodel.CountryReviewsViewModel
+import es.uc3m.android.travelshield.viewmodel.LikeCountViewModel
+import es.uc3m.android.travelshield.viewmodel.LikeViewModel
 
 @Composable
 fun CountryScreen(navController: NavController, countryName: String) {
     val countryImageName = "country_${countryName.lowercase().replace(" ", "_")}"
-
-    // Obtener ID de la imagen en drawable
     val imageResId = remember(countryImageName) {
         try {
-            val resId = R.drawable::class.java.getField(countryImageName).getInt(null)
-            resId
+            R.drawable::class.java.getField(countryImageName).getInt(null)
         } catch (e: Exception) {
-            R.drawable.country_default // Imagen por defecto si no existe
+            R.drawable.country_default
         }
     }
 
     val likeCountViewModel: LikeCountViewModel = viewModel()
-    val likeViewModel: LikeViewModel = remember {
-        LikeViewModel(likeCountViewModel)
-    }
+    val likeViewModel: LikeViewModel = remember { LikeViewModel(likeCountViewModel) }
     val liked by likeViewModel.liked.collectAsState()
 
-    // Load like state when screen is composed
+    val countryReviewsViewModel: CountryReviewsViewModel = viewModel()
+    val countryReviews by countryReviewsViewModel.reviews.collectAsState()
+
     LaunchedEffect(countryName) {
         likeViewModel.loadLikeStatus(countryName)
-    }
-
-    // Reviews ViewModel
-    // Reviews ViewModel (now for all users, not just current)
-    val countryReviewsViewModel: CountryReviewsViewModel = viewModel()
-
-    LaunchedEffect(countryName) {
         countryReviewsViewModel.fetchReviewsByCountry(countryName)
     }
 
-    val countryReviews by countryReviewsViewModel.reviews.collectAsState()
+    val averageRating = countryReviews.map { it.rating }.average().takeIf { it.isFinite() } ?: 0.0
+    val ratingCount = countryReviews.size
 
-
-
-    // Make the entire column scrollable by wrapping it with a Scrollable Column
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -78,199 +64,141 @@ fun CountryScreen(navController: NavController, countryName: String) {
     ) {
         Spacer(modifier = Modifier.height(15.dp))
 
-        // Inside the Row that contains the country name and favorite button
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                // Country Flag using Coil from URL
-                val flagUrl = "https://flagsapi.com/${countryName.take(2).uppercase()}/flat/64.png"
-                Image(
-                    painter = rememberAsyncImagePainter(flagUrl),
-                    contentDescription = "$countryName Flag",
-                    modifier = Modifier
-                        .size(32.dp)
-                        .padding(end = 8.dp)
-                )
-
-                Text(
-                    text = countryName,
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-
-            // Heart Icon (en drawable heart.png)
-            IconButton(onClick = {
-                likeViewModel.toggleLike(countryName)
-            }) {
-                Icon(
-                    painter = painterResource(id = R.drawable.heart),
-                    contentDescription = "Favorite",
-                    tint = if (liked) Color.Red else Color.Gray
-                )
-            }
-        }
+        HeaderSection(
+            navController = navController,
+            countryName = countryName,
+            averageRating = averageRating,
+            ratingCount = ratingCount,
+            liked = liked,
+            onLikeClick = { likeViewModel.toggleLike(countryName) }
+        )
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Country Image
-        Image(
-            painter = painterResource(id = imageResId),
-            contentDescription = "$countryName Image",
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(200.dp)
-                .clip(RoundedCornerShape(12.dp)),
-            contentScale = ContentScale.Crop
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
+        CountryImage(imageResId = imageResId, countryName = countryName)
 
         Spacer(modifier = Modifier.height(30.dp))
 
-        // Categorías
-        CategoryGrid(
-            navController = navController,
-            countryName = countryName,
-            modifier = Modifier
-                .fillMaxWidth()
-        )
+        CategoryGrid(navController = navController, countryName = countryName)
 
         Spacer(modifier = Modifier.height(30.dp))
-
-        // Reviews Section
-        Text(
-            text = stringResource(R.string.reviews),
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(vertical = 8.dp)
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        if (countryReviews.isNotEmpty()) {
-            countryReviews.forEach { review ->
-                ReviewItemCountry(review = review)
-            }
-        } else {
-            Text(stringResource(R.string.no_reviews_available))
-        }
-
-
-        // Write Review Button
-        Button(
-            onClick = { navController.navigate(NavGraph.WriteReview.createRoute(countryName)) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            )
-        ) {
-            Text(stringResource(R.string.write_a_review), fontSize = 16.sp)
-        }
     }
 }
 
-
-// **Review Item to display individual reviews**
 @Composable
-fun ReviewItemCountry(review: Review) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        shape = RoundedCornerShape(12.dp)
+fun HeaderSection(
+    navController: NavController,
+    countryName: String,
+    averageRating: Double,
+    ratingCount: Int,
+    liked: Boolean,
+    onLikeClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-
-            // Reviewer Name
-            Text(
-                text = review.userName,
-                style = MaterialTheme.typography.bodyLarge.copy(
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            val flagUrl = "https://flagsapi.com/${countryName.take(2).uppercase()}/flat/64.png"
+            Image(
+                painter = rememberAsyncImagePainter(flagUrl),
+                contentDescription = "$countryName Flag",
+                modifier = Modifier
+                    .size(32.dp)
+                    .padding(end = 8.dp)
+            )
+            Column {
+                Text(
+                    text = countryName,
+                    fontSize = 28.sp,
                     fontWeight = FontWeight.Bold
                 )
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            // Rating + Posted on... (side by side)
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Rating stars or "No rating"
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    if (review.rating == 0.0) {
-                        Text(
-                            text = "No rating",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.Gray
-                        )
-                    } else {
-                        repeat(review.rating.toInt()) {
-                            Icon(
-                                imageVector = Icons.Default.Star,
-                                contentDescription = "Star",
-                                tint = Color.Gray,
-                                modifier = Modifier.size(18.dp)
-                            )
-                        }
-                        if (review.rating - review.rating.toInt() >= 0.5) {
-                            Icon(
-                                imageVector = Icons.Default.Star,
-                                contentDescription = "Half Star",
-                                tint = Color.Gray,
-                                modifier = Modifier.size(18.dp)
-                            )
-                        }
-                    }
-                }
-
-                // Timestamp
-                Text(
-                    text = "Posted on ${review.timestamp}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray
+                Spacer(modifier = Modifier.height(4.dp))
+                RatingSection(
+                    averageRating = averageRating,
+                    ratingCount = ratingCount,
+                    onClick = { navController.navigate(NavGraph.CountryReviews.createRoute(countryName)) }
                 )
             }
+        }
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Review Comment
-            Text(
-                text = review.comment,
-                style = MaterialTheme.typography.bodyMedium
+        IconButton(onClick = onLikeClick) {
+            Icon(
+                painter = painterResource(id = R.drawable.heart),
+                contentDescription = "Favorite",
+                tint = if (liked) Color.Red else Color.Gray
             )
         }
     }
 }
 
-// **Category Grid Layout**
 @Composable
-fun CategoryGrid(navController: NavController, countryName: String, modifier: Modifier = Modifier) {
-    val categories = listOf(stringResource(R.string.general_info),
+fun RatingSection(
+    averageRating: Double,
+    ratingCount: Int,
+    onClick: () -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.clickable { onClick() }
+    ) {
+        Text(
+            text = String.format("%.1f", averageRating),
+            style = MaterialTheme.typography.bodySmall,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.padding(end = 4.dp)
+        )
+        repeat(averageRating.toInt()) {
+            Icon(
+                imageVector = Icons.Default.Star,
+                contentDescription = "Star",
+                tint = Color.Yellow,
+                modifier = Modifier.size(16.dp)
+            )
+        }
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(
+            text = "($ratingCount)",
+            style = MaterialTheme.typography.bodySmall,
+            color = Color.Gray
+        )
+    }
+}
+
+@Composable
+fun CountryImage(imageResId: Int, countryName: String) {
+    Image(
+        painter = painterResource(id = imageResId),
+        contentDescription = "$countryName Image",
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp)
+            .clip(RoundedCornerShape(12.dp)),
+        contentScale = ContentScale.Crop
+    )
+}
+
+@Composable
+fun CategoryGrid(navController: NavController, countryName: String) {
+    val categories = listOf(
+        stringResource(R.string.general_info),
         stringResource(R.string.health),
-        stringResource(R.string.visa), stringResource(R.string.security),
-        stringResource(R.string.news), stringResource(R.string.transport)
+        stringResource(R.string.visa),
+        stringResource(R.string.security),
+        stringResource(R.string.news),
+        stringResource(R.string.transport)
     )
 
     Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(16.dp) // Adds spacing between rows
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        for (row in categories.chunked(3)) { // 3 items per row
+        categories.chunked(3).forEach { row ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                for (category in row) {
+                row.forEach { category ->
                     CategoryItem(name = category, navController = navController, countryName = countryName)
                 }
             }
@@ -278,7 +206,6 @@ fun CategoryGrid(navController: NavController, countryName: String, modifier: Mo
     }
 }
 
-// **Category Item as a Button**
 @Composable
 fun CategoryItem(name: String, navController: NavController, countryName: String) {
     val route = when (name) {
@@ -288,7 +215,7 @@ fun CategoryItem(name: String, navController: NavController, countryName: String
         stringResource(R.string.security) -> NavGraph.Security.createRoute(countryName)
         stringResource(R.string.news) -> NavGraph.News.createRoute(countryName)
         stringResource(R.string.transport) -> NavGraph.Transport.createRoute(countryName)
-        else -> NavGraph.Home.route // Fallback (puede cambiarse según lo necesario)
+        else -> NavGraph.Home.route
     }
 
     val imageResId = when (name) {
@@ -298,14 +225,11 @@ fun CategoryItem(name: String, navController: NavController, countryName: String
         stringResource(R.string.security) -> R.drawable.categories_security
         stringResource(R.string.news) -> R.drawable.categories_news
         stringResource(R.string.transport) -> R.drawable.categories_transport
-        else -> R.drawable.categories_info // Default to general info icon if something is missing
+        else -> R.drawable.categories_info
     }
 
     Button(
-        onClick = {
-            // Correctly navigate using the createRoute method
-            navController.navigate(route)
-        },
+        onClick = { navController.navigate(route) },
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier.size(100.dp),
         colors = ButtonDefaults.buttonColors(
@@ -322,16 +246,12 @@ fun CategoryItem(name: String, navController: NavController, countryName: String
                 contentDescription = "$name Icon",
                 modifier = Modifier.size(40.dp)
             )
-
             Spacer(modifier = Modifier.height(8.dp))
-
-            Text(text = name, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+            Text(
+                text = name,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Medium
+            )
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    CountryScreen(navController = rememberNavController(), countryName = "USA")
 }

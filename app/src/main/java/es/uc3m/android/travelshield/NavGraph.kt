@@ -18,6 +18,7 @@ const val TRANSPORT_ROUTE = "categories/transport/{countryName}"
 const val VISA_ROUTE = "categories/visa/{countryName}"
 const val TRIPS_ROUTE = "trips"
 const val UPLOAD_COUNTRIES_ROUTE = "upload_countries"
+const val COUNTRY_REVIEWS_ROUTE = "country_reviews/{countryName}"
 
 sealed class NavGraph(val route: String) {
     data object Home : NavGraph(HOME_ROUTE)
@@ -61,5 +62,11 @@ sealed class NavGraph(val route: String) {
     data object UploadCountries : NavGraph(UPLOAD_COUNTRIES_ROUTE)
 
     data object EditProfile : NavGraph(EDIT_PROFILE_ROUTE)
+
+
+    data object CountryReviews {
+        fun createRoute(countryName: String) = "country_reviews/$countryName"
+    }
+
 
 }

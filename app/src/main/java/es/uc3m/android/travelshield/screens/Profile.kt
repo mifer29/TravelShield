@@ -7,13 +7,10 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
 import android.provider.MediaStore
-import android.util.Log
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -41,15 +38,10 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.storage.FirebaseStorage
 import es.uc3m.android.travelshield.NavGraph
 import es.uc3m.android.travelshield.R
 import es.uc3m.android.travelshield.viewmodel.*
-import java.io.ByteArrayOutputStream
-import androidx.room.Delete
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -68,9 +60,8 @@ fun ProfileScreen(
     val userInfo by userInfoViewModel.userInfo.collectAsState()
     val likeCount by likeCountViewModel.likeCount.collectAsState()
     val reviews by userReviewsViewModel.reviews.collectAsState()
-
     val reviewCount by userReviewsViewModel.reviewCount.collectAsState()
-
+    val trips by tripViewModel.trips.collectAsState()
     var selectedReviewForEdit by remember { mutableStateOf<Review?>(null) }
 
     val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -83,41 +74,25 @@ fun ProfileScreen(
         if (isGranted) launchCamera(cameraLauncher)
     }
 
-    // Refrescar perfil al volver desde edit_profile
-    LaunchedEffect(Unit) {
-        navController.currentBackStackEntryFlow.collect { backStackEntry ->
-            if (backStackEntry.destination.route == NavGraph.Profile.route) {
-                userInfoViewModel::class.java.getDeclaredMethod("fetchUserInfo").apply {
-                    isAccessible = true
-                    invoke(userInfoViewModel)
-                }
-            }
-        }
-    }
-
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .padding(16.dp)
-        .verticalScroll(rememberScrollState())) {
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = {
-                navController.navigate(NavGraph.SettingsScreen.route)
-            }) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState())
+    ) {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+            IconButton(onClick = { navController.navigate(NavGraph.SettingsScreen.route) }) {
                 Icon(Icons.Default.Settings, contentDescription = "Settings")
             }
         }
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        Box(
-            contentAlignment = Alignment.TopEnd,
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .size(120.dp)
-        ) {
+        Box(contentAlignment = Alignment.TopEnd, modifier = Modifier.align(Alignment.CenterHorizontally)) {
             Surface(
-                modifier = Modifier.fillMaxSize(),
-                shape = CircleShape,
+                modifier = Modifier
+                    .size(120.dp)
+                    .clip(CircleShape),
                 color = Color.Transparent
             ) {
                 when {
@@ -141,7 +116,6 @@ fun ProfileScreen(
                     )
                 }
             }
-
             Icon(
                 imageVector = Icons.Default.Edit,
                 contentDescription = stringResource(R.string.edit_picture),
@@ -150,13 +124,12 @@ fun ProfileScreen(
                     .background(Color.White, CircleShape)
                     .padding(4.dp)
                     .clickable { showDialog = true }
-                    .align(Alignment.TopEnd)
             )
         }
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.align(Alignment.CenterHorizontally)) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(text = userInfo?.let { "${it.name} ${it.surname}" } ?: "Loading...", style = MaterialTheme.typography.headlineSmall)
             Text(text = "Location", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
         }
@@ -164,14 +137,14 @@ fun ProfileScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-            ProfileStat("0", stringResource(R.string.countries_traveled))
-            ProfileStat(reviewCount.toString(), stringResource(R.string.reviews_written))
-            ProfileStat(likeCount.toString(), stringResource(R.string.likes_given))
+            ProfileStat(reviewCount.toString(), "Countries Traveled")
+            ProfileStat(trips.size.toString(), "Future Travels")
+            ProfileStat(likeCount.toString(), "Likes Given")
         }
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        Column(modifier = Modifier.fillMaxWidth()) {
+        Column {
             Text(stringResource(R.string.my_reviews), style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
             reviews.forEach { review ->
@@ -197,19 +170,13 @@ fun ProfileScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        Button(
-            onClick = {
-                navController.navigate("trips")
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
+        Button(onClick = { navController.navigate("trips") }, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.go_to_my_trips))
         }
+
         Spacer(modifier = Modifier.height(24.dp))
-        Button(
-            onClick = { navController.navigate("edit_profile") },
-            modifier = Modifier.fillMaxWidth()
-        ) {
+
+        Button(onClick = { navController.navigate("edit_profile") }, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.edit_profile_info))
         }
 
@@ -231,11 +198,7 @@ fun ProfileScreen(
             title = { Text(stringResource(R.string.select_profile_picture)) },
             text = { Text(stringResource(R.string.choose_an_option)) },
             confirmButton = {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Button(onClick = {
                         showDialog = false
                         if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
@@ -243,15 +206,13 @@ fun ProfileScreen(
                         } else {
                             requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
                         }
-                    }) {
-                        Text(stringResource(R.string.take_photo))
-                    }
+                    }) { Text(stringResource(R.string.take_photo)) }
+
                     Button(onClick = {
                         showDialog = false
                         galleryLauncher.launch("image/*")
-                    }) {
-                        Text(stringResource(R.string.choose_from_gallery))
-                    }
+                    }) { Text(stringResource(R.string.choose_from_gallery)) }
+
                     Button(onClick = { showDialog = false }) {
                         Text(stringResource(R.string.cancel))
                     }
@@ -271,77 +232,35 @@ fun ProfileStat(value: String, label: String) {
 
 @Composable
 fun ReviewItem(review: Review, onDeleteClick: (String) -> Unit, onEditClick: (Review) -> Unit) {
-    val formattedDate = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault())
-        .format(Date(review.timestamp))
+    val formattedDate = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault()).format(Date(review.timestamp))
 
     Column(modifier = Modifier.padding(vertical = 8.dp)) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = review.country,
-                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
-            )
-
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+            Text(text = review.country, style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold))
             Row {
-                IconButton(onClick = { onEditClick(review) }) {
-                    Icon(Icons.Default.Edit, contentDescription = "Edit Review")
-                }
-                IconButton(onClick = { onDeleteClick(review.reviewId) }) {
-                    Icon(Icons.Default.Delete, contentDescription = "Delete Review")
-                }
+                IconButton(onClick = { onEditClick(review) }) { Icon(Icons.Default.Edit, contentDescription = "Edit Review") }
+                IconButton(onClick = { onDeleteClick(review.reviewId) }) { Icon(Icons.Default.Delete, contentDescription = "Delete Review") }
             }
         }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             if (review.rating > 0) {
                 Row {
                     repeat(review.rating.toInt()) {
-                        Icon(
-                            imageVector = Icons.Default.Star,
-                            contentDescription = null,
-                            tint = Color.Gray,
-                            modifier = Modifier.size(18.dp)
-                        )
-                    }
-                    if (review.rating - review.rating.toInt() >= 0.5) {
-                        Icon(
-                            imageVector = Icons.Default.Star,
-                            contentDescription = "Half Star",
-                            tint = Color.Gray,
-                            modifier = Modifier.size(18.dp)
-                        )
+                        Icon(Icons.Default.Star, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(18.dp))
                     }
                 }
             } else {
                 Text(stringResource(R.string.no_rating))
             }
-
-            Text(
-                text = "Posted on $formattedDate",
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.Gray
-            )
+            Text(text = "Posted on $formattedDate", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
         }
-
         Spacer(modifier = Modifier.height(4.dp))
-
-        // Review text
         Text(text = review.comment)
     }
 }
 
 @Composable
-fun EditReviewDialog(
-    review: Review,
-    onDismiss: () -> Unit,
-    onConfirm: (String, Float) -> Unit
-) {
+fun EditReviewDialog(review: Review, onDismiss: () -> Unit, onConfirm: (String, Float) -> Unit) {
     var updatedComment by remember { mutableStateOf(review.comment) }
     var updatedRating by remember { mutableFloatStateOf(review.rating.toFloat()) }
 
@@ -368,14 +287,10 @@ fun EditReviewDialog(
             }
         },
         confirmButton = {
-            Button(onClick = { onConfirm(updatedComment, updatedRating) }) {
-                Text(stringResource(R.string.save))
-            }
+            Button(onClick = { onConfirm(updatedComment, updatedRating) }) { Text(stringResource(R.string.save)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.cancel))
-            }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
         }
     )
 }
@@ -388,9 +303,7 @@ fun launchCamera(cameraLauncher: androidx.activity.result.ActivityResultLauncher
 fun handleCameraResult(result: androidx.activity.result.ActivityResult): Bitmap? {
     return if (result.resultCode == Activity.RESULT_OK) {
         result.data?.extras?.get("data") as? Bitmap
-    } else {
-        null
-    }
+    } else null
 }
 
 fun handleGalleryResult(uri: Uri?, context: android.content.Context): Bitmap? {

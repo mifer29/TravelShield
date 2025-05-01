@@ -1,27 +1,19 @@
 package es.uc3m.android.travelshield.screens
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import android.content.Context
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import es.uc3m.android.travelshield.viewmodel.CountryDoc
-import es.uc3m.android.travelshield.viewmodel.CountryViewModel
-import es.uc3m.android.travelshield.viewmodel.Emergency
-import es.uc3m.android.travelshield.viewmodel.EmergencyContacts
-import es.uc3m.android.travelshield.viewmodel.GenInfo
-import es.uc3m.android.travelshield.viewmodel.Health
-import es.uc3m.android.travelshield.viewmodel.News
-import es.uc3m.android.travelshield.viewmodel.Security
-import es.uc3m.android.travelshield.viewmodel.Transport
-import es.uc3m.android.travelshield.viewmodel.Visa
 import androidx.lifecycle.viewmodel.compose.viewModel
-
+import com.google.firebase.firestore.FirebaseFirestore
+import es.uc3m.android.travelshield.R
+import es.uc3m.android.travelshield.viewmodel.*
+import org.json.JSONObject
 
 @Composable
 fun CountryUploadScreen(viewModel: CountryViewModel = viewModel()) {
@@ -38,6 +30,26 @@ fun CountryUploadScreen(viewModel: CountryViewModel = viewModel()) {
 
 @Composable
 fun UploadCountriesButton(viewModel: CountryViewModel) {
+    val context = LocalContext.current
+
+    // Carga y búsqueda de geometría desde el archivo GeoJSON
+    val geoJsonString = context.resources.openRawResource(R.raw.ne_50m_admin_0_countries)
+        .bufferedReader().use { it.readText() }
+    val geoJson = JSONObject(geoJsonString)
+    val features = geoJson.getJSONArray("features")
+
+    fun findGeometryByName(name: String): String? {
+        for (i in 0 until features.length()) {
+            val feature = features.getJSONObject(i)
+            val props = feature.getJSONObject("properties")
+            if (props.getString("NAME").equals(name, ignoreCase = true)) {
+                return feature.getJSONObject("geometry").toString()
+            }
+        }
+        return null
+    }
+
+    // Lista de países con geometría añadida
     val countriesToAdd = listOf(
         CountryDoc(
             name = "Australia",
@@ -72,9 +84,8 @@ fun UploadCountriesButton(viewModel: CountryViewModel) {
                 embassy = "You can apply through the Australian Embassy or Consulate in your country. They provide visa types and application instructions."
             )
         ),
-
         CountryDoc(
-            name = "USA",
+            name = "United States of America",
             genInfo = GenInfo(
                 culture = "Diverse and multicultural, with strong emphasis on individualism and innovation. Major cultural exports include music, cinema, and technology.",
                 description = "Spanning six time zones, the USA offers everything from skyscrapers in New York to natural wonders like the Grand Canyon and Yellowstone.",
@@ -106,7 +117,6 @@ fun UploadCountriesButton(viewModel: CountryViewModel) {
                 embassy = "You can apply for a visa through the US Embassy or Consulate in your home country. They provide the required documentation and appointments."
             )
         ),
-
         CountryDoc(
             name = "Switzerland",
             genInfo = GenInfo(
@@ -140,7 +150,9 @@ fun UploadCountriesButton(viewModel: CountryViewModel) {
                 embassy = "You can apply for a visa through the Swiss Embassy or Consulate in your country. Check local procedures and required documents."
             )
         )
-    )
+    ).map { country ->
+        country.copy(geometry = findGeometryByName(country.name))
+    }
 
     Button(onClick = {
         viewModel.addCountry(*countriesToAdd.toTypedArray())
@@ -148,6 +160,3 @@ fun UploadCountriesButton(viewModel: CountryViewModel) {
         Text("Upload Countries")
     }
 }
-
-
-

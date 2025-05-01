@@ -44,6 +44,7 @@ import es.uc3m.android.travelshield.R
 import es.uc3m.android.travelshield.viewmodel.*
 import java.text.SimpleDateFormat
 import java.util.*
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun ProfileScreen(
@@ -178,6 +179,20 @@ fun ProfileScreen(
 
         Button(onClick = { navController.navigate("edit_profile") }, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.edit_profile_info))
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        val userEmail = FirebaseAuth.getInstance().currentUser?.email
+
+        if (userEmail == "maria@gmail.com") {
+            Spacer(modifier = Modifier.height(20.dp))
+            Button(
+                onClick = { navController.navigate(NavGraph.UploadCountries.route) },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Subir países (admin)")
+            }
         }
 
         Spacer(modifier = Modifier.height(20.dp))

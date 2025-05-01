@@ -22,7 +22,11 @@ data class CountryDoc(
     val transport: Transport = Transport(),
 
     // Visa requirements
-    val visa: Visa = Visa()
+    val visa: Visa = Visa(),
+
+    // Geometry for map
+    val geometry: String? = null
+
 )
 
 // Data classes for each section of the country information

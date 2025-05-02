@@ -51,7 +51,9 @@ fun MapScreen(
     val trips by tripViewModel.trips.collectAsState()
     val reviews by userReviewsViewModel.reviews.collectAsState()
     val likedCountries by likeViewModel.likedCountries.collectAsState()
-
+    LaunchedEffect(Unit) {
+        likeViewModel.loadLikedCountries()
+    }
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(LatLng(20.0, 0.0), 2f)
     }
@@ -72,10 +74,9 @@ fun MapScreen(
             MapEffect(Unit) { map ->
                 googleMap = map
                 map.setOnPolygonClickListener { polygon ->
-                    val countryName = polygon.tag as? String
-                    val country = countries.find {
-                        (if (lang == "es") it.name.es else it.name.en) == countryName
-                    }
+                    val countryTag = polygon.tag as? String
+                    val country = countries.find { it.name.en == countryTag }
+
                     selectedCountry = country
                 }
             }
@@ -85,15 +86,21 @@ fun MapScreen(
             googleMap?.let { map ->
                 map.clear()
                 countries.forEach { country ->
+                    Log.d("MapScreen", "💛 Liked countries: $likedCountries")
+
                     val displayName = if (lang == "es") country.name.es else country.name.en
                     country.geometry?.let { geoStr ->
                         try {
                             val geoJson = JSONObject(geoStr)
                             val color = when {
                                 reviews.any { it.country == displayName } -> visitedColor
-                                trips.any { it.country == displayName } -> futureColor
-                                likedCountries.contains(displayName) -> likeColor
+                                trips.any { it.country == country.name.en } -> futureColor
+                                likedCountries.contains(country.name.en) -> likeColor
                                 else -> defaultColor
+                            }
+
+                            if (likedCountries.contains(country.name.en)) {
+                                Log.d("MapScreen", "⭐ Liked match: ${country.name.en}")
                             }
 
                             val drawPolygon: (JSONArray) -> Unit = { coords ->
@@ -109,7 +116,8 @@ fun MapScreen(
                                     polygonOptions.add(latLng)
                                 }
                                 val polygon = map.addPolygon(polygonOptions)
-                                polygon.tag = displayName
+                                polygon.tag = country.name.en
+
                             }
 
                             when (geoJson.getString("type")) {
@@ -147,7 +155,7 @@ fun MapScreen(
             val stateLabel = when {
                 reviews.any { it.country == displayName } -> stringResource(R.string.visited)
                 trips.any { it.country == displayName } -> stringResource(R.string.planned)
-                likedCountries.contains(displayName) -> stringResource(R.string.liked)
+                likedCountries.contains(country.name.en) -> stringResource(R.string.liked)
                 else -> stringResource(R.string.no_interaction)
             }
 

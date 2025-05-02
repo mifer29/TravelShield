@@ -124,7 +124,7 @@ fun UploadCountriesButton(viewModel: CountryViewModel) {
 
         CountryDoc(
             name = LocalizedText(
-                en = "United States of America",
+                en = "United States",
                 es = "Estados Unidos"
             ),
             genInfo = GenInfo(

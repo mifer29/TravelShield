@@ -27,7 +27,6 @@ class CountryReviewsViewModel : ViewModel() {
     fun fetchReviewsByCountry(country: String) {
         viewModelScope.launch {
             if (_isFetching.value) {
-                Log.d(TAG, "Already fetching reviews for country: $country")
                 return@launch
             }
 
@@ -44,7 +43,6 @@ class CountryReviewsViewModel : ViewModel() {
                     doc.toObject<Review>().copy(reviewId = doc.id)
                 }
 
-                Log.d(TAG, "Fetched ${reviewList.size} reviews for $country")
                 _reviews.value = reviewList
 
             } catch (e: Exception) {

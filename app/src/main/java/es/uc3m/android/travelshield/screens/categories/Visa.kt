@@ -22,6 +22,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import es.uc3m.android.travelshield.R
 import es.uc3m.android.travelshield.viewmodel.CountryViewModel
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun VisaScreen(navController: NavController, countryName: String) {
@@ -31,7 +32,11 @@ fun VisaScreen(navController: NavController, countryName: String) {
     val countries by countryViewModel.countries.collectAsState()
 
     // Find the country data matching the countryName
-    val country = countries.find { it.name == countryName }
+    val lang = LocalContext.current.resources.configuration.locales[0].language
+    val country = countries.find {
+        (if (lang == "es") it.name.es else it.name.en) == countryName
+    }
+
 
     // Remember scroll state
     val scrollState = rememberScrollState()
@@ -56,8 +61,12 @@ fun VisaScreen(navController: NavController, countryName: String) {
 
                 // Create a Card to display each section of the visa info
                 VisaCard(stringResource(R.string.visa_required), if (country.visa.required) "Yes" else "No")
-                VisaCard(stringResource(R.string.visa_duration), country.visa.duration)
-                VisaCard(stringResource(R.string.embassy_contact), country.visa.embassy)
+                val visaDuration = if (lang == "es") country.visa.duration.es else country.visa.duration.en
+                val embassyContact = if (lang == "es") country.visa.embassy.es else country.visa.embassy.en
+
+                VisaCard(stringResource(R.string.visa_duration), visaDuration)
+                VisaCard(stringResource(R.string.embassy_contact), embassyContact)
+
 
                 Spacer(modifier = Modifier.height(16.dp))
 

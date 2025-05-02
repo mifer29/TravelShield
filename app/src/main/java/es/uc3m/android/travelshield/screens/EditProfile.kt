@@ -27,6 +27,7 @@ fun EditProfileScreen(
 
     var name by remember(userInfo) { mutableStateOf(TextFieldValue(userInfo?.name ?: "")) }
     var surname by remember(userInfo) { mutableStateOf(TextFieldValue(userInfo?.surname ?: "")) }
+    var location by remember(userInfo) { mutableStateOf(TextFieldValue(userInfo?.location ?: "")) } // ✅ NUEVO
 
     Column(
         modifier = Modifier
@@ -53,15 +54,28 @@ fun EditProfileScreen(
             singleLine = true
         )
 
+        OutlinedTextField(
+            value = location,
+            onValueChange = { location = it },
+            label = { Text(stringResource(R.string.location_profile)) },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
+        )
+
         Button(
             onClick = {
                 val updatedName = if (name.text.isNotBlank()) name.text else userInfo?.name ?: ""
                 val updatedSurname = if (surname.text.isNotBlank()) surname.text else userInfo?.surname ?: ""
+                val updatedLocation = location.text // puede ser vacío
 
-                userInfoViewModel.updateUserInfo(updatedName, updatedSurname)
-                Toast.makeText(context,
-                    context.getString(R.string.profile_updated), Toast.LENGTH_SHORT).show()
-                navController.popBackStack()
+                userInfoViewModel.updateUserInfo(updatedName, updatedSurname, updatedLocation)
+
+                Toast.makeText(context, context.getString(R.string.profile_updated), Toast.LENGTH_SHORT).show()
+                navController.navigate("profile") {
+                    popUpTo("profile") { inclusive = true }
+                    launchSingleTop = true
+                }
+
             },
             modifier = Modifier.fillMaxWidth()
         ) {

@@ -20,9 +20,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import es.uc3m.android.travelshield.viewmodel.CountryViewModel
-import es.uc3m.android.travelshield.viewmodel.CountryDoc
 import androidx.lifecycle.viewmodel.compose.viewModel
 import es.uc3m.android.travelshield.R
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun GeneralInfoScreen(navController: NavController, countryName: String) {
@@ -33,8 +33,10 @@ fun GeneralInfoScreen(navController: NavController, countryName: String) {
     val countries by countryViewModel.countries.collectAsState()
 
     // Find the country data matching the countryName
-    val country = countries.find { it.name == countryName }
-
+    val lang = LocalContext.current.resources.configuration.locales[0].language
+    val country = countries.find {
+        (if (lang == "es") it.name.es else it.name.en) == countryName
+    }
     // Remember scroll state
     val scrollState = rememberScrollState()
 
@@ -55,12 +57,24 @@ fun GeneralInfoScreen(navController: NavController, countryName: String) {
                     style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
+                val lang = LocalContext.current.resources.configuration.locales[0].language
 
-                // Create a Card to display each section of the general info
-                GeneralInfoCard(stringResource(R.string.culture), country.genInfo.culture)
-                GeneralInfoCard(stringResource(R.string.description), country.genInfo.description)
-                GeneralInfoCard(stringResource(R.string.food), country.genInfo.food)
-                GeneralInfoCard(stringResource(R.string.history), country.genInfo.history)
+                GeneralInfoCard(
+                    title = stringResource(R.string.culture),
+                    content = if (lang == "es") country.genInfo.culture.es else country.genInfo.culture.en
+                )
+                GeneralInfoCard(
+                    title = stringResource(R.string.description),
+                    content = if (lang == "es") country.genInfo.description.es else country.genInfo.description.en
+                )
+                GeneralInfoCard(
+                    title = stringResource(R.string.food),
+                    content = if (lang == "es") country.genInfo.food.es else country.genInfo.food.en
+                )
+                GeneralInfoCard(
+                    title = stringResource(R.string.history),
+                    content = if (lang == "es") country.genInfo.history.es else country.genInfo.history.en
+                )
 
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(

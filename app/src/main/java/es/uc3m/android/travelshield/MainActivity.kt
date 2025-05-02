@@ -163,10 +163,11 @@ fun NavigationGraph(navController: NavHostController, modifier: Modifier) {
         composable(NavGraph.Profile.route) { ProfileScreen(navController) }
 
         // Country Screen
-        composable("country/{countryName}") { backStackEntry ->
-            val countryName = backStackEntry.arguments?.getString("countryName") ?: "Unknown"
-            CountryScreen(navController, countryName)
+        composable("country/{countryId}") { backStackEntry ->
+            val countryId = backStackEntry.arguments?.getString("countryId") ?: ""
+            CountryScreen(navController, countryId)
         }
+
 
         // Login and SignUp Screens
         composable(NavGraph.Login.route) { LoginScreen(navController) }

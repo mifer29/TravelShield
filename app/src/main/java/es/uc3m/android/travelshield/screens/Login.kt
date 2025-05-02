@@ -39,7 +39,7 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel = vie
     route?.let { destination ->
         LaunchedEffect(destination) {
             navController.navigate(destination) {
-                popUpTo(NavGraph.Login.route) { inclusive = true}
+                popUpTo(NavGraph.Login.route) { inclusive = true }
                 launchSingleTop = true
             }
         }
@@ -61,14 +61,17 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel = vie
             val logo: Painter = painterResource(id = R.drawable.logo_travelshield)
             Image(
                 painter = logo,
-                contentDescription = "App Logo",
+                contentDescription = stringResource(R.string.app_logo),
                 modifier = Modifier
                     .size(100.dp)
                     .clip(RoundedCornerShape(16.dp))
             )
 
             Spacer(modifier = Modifier.height(16.dp))
-            Text(text = "Login", style = MaterialTheme.typography.headlineMedium)
+            Text(
+                text = stringResource(R.string.login_title),
+                style = MaterialTheme.typography.headlineMedium
+            )
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
@@ -114,7 +117,6 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel = vie
         }
     }
 
-    // Show error message using Toast
     toastMessage?.let { message ->
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }

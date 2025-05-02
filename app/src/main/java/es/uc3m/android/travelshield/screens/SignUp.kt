@@ -56,7 +56,7 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel = vi
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text(text = "Sign Up", style = MaterialTheme.typography.headlineMedium)
+            Text(text = stringResource(R.string.sign_up_title), style = MaterialTheme.typography.headlineMedium)
             Spacer(modifier = Modifier.height(16.dp))
 
             OutlinedTextField(

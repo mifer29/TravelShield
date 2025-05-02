@@ -34,7 +34,11 @@ fun TransportScreen(navController: NavController, countryName: String) {
     val countries by countryViewModel.countries.collectAsState()
 
     // Find the country data matching the countryName
-    val country = countries.find { it.name == countryName }
+    val lang = LocalContext.current.resources.configuration.locales[0].language
+    val country = countries.find {
+        (if (lang == "es") it.name.es else it.name.en) == countryName
+    }
+
 
     val context = LocalContext.current
 
@@ -57,9 +61,14 @@ fun TransportScreen(navController: NavController, countryName: String) {
 
             if (country != null) {
                 // Display transport-related information in styled cards
-                TransportInfoCard(stringResource(R.string.public_transport), country.transport.public)
-                TransportInfoCard(stringResource(R.string.transport_apps), country.transport.apps)
-                TransportInfoCard(stringResource(R.string.airport_to_city), country.transport.airportToCity)
+                val publicTransport = if (lang == "es") country.transport.public.es else country.transport.public.en
+                val transportApps = if (lang == "es") country.transport.apps.es else country.transport.apps.en
+                val airportToCity = if (lang == "es") country.transport.airportToCity.es else country.transport.airportToCity.en
+
+                TransportInfoCard(stringResource(R.string.public_transport), publicTransport)
+                TransportInfoCard(stringResource(R.string.transport_apps), transportApps)
+                TransportInfoCard(stringResource(R.string.airport_to_city), airportToCity)
+
             } else {
                 // Show loading or error state if country not found
                 Text(text = "Country not found!")

@@ -14,12 +14,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.google.firebase.auth.FirebaseAuth
 import es.uc3m.android.travelshield.NavGraph
+import es.uc3m.android.travelshield.R
 import es.uc3m.android.travelshield.viewmodel.CountryReviewsViewModel
 import es.uc3m.android.travelshield.viewmodel.Review
 import java.text.SimpleDateFormat
@@ -51,23 +53,22 @@ fun CountryReviewsScreen(navController: NavController, countryName: String) {
             .verticalScroll(rememberScrollState())
     ) {
         IconButton(onClick = { navController.popBackStack() }) {
-            Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+            Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.back))
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Reviews for $countryName",
+            text = stringResource(R.string.reviews_for_country, countryName),
             style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // --- User Review ---
         userReview?.let {
             Text(
-                text = "Tu Review",
+                text = stringResource(R.string.your_review),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 8.dp)
@@ -87,9 +88,8 @@ fun CountryReviewsScreen(navController: NavController, countryName: String) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // --- Filters and Sort ---
         Text(
-            text = "Otras Reviews",
+            text = stringResource(R.string.other_reviews),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(vertical = 8.dp)
@@ -97,10 +97,9 @@ fun CountryReviewsScreen(navController: NavController, countryName: String) {
 
         FiltersSection(ratingFilter, onRatingChange = { ratingFilter = it }, sortDescending, onSortToggle = { sortDescending = !sortDescending })
 
-        // --- Other Reviews ---
         val filteredReviews = otherReviews
             .filter { it.rating.toInt() >= ratingFilter }
-            .sortedBy { SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault()).parse(it.timestamp)?.time }
+            .sortedBy { SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.ENGLISH).parse(it.timestamp)?.time }
             .let { if (sortDescending) it.reversed() else it }
 
         if (filteredReviews.isNotEmpty()) {
@@ -114,7 +113,7 @@ fun CountryReviewsScreen(navController: NavController, countryName: String) {
             }
         } else {
             Text(
-                text = "No hay otras reviews disponibles.",
+                text = stringResource(R.string.no_other_reviews),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
@@ -138,12 +137,12 @@ fun AddReviewPrompt(countryName: String, navController: NavController) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "¿Has viajado a $countryName?",
+                text = stringResource(R.string.prompt_visit_country, countryName),
                 style = MaterialTheme.typography.titleMedium
             )
             Spacer(modifier = Modifier.height(8.dp))
             Button(onClick = { navController.navigate(NavGraph.WriteReview.createRoute(countryName)) }) {
-                Text("Añadir tu opinión")
+                Text(stringResource(R.string.add_your_opinion))
             }
         }
     }
@@ -157,7 +156,7 @@ fun FiltersSection(
     onSortToggle: () -> Unit
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Text("Rating mínimo: ")
+        Text(stringResource(R.string.min_rating))
         Slider(
             value = ratingFilter.toFloat(),
             onValueChange = { onRatingChange(it.toInt()) },
@@ -169,10 +168,10 @@ fun FiltersSection(
     }
 
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 8.dp)) {
-        Text("Orden:")
+        Text(stringResource(R.string.sort_order))
         Spacer(modifier = Modifier.width(8.dp))
         Button(onClick = { onSortToggle() }) {
-            Text(if (sortDescending) "Más reciente" else "Más antiguo")
+            Text(if (sortDescending) stringResource(R.string.most_recent) else stringResource(R.string.oldest))
         }
     }
 }
@@ -189,19 +188,19 @@ fun ReviewItemCountry(
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
-            title = { Text("Eliminar Review") },
-            text = { Text("¿Seguro que quieres eliminar tu review? Esta acción no se puede deshacer.") },
+            title = { Text(stringResource(R.string.delete_review)) },
+            text = { Text(stringResource(R.string.delete_review_confirm)) },
             confirmButton = {
                 TextButton(onClick = {
                     showDialog = false
                     onDeleteClick()
                 }) {
-                    Text("Borrar", color = Color.Red)
+                    Text(stringResource(R.string.delete), color = Color.Red)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDialog = false }) {
-                    Text("Cancelar")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -225,16 +224,16 @@ fun ReviewItemCountry(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = review.userName + if (isUserReview) " (Tú)" else "",
+                    text = review.userName + if (isUserReview) " (" + stringResource(R.string.you) + ")" else "",
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                 )
                 if (isUserReview) {
                     Row {
                         IconButton(onClick = { onEditClick() }) {
-                            Icon(Icons.Default.Edit, contentDescription = "Editar Review")
+                            Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.edit_review))
                         }
                         IconButton(onClick = { showDialog = true }) {
-                            Icon(Icons.Default.Delete, contentDescription = "Borrar Review", tint = Color.Red)
+                            Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete_review), tint = Color.Red)
                         }
                     }
                 }
@@ -258,7 +257,7 @@ fun ReviewItemCountry(
                     }
                 }
                 Text(
-                    text = "Posted on ${review.timestamp}",
+                    text = stringResource(R.string.posted_on, review.timestamp),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

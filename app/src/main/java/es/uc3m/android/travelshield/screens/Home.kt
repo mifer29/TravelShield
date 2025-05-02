@@ -6,28 +6,29 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Flight
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavController
 import es.uc3m.android.travelshield.R
 import es.uc3m.android.travelshield.viewmodel.CountryViewModel
 import es.uc3m.android.travelshield.viewmodel.CountryDoc
 import es.uc3m.android.travelshield.viewmodel.LikeViewModel
-import androidx.compose.material.icons.filled.Flight
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
+import coil.compose.rememberAsyncImagePainter
+import android.util.Log
 
 @Composable
 fun HomeScreen(
@@ -43,11 +44,18 @@ fun HomeScreen(
         likeViewModel.loadLikedCountries()
     }
 
+    val lang = LocalContext.current.resources.configuration.locales[0].language
+
     val filteredCountries = countries.filter {
-        it.name.contains(searchQuery.value.trim(), ignoreCase = true)
+        val localizedName = if (lang == "es") it.name.es else it.name.en
+        localizedName.contains(searchQuery.value.trim(), ignoreCase = true)
     }
 
-    val likedCountryDocs = countries.filter { it.name in likedCountries }
+
+    val likedCountryDocs = countries.filter {
+        val name = if (lang == "es") it.name.es else it.name.en
+        name in likedCountries
+    }
 
     Column(
         modifier = Modifier
@@ -66,7 +74,7 @@ fun HomeScreen(
         )
 
         if (filteredCountries.isEmpty()) {
-            Text(stringResource(R.string.no_destinations))
+            Text(text = stringResource(R.string.no_destinations))
         } else {
             LazyRow(modifier = Modifier.fillMaxWidth()) {
                 items(filteredCountries) { country ->
@@ -85,7 +93,7 @@ fun HomeScreen(
         )
 
         if (likedCountryDocs.isEmpty()) {
-            Text(stringResource(R.string.you_haven_t_liked_any_countries_yet))
+            Text(text = stringResource(R.string.you_havent_liked_any_countries_yet))
         } else {
             LazyRow(modifier = Modifier.fillMaxWidth()) {
                 items(likedCountryDocs) { country ->
@@ -115,9 +123,8 @@ fun TopSection(searchQuery: MutableState<String>) {
 
             Icon(
                 imageVector = Icons.Filled.Flight,
-                contentDescription = "Airplane Icon"
+                contentDescription = stringResource(R.string.airplane_icon)
             )
-
         }
         Spacer(modifier = Modifier.height(16.dp))
         Text(
@@ -138,7 +145,10 @@ fun SearchBar(searchQuery: MutableState<String>) {
         onValueChange = { searchQuery.value = it },
         placeholder = { Text(stringResource(R.string.search_for_your_new_adventure)) },
         leadingIcon = {
-            Icon(imageVector = Icons.Filled.Search, contentDescription = "Search")
+            Icon(
+                imageVector = Icons.Filled.Search,
+                contentDescription = stringResource(R.string.search)
+            )
         },
         modifier = Modifier
             .fillMaxWidth()
@@ -149,18 +159,23 @@ fun SearchBar(searchQuery: MutableState<String>) {
 
 @Composable
 fun CountryCard(country: CountryDoc, navController: NavController) {
-    val imageResId = getCountryImageResId(country.name)
+    val lang = LocalContext.current.resources.configuration.locales[0].language
+    val name = if (lang == "es") country.name.es else country.name.en
 
     Column(
         modifier = Modifier
             .width(200.dp)
             .padding(8.dp)
-            .clickable { navController.navigate("Country/${country.name}") },
+            .clickable {
+                navController.navigate("country/${country.id}")
+            }
+
+        ,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            painter = painterResource(id = imageResId),
-            contentDescription = country.name,
+            painter = rememberAsyncImagePainter(model = country.imageUrl),
+            contentDescription = country.name.en,
             modifier = Modifier
                 .height(120.dp)
                 .fillMaxWidth(),
@@ -168,25 +183,9 @@ fun CountryCard(country: CountryDoc, navController: NavController) {
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = country.name,
+            text = name,
             fontSize = 18.sp,
             style = MaterialTheme.typography.bodyLarge
         )
-    }
-    // FOR DEV USE! UNCOMMENT FOR MASSIVE COUNTRY UPLOAD
-    //Spacer(modifier = Modifier.height(24.dp))
-    //Button(onClick = {
-    //    navController.navigate("upload_countries")
-    //}) {
-    //    Text("Upload Countries")
-    //}
-}
-
-fun getCountryImageResId(countryName: String): Int {
-    val imageName = "country_${countryName.lowercase().replace(" ", "_")}"
-    return try {
-        R.drawable::class.java.getField(imageName).getInt(null)
-    } catch (e: Exception) {
-        R.drawable.country_default
     }
 }

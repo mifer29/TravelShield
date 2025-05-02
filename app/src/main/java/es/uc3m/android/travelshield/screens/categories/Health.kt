@@ -23,6 +23,7 @@ import es.uc3m.android.travelshield.viewmodel.CountryViewModel
 import es.uc3m.android.travelshield.viewmodel.CountryDoc
 import androidx.lifecycle.viewmodel.compose.viewModel
 import es.uc3m.android.travelshield.R
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun HealthScreen(navController: NavController, countryName: String) {
@@ -33,7 +34,11 @@ fun HealthScreen(navController: NavController, countryName: String) {
     val countries by countryViewModel.countries.collectAsState()
 
     // Find the country data matching the countryName
-    val country = countries.find { it.name == countryName }
+    val lang = LocalContext.current.resources.configuration.locales[0].language
+    val country = countries.find {
+        (if (lang == "es") it.name.es else it.name.en) == countryName
+    }
+
 
     // Remember scroll state
     val scrollState = rememberScrollState()
@@ -57,8 +62,19 @@ fun HealthScreen(navController: NavController, countryName: String) {
                 )
 
                 // Create a Card to display each section of the health info
-                HealthInfoCard(stringResource(R.string.emergency_numbers), "Ambulance: ${country.health.emergency.ambulance}\nPoison Control: ${country.health.emergency.poisonControl}")
-                HealthInfoCard(stringResource(R.string.health_tips), country.health.tips)
+                val context = LocalContext.current
+                val formatted = context.getString(
+                    R.string.emergency_format,
+                    country.health.emergency.ambulance,
+                    country.health.emergency.poisonControl
+                )
+
+                HealthInfoCard(stringResource(R.string.emergency_numbers), formatted)
+
+                HealthInfoCard(
+                    title = stringResource(R.string.health_tips),
+                    content = if (lang == "es") country.health.tips.es else country.health.tips.en
+                )
                 HealthInfoCard(stringResource(R.string.vaccines), country.health.vaccines.joinToString(", "))
 
                 Spacer(modifier = Modifier.height(16.dp))

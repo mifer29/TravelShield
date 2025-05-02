@@ -56,7 +56,11 @@ fun WriteReviewScreen(countryName: String, navController: NavController) {
             .verticalScroll(rememberScrollState())
     ) {
         Text(
-            text = if (userReview != null) "Edit your review for $countryName" else "Write your review for $countryName",
+            text = stringResource(
+                if (userReview != null) R.string.edit_review_for_country
+                else R.string.write_review_for_country,
+                countryName
+            ),
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold
         )
@@ -75,7 +79,7 @@ fun WriteReviewScreen(countryName: String, navController: NavController) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text("Rating: ${rating.toInt()}", fontSize = 16.sp)
+        Text(stringResource(R.string.rating_value, rating.toInt()), fontSize = 16.sp)
 
         Slider(
             value = rating,
@@ -106,7 +110,12 @@ fun WriteReviewScreen(countryName: String, navController: NavController) {
             modifier = Modifier.fillMaxWidth(),
             enabled = !isSubmitting
         ) {
-            Text(if (userReview != null) "Update Review" else "Submit Review")
+            Text(
+                stringResource(
+                    if (userReview != null) R.string.update_review
+                    else R.string.submit_review
+                )
+            )
         }
 
         if (isSubmitting) {
@@ -132,7 +141,7 @@ private fun submitReview(
         return
     }
     if (userId == null) {
-        Toast.makeText(context, "User not authenticated", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, context.getString(R.string.user_not_authenticated), Toast.LENGTH_SHORT).show()
         return
     }
 
@@ -162,7 +171,6 @@ private fun submitReview(
     Toast.makeText(context, context.getString(R.string.review_submitted_successfully), Toast.LENGTH_SHORT).show()
     isSubmitting(false)
 
-    // Refrescar pantalla navegando directamente
     navController.navigate("country_reviews/$countryName") {
         popUpTo("country_reviews/$countryName") { inclusive = true }
     }

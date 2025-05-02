@@ -87,76 +87,109 @@ fun ProfileScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Box(contentAlignment = Alignment.TopEnd, modifier = Modifier.align(Alignment.CenterHorizontally)) {
-            Surface(
-                modifier = Modifier
-                    .size(120.dp)
-                    .clip(CircleShape),
-                color = Color.Transparent
-            ) {
-                when {
-                    profileImage != null -> Image(
-                        bitmap = profileImage!!.asImageBitmap(),
-                        contentDescription = "Profile Picture",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                    !userInfo?.profileImageUrl.isNullOrEmpty() -> Image(
-                        painter = rememberAsyncImagePainter(userInfo!!.profileImageUrl),
-                        contentDescription = "Profile Picture",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                    else -> Image(
-                        painter = painterResource(id = R.drawable.profile_default),
-                        contentDescription = "Default Picture",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                    )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Box(contentAlignment = Alignment.TopEnd) {
+                Surface(
+                    modifier = Modifier
+                        .size(120.dp)
+                        .clip(CircleShape),
+                    color = Color.Transparent
+                ) {
+                    when {
+                        profileImage != null -> Image(
+                            bitmap = profileImage!!.asImageBitmap(),
+                            contentDescription = "Profile Picture",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                        !userInfo?.profileImageUrl.isNullOrEmpty() -> Image(
+                            painter = rememberAsyncImagePainter(userInfo!!.profileImageUrl),
+                            contentDescription = "Profile Picture",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                        else -> Image(
+                            painter = painterResource(id = R.drawable.profile_default),
+                            contentDescription = "Default Picture",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
                 }
+
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = stringResource(R.string.edit_picture),
+                    modifier = Modifier
+                        .size(26.dp)
+                        .background(Color.White, CircleShape)
+                        .padding(4.dp)
+                        .clickable { showDialog = true }
+                )
             }
-            Icon(
-                imageVector = Icons.Default.Edit,
-                contentDescription = stringResource(R.string.edit_picture),
-                modifier = Modifier
-                    .size(26.dp)
-                    .background(Color.White, CircleShape)
-                    .padding(4.dp)
-                    .clickable { showDialog = true }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = userInfo?.let { "${it.name} ${it.surname}" } ?: "Loading...",
+                style = MaterialTheme.typography.headlineSmall
             )
+            if (!userInfo?.location.isNullOrBlank()) {
+                Text(
+                    text = userInfo!!.location,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray
+                )
+            } else {
+                Text(
+                    text = stringResource(R.string.no_location),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray
+                )
+            }
+
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(text = userInfo?.let { "${it.name} ${it.surname}" } ?: "Loading...", style = MaterialTheme.typography.headlineSmall)
-            Text(text = "Location", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
-        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-            ProfileStat(reviewCount.toString(), "Countries Traveled")
-            ProfileStat(trips.size.toString(), "Future Travels")
-            ProfileStat(likeCount.toString(), "Likes Given")
+            ProfileStat(reviewCount.toString(), stringResource(R.string.countries_traveled))
+            ProfileStat(trips.size.toString(), stringResource(R.string.future_travels))
+            ProfileStat(likeCount.toString(), stringResource(R.string.likes_given))
         }
+
 
         Spacer(modifier = Modifier.height(20.dp))
 
         Column {
             Text(stringResource(R.string.my_reviews), style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
-            reviews.forEach { review ->
-                ReviewItem(
-                    review = review,
-                    onDeleteClick = { userReviewsViewModel.deleteReview(it) },
-                    onEditClick = { selectedReviewForEdit = it }
+
+            if (reviews.isEmpty()) {
+                Text(
+                    text = stringResource(R.string.no_reviews_yet),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(vertical = 8.dp)
                 )
-                Divider()
+            } else {
+                reviews.forEach { review ->
+                    ReviewItem(
+                        review = review,
+                        onDeleteClick = { userReviewsViewModel.deleteReview(it) },
+                        onEditClick = { selectedReviewForEdit = it }
+                    )
+                    Divider()
+                }
             }
         }
+
 
         selectedReviewForEdit?.let { review ->
             EditReviewDialog(
@@ -181,11 +214,9 @@ fun ProfileScreen(
             Text(stringResource(R.string.edit_profile_info))
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
-
         val userEmail = FirebaseAuth.getInstance().currentUser?.email
 
-        if (userEmail == "maria@gmail.com") {
+        if (userEmail == "admin@travelshield.com") {
             Spacer(modifier = Modifier.height(20.dp))
             Button(
                 onClick = { navController.navigate(NavGraph.UploadCountries.route) },
@@ -267,7 +298,12 @@ fun ReviewItem(review: Review, onDeleteClick: (String) -> Unit, onEditClick: (Re
             } else {
                 Text(stringResource(R.string.no_rating))
             }
-            Text(text = "Posted on $formattedDate", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+            Text(
+                text = stringResource(R.string.posted_on, formattedDate),
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.Gray
+            )
+
         }
         Spacer(modifier = Modifier.height(4.dp))
         Text(text = review.comment)

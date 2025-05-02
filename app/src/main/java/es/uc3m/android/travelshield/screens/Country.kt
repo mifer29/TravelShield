@@ -29,17 +29,12 @@ import es.uc3m.android.travelshield.R
 import es.uc3m.android.travelshield.viewmodel.CountryReviewsViewModel
 import es.uc3m.android.travelshield.viewmodel.LikeCountViewModel
 import es.uc3m.android.travelshield.viewmodel.LikeViewModel
+import androidx.compose.ui.platform.LocalContext
+import es.uc3m.android.travelshield.viewmodel.CountryViewModel
 
 @Composable
-fun CountryScreen(navController: NavController, countryName: String) {
-    val countryImageName = "country_${countryName.lowercase().replace(" ", "_")}"
-    val imageResId = remember(countryImageName) {
-        try {
-            R.drawable::class.java.getField(countryImageName).getInt(null)
-        } catch (e: Exception) {
-            R.drawable.country_default
-        }
-    }
+fun CountryScreen(navController: NavController, countryId: String) {
+
 
     val likeCountViewModel: LikeCountViewModel = viewModel()
     val likeViewModel: LikeViewModel = remember { LikeViewModel(likeCountViewModel) }
@@ -48,10 +43,17 @@ fun CountryScreen(navController: NavController, countryName: String) {
     val countryReviewsViewModel: CountryReviewsViewModel = viewModel()
     val countryReviews by countryReviewsViewModel.reviews.collectAsState()
 
-    LaunchedEffect(countryName) {
-        likeViewModel.loadLikeStatus(countryName)
-        countryReviewsViewModel.fetchReviewsByCountry(countryName)
+    val countryViewModel: CountryViewModel = viewModel()
+    val countryFlow = remember { countryViewModel.getCountryById(countryId) }
+    val country by countryFlow.collectAsState()
+
+    LaunchedEffect(country) {
+        country?.let {
+            likeViewModel.loadLikeStatus(it.name.en)
+            countryReviewsViewModel.fetchReviewsByCountry(it.name.en)
+        }
     }
+
 
     val averageRating = countryReviews.map { it.rating }.average().takeIf { it.isFinite() } ?: 0.0
     val ratingCount = countryReviews.size
@@ -64,24 +66,29 @@ fun CountryScreen(navController: NavController, countryName: String) {
     ) {
         Spacer(modifier = Modifier.height(15.dp))
 
-        HeaderSection(
-            navController = navController,
-            countryName = countryName,
-            averageRating = averageRating,
-            ratingCount = ratingCount,
-            liked = liked,
-            onLikeClick = { likeViewModel.toggleLike(countryName) }
-        )
+        country?.let {
+            val lang = LocalContext.current.resources.configuration.locales[0].language
+            val name = if (lang == "es") it.name.es else it.name.en
 
-        Spacer(modifier = Modifier.height(20.dp))
+            HeaderSection(
+                navController = navController,
+                countryName = name,
+                averageRating = averageRating,
+                ratingCount = ratingCount,
+                liked = liked,
+                onLikeClick = { likeViewModel.toggleLike(it.name.en) }
+            )
 
-        CountryImage(imageResId = imageResId, countryName = countryName)
+            Spacer(modifier = Modifier.height(20.dp))
 
-        Spacer(modifier = Modifier.height(30.dp))
+            CountryImage(imageUrl = it.imageUrl, countryName = name)
 
-        CategoryGrid(navController = navController, countryName = countryName)
+            Spacer(modifier = Modifier.height(30.dp))
 
-        Spacer(modifier = Modifier.height(30.dp))
+            CategoryGrid(navController = navController, countryName = name)
+
+            Spacer(modifier = Modifier.height(30.dp))
+        } ?: Text("Cargando país...")
     }
 }
 
@@ -103,7 +110,7 @@ fun HeaderSection(
             val flagUrl = "https://flagsapi.com/${countryName.take(2).uppercase()}/flat/64.png"
             Image(
                 painter = rememberAsyncImagePainter(flagUrl),
-                contentDescription = "$countryName Flag",
+                contentDescription = stringResource(R.string.country_flag, countryName),
                 modifier = Modifier
                     .size(32.dp)
                     .padding(end = 8.dp)
@@ -126,7 +133,7 @@ fun HeaderSection(
         IconButton(onClick = onLikeClick) {
             Icon(
                 painter = painterResource(id = R.drawable.heart),
-                contentDescription = "Favorite",
+                contentDescription = stringResource(R.string.favorite),
                 tint = if (liked) Color.Red else Color.Gray
             )
         }
@@ -152,7 +159,7 @@ fun RatingSection(
         repeat(averageRating.toInt()) {
             Icon(
                 imageVector = Icons.Default.Star,
-                contentDescription = "Star",
+                contentDescription = stringResource(R.string.rating_star),
                 tint = Color.Yellow,
                 modifier = Modifier.size(16.dp)
             )
@@ -167,14 +174,19 @@ fun RatingSection(
 }
 
 @Composable
-fun CountryImage(imageResId: Int, countryName: String) {
+fun CountryImage(imageUrl: String?, countryName: String) {
+    val painter = rememberAsyncImagePainter(
+        model = imageUrl,
+        fallback = painterResource(id = R.drawable.country_default),
+        error = painterResource(id = R.drawable.country_default)
+    )
+
     Image(
-        painter = painterResource(id = imageResId),
-        contentDescription = "$countryName Image",
+        painter = painter,
+        contentDescription = countryName,
         modifier = Modifier
-            .fillMaxWidth()
             .height(200.dp)
-            .clip(RoundedCornerShape(12.dp)),
+            .fillMaxWidth(),
         contentScale = ContentScale.Crop
     )
 }
@@ -243,14 +255,16 @@ fun CategoryItem(name: String, navController: NavController, countryName: String
         ) {
             Image(
                 painter = painterResource(id = imageResId),
-                contentDescription = "$name Icon",
+                contentDescription = stringResource(R.string.category_icon, name),
                 modifier = Modifier.size(40.dp)
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = name,
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Medium
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Medium,
+                maxLines = 1,
+                softWrap = false
             )
         }
     }

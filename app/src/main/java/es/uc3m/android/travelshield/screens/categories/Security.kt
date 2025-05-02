@@ -37,7 +37,11 @@ fun SecurityScreen(navController: NavController, countryName: String) {
     val countries by countryViewModel.countries.collectAsState()
 
     // Find the country data matching the countryName
-    val country = countries.find { it.name == countryName }
+    val lang = LocalContext.current.resources.configuration.locales[0].language
+    val country = countries.find {
+        (if (lang == "es") it.name.es else it.name.en) == countryName
+    }
+
 
     val context = LocalContext.current
 
@@ -61,7 +65,15 @@ fun SecurityScreen(navController: NavController, countryName: String) {
             if (country != null) {
                 // Display security-related information
                 SecurityInfoCard(stringResource(R.string.common_scams), country.security.commonScams.joinToString())
-                SecurityInfoCard(stringResource(R.string.crime_level), country.security.crimeLevel)
+
+                val crimeText = if (context.resources.configuration.locales[0].language == "es") {
+                    country.security.crimeLevel.es
+                } else {
+                    country.security.crimeLevel.en
+                }
+
+                SecurityInfoCard(stringResource(R.string.crime_level), crimeText)
+
                 SecurityInfoCard(stringResource(R.string.police_emergency_number), country.security.emergencyContacts.police.toString())
                 SecurityInfoCard(stringResource(R.string.embassy_contact), country.security.emergencyContacts.embassy)
             } else {

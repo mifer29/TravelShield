@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import android.util.Log
 import com.google.firebase.firestore.toObject
+import kotlinx.coroutines.tasks.await
 
 private const val COUNTRIES_COLLECTION = "countries"
 
@@ -40,24 +41,25 @@ class CountryViewModel : ViewModel() {
                 }
         }
     }
-    // IGUAL PODEMOS PONER ESTAS FUNCIONES EN UNA SCREEN AUXILIAR PARA METER PAÍSES MÁS FÁCIL
+
     // Add a new country to Firestore
-    fun addCountry(vararg countryDocs: CountryDoc) {
-        viewModelScope.launch {
+    suspend fun addCountry(vararg countryDocs: CountryDoc) {
+        try {
             countryDocs.forEach { countryDoc ->
-                firestore.collection(COUNTRIES_COLLECTION)
-                    .add(countryDoc)
-                    .addOnSuccessListener {
-                        Log.d("CountryViewModel", "Added country: ${countryDoc.name}")
-                        fetchCountries() // Refresh after each, or move outside the loop
-                    }
-                    .addOnFailureListener { exception ->
-                        _toastMessage.value = "Failed to add ${countryDoc.name}: ${exception.message}"
-                        Log.e("CountryViewModel", "Error adding country: ${countryDoc.name}", exception)
-                    }
+                val newDocRef = firestore.collection(COUNTRIES_COLLECTION).document()
+                val id = newDocRef.id
+                val countryWithId = countryDoc.copy(id = id)
+
+                newDocRef.set(countryWithId).await()
             }
+            fetchCountries()
+        } catch (e: Exception) {
+            _toastMessage.value = "Error adding countries: ${e.message}"
+            Log.e("CountryViewModel", "Error adding countries", e)
         }
     }
+
+
 
     // Update an existing country in Firestore
     fun updateCountry(id: String, updatedCountry: CountryDoc) {
@@ -93,4 +95,24 @@ class CountryViewModel : ViewModel() {
     fun showToast(message: String?) {
         _toastMessage.value = message
     }
+
+    fun getCountryById(id: String): MutableStateFlow<CountryDoc?> {
+        val countryFlow = MutableStateFlow<CountryDoc?>(null)
+
+        viewModelScope.launch {
+            try {
+                val doc = firestore.collection(COUNTRIES_COLLECTION).document(id).get().await()
+                val country = doc.toObject<CountryDoc>()?.copy(id = doc.id)
+                countryFlow.value = country
+            } catch (e: Exception) {
+                _toastMessage.value = "Error al cargar país: ${e.message}"
+                Log.e("CountryViewModel", "Error al cargar país", e)
+            }
+        }
+
+        return countryFlow
+    }
 }
+
+
+

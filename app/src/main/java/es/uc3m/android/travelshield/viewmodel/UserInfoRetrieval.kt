@@ -11,7 +11,8 @@ import kotlinx.coroutines.launch
 data class UserInfo(
     val name: String = "",
     val surname: String = "",
-    val profileImageUrl: String = "" // Nuevo campo
+    val profileImageUrl: String = "",
+    val location: String = ""
 
 )
 
@@ -35,15 +36,16 @@ class UserInfoRetrieval : ViewModel() {
                     val name = document.getString("name") ?: ""
                     val surname = document.getString("surname") ?: ""
                     val imageUrl = document.getString("profileImageUrl") ?: "" // si no existe aún, será ""
+                    val location = document.getString("location") ?: ""
 
-                    _userInfo.value = UserInfo(name, surname, imageUrl)
+                    _userInfo.value = UserInfo(name, surname, imageUrl, location)
                 }
                 .addOnFailureListener {
                     // handle error if needed
                 }
         }
     }
-    fun updateUserInfo(name: String, surname: String, imageUrl: String? = null) {
+    fun updateUserInfo(name: String, surname: String, location: String? = null, imageUrl: String? = null) {
         val uid = auth.currentUser?.uid ?: return
         val userRef = firestore.collection("users").document(uid)
 
@@ -51,6 +53,10 @@ class UserInfoRetrieval : ViewModel() {
             "name" to name,
             "surname" to surname
         )
+
+        if (!location.isNullOrBlank()) {
+            updates["location"] = location
+        }
 
         if (!imageUrl.isNullOrEmpty()) {
             updates["profileImageUrl"] = imageUrl

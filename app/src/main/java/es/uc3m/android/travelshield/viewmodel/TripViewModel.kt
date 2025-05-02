@@ -39,7 +39,6 @@ class TripViewModel : ViewModel() {
                 // Map documents to the Trip model and update the state
                 val tripList = result.documents.mapNotNull { it.toObject<Trip>() }
                 _trips.value = tripList
-                Log.d(TAG, "Fetched trips: $tripList") // Log to verify fetched data
             }
             .addOnFailureListener { exception ->
                 Log.e(TAG, "Error fetching trips", exception)
@@ -60,7 +59,6 @@ class TripViewModel : ViewModel() {
             .addOnSuccessListener {
                 // Instead of fetching trips again, just update the local state
                 _trips.value = _trips.value + newTrip
-                Log.d(TAG, "Added new trip: $newTrip") // Log to verify the new trip added
             }
             .addOnFailureListener { exception ->
                 Log.e(TAG, "Error adding trip", exception)

@@ -18,6 +18,8 @@ import es.uc3m.android.travelshield.viewmodel.Trip
 import es.uc3m.android.travelshield.viewmodel.TripViewModel
 import java.util.*
 import kotlinx.coroutines.tasks.await
+import androidx.compose.ui.res.stringResource
+import es.uc3m.android.travelshield.R
 
 @Composable
 fun TripsScreen(navController: NavController) {
@@ -35,7 +37,7 @@ fun TripsScreen(navController: NavController) {
             .padding(horizontal = 24.dp, vertical = 16.dp)
     ) {
         Text(
-            text = "My Trips",
+            text = stringResource(R.string.my_trips),
             style = MaterialTheme.typography.headlineLarge,
             modifier = Modifier
                 .fillMaxWidth()
@@ -52,7 +54,7 @@ fun TripsScreen(navController: NavController) {
             }
         } else {
             Text(
-                text = "No trips found",
+                text = stringResource(R.string.no_trips_found),
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
@@ -66,7 +68,7 @@ fun TripsScreen(navController: NavController) {
                 .fillMaxWidth()
                 .padding(top = 8.dp)
         ) {
-            Text("Add New Trip")
+            Text(stringResource(R.string.add_new_trip))
         }
 
         if (isDialogOpen) {
@@ -96,12 +98,12 @@ fun TripItem(trip: Trip) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "Trip to: ${trip.country}",
+                text = stringResource(R.string.trip_to, trip.country),
                 style = MaterialTheme.typography.titleMedium
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "Start Date: ${trip.startDate}",
+                text = stringResource(R.string.start_date_label, trip.startDate),
                 style = MaterialTheme.typography.bodyMedium
             )
         }
@@ -121,15 +123,12 @@ fun AddTripDialog(
     var allCountries by remember { mutableStateOf<List<String>>(emptyList()) }
     var expanded by remember { mutableStateOf(false) }
 
-    // 🔥 Fetch countries from Firebase
     LaunchedEffect(Unit) {
         val db = FirebaseFirestore.getInstance("travelshield-db")
         try {
             val snapshot = db.collection("countries").get().await()
             allCountries = snapshot.documents.mapNotNull { it.getString("name") }
-        } catch (e: Exception) {
-            // Handle error if needed
-        }
+        } catch (_: Exception) {}
     }
 
     val filteredCountries = allCountries.filter {
@@ -150,7 +149,7 @@ fun AddTripDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add New Trip") },
+        title = { Text(stringResource(R.string.add_new_trip)) },
         text = {
             Column {
                 Box {
@@ -160,7 +159,7 @@ fun AddTripDialog(
                             setCountry(it)
                             expanded = true
                         },
-                        label = { Text("Country") },
+                        label = { Text(stringResource(R.string.country)) },
                         modifier = Modifier.fillMaxWidth()
                     )
 
@@ -186,7 +185,7 @@ fun AddTripDialog(
                 OutlinedTextField(
                     value = startDate,
                     onValueChange = {},
-                    label = { Text("Start Date") },
+                    label = { Text(stringResource(R.string.start_date)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable { datePickerDialog.show() },
@@ -196,12 +195,12 @@ fun AddTripDialog(
         },
         confirmButton = {
             Button(onClick = { onAddTrip(country.text, startDate) }) {
-                Text("Add")
+                Text(stringResource(R.string.add))
             }
         },
         dismissButton = {
             Button(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
         }
     )

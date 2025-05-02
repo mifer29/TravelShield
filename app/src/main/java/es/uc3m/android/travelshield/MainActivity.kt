@@ -37,6 +37,7 @@ import es.uc3m.android.travelshield.ui.theme.TravelShieldTheme
 import es.uc3m.android.travelshield.screens.TripsScreen
 import es.uc3m.android.travelshield.screens.EditProfileScreen
 import es.uc3m.android.travelshield.notifications.NotificationHelper
+import es.uc3m.android.travelshield.screens.CompleteProfileScreen
 import es.uc3m.android.travelshield.viewmodel.SettingsViewModel
 import es.uc3m.android.travelshield.screens.CountryReviewsScreen
 
@@ -218,8 +219,9 @@ fun NavigationGraph(navController: NavHostController, modifier: Modifier) {
             CountryReviewsScreen(navController, countryName)
         }
 
-
-
+        composable("complete_profile") {
+            CompleteProfileScreen(navController)
+        }
     }
 }
 

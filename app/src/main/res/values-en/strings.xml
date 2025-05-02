@@ -159,5 +159,5 @@
     <string name="future_travels">Future Travels</string>
     <string name="emergency_format">Ambulance: %1$d\nPoison Control: %2$d</string>
     <string name="no_reviews_yet">You haven’t written any reviews yet.</string>
-
+    default_web_client_id
 </resources>

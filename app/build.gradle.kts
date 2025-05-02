@@ -82,7 +82,5 @@ dependencies {
     implementation(libs.converter.gson)
     implementation(libs.okhttp)
 
-
-
-
+    implementation(libs.google.play.services.auth)
 }

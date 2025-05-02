@@ -63,10 +63,9 @@ sealed class NavGraph(val route: String) {
 
     data object EditProfile : NavGraph(EDIT_PROFILE_ROUTE)
 
-
     data object CountryReviews {
         fun createRoute(countryName: String) = "country_reviews/$countryName"
     }
 
-
+    data object CompleteProfile : NavGraph("complete_profile")
 }

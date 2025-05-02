@@ -30,12 +30,12 @@ import es.uc3m.android.travelshield.viewmodel.CountryReviewsViewModel
 import es.uc3m.android.travelshield.viewmodel.LikeCountViewModel
 import es.uc3m.android.travelshield.viewmodel.LikeViewModel
 import androidx.compose.ui.platform.LocalContext
+import com.google.firebase.firestore.FirebaseFirestore
 import es.uc3m.android.travelshield.viewmodel.CountryViewModel
 
 @Composable
 fun CountryScreen(navController: NavController, countryId: String) {
-
-
+    val context = LocalContext.current
     val likeCountViewModel: LikeCountViewModel = viewModel()
     val likeViewModel: LikeViewModel = remember { LikeViewModel(likeCountViewModel) }
     val liked by likeViewModel.liked.collectAsState()
@@ -47,16 +47,33 @@ fun CountryScreen(navController: NavController, countryId: String) {
     val countryFlow = remember { countryViewModel.getCountryById(countryId) }
     val country by countryFlow.collectAsState()
 
+    var abbreviation by remember { mutableStateOf<String?>(null) }
+
+    val averageRating = countryReviews.map { it.rating }.average().takeIf { it.isFinite() } ?: 0.0
+    val ratingCount = countryReviews.size
+
     LaunchedEffect(country) {
         country?.let {
             likeViewModel.loadLikeStatus(it.name.en)
             countryReviewsViewModel.fetchReviewsByCountry(it.name.en)
+
+            // Fetch abbreviation from Firestore
+            val lang = context.resources.configuration.locales[0].language
+            val countryName = if (lang == "es") it.name.es else it.name.en
+
+            val db = FirebaseFirestore.getInstance("travelshield-db")
+            db.collection("countries")
+                .whereEqualTo("name.${lang}", countryName)
+                .get()
+                .addOnSuccessListener { snapshot ->
+                    val abbr = snapshot.documents.firstOrNull()?.getString("abbreviation")?.uppercase()
+                    abbreviation = abbr
+                }
+                .addOnFailureListener { e ->
+                    Log.e("CountryScreen", "Failed to fetch abbreviation: ${e.message}")
+                }
         }
     }
-
-
-    val averageRating = countryReviews.map { it.rating }.average().takeIf { it.isFinite() } ?: 0.0
-    val ratingCount = countryReviews.size
 
     Column(
         modifier = Modifier
@@ -73,6 +90,7 @@ fun CountryScreen(navController: NavController, countryId: String) {
             HeaderSection(
                 navController = navController,
                 countryName = name,
+                abbreviation = abbreviation,
                 averageRating = averageRating,
                 ratingCount = ratingCount,
                 liked = liked,
@@ -101,6 +119,7 @@ fun CountryScreen(navController: NavController, countryId: String) {
 fun HeaderSection(
     navController: NavController,
     countryName: String,
+    abbreviation: String?,
     averageRating: Double,
     ratingCount: Int,
     liked: Boolean,
@@ -112,14 +131,17 @@ fun HeaderSection(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            val flagUrl = "https://flagsapi.com/${countryName.take(2).uppercase()}/flat/64.png"
-            Image(
-                painter = rememberAsyncImagePainter(flagUrl),
-                contentDescription = stringResource(R.string.country_flag, countryName),
-                modifier = Modifier
-                    .size(32.dp)
-                    .padding(end = 8.dp)
-            )
+            abbreviation?.let {
+                val flagUrl = "https://flagsapi.com/${it}/flat/64.png"
+                Image(
+                    painter = rememberAsyncImagePainter(flagUrl),
+                    contentDescription = stringResource(R.string.country_flag, countryName),
+                    modifier = Modifier
+                        .size(32.dp)
+                        .padding(end = 8.dp)
+                )
+            }
+
             Column {
                 Text(
                     text = countryName,
@@ -144,6 +166,7 @@ fun HeaderSection(
         }
     }
 }
+
 
 @Composable
 fun RatingSection(

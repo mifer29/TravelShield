@@ -120,6 +120,7 @@
     <string name="category_icon">%1$s icon</string>
     <string name="search_users_title">Search Users</string>
     <string name="search_users">Search</string>
+    <string name="confirm_new_trip">Confirm</string>
     <!-- values-en/strings.xml -->
     <string name="back">Back</string>
     <string name="reviews_for_country">Reviews for %1$s</string>
@@ -161,5 +162,4 @@
     <string name="future_travels">Future Travels</string>
     <string name="emergency_format">Ambulance: %1$d\nPoison Control: %2$d</string>
     <string name="no_reviews_yet">You haven’t written any reviews yet.</string>
-
 </resources>

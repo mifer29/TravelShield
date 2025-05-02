@@ -77,4 +77,34 @@ class TripViewModel : ViewModel() {
                 Log.e(TAG, "Error fetching trips for user", exception)
             }
     }
+
+    fun deleteTrip(trip: Trip) {
+        val userId = auth.currentUser?.uid ?: return
+        firestore.collection(TRIPS_COLLECTION)
+            .whereEqualTo("userId", userId)
+            .whereEqualTo("country", trip.country)
+            .whereEqualTo("startDate", trip.startDate)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                snapshot.documents.firstOrNull()?.reference?.delete()?.addOnSuccessListener {
+                    _trips.value = _trips.value.filterNot { it == trip }
+                }
+            }
+    }
+
+    fun updateTrip(oldTrip: Trip, newCountry: String, newStartDate: String) {
+        val userId = auth.currentUser?.uid ?: return
+        firestore.collection(TRIPS_COLLECTION)
+            .whereEqualTo("userId", userId)
+            .whereEqualTo("country", oldTrip.country)
+            .whereEqualTo("startDate", oldTrip.startDate)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                snapshot.documents.firstOrNull()?.reference?.update(
+                    mapOf("country" to newCountry, "startDate" to newStartDate)
+                )?.addOnSuccessListener {
+                    fetchTrips()
+                }
+            }
+    }
 }

@@ -5,6 +5,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -30,6 +33,8 @@ fun TripsScreen(navController: NavController) {
     var newTripCountry by remember { mutableStateOf(TextFieldValue("")) }
     var newTripDate by remember { mutableStateOf("") }
 
+    var selectedTrip by remember { mutableStateOf<Trip?>(null) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -49,7 +54,11 @@ fun TripsScreen(navController: NavController) {
 
         if (trips.isNotEmpty()) {
             trips.forEach { trip ->
-                TripItem(trip)
+                TripItem(
+                    trip = trip,
+                    onEdit = { selectedTrip = it },
+                    onDelete = { tripViewModel.deleteTrip(it) }
+                )
                 Spacer(modifier = Modifier.height(12.dp))
             }
         } else {
@@ -87,6 +96,24 @@ fun TripsScreen(navController: NavController) {
                 setStartDate = { newTripDate = it }
             )
         }
+
+        selectedTrip?.let { trip ->
+            var editedCountry by remember { mutableStateOf(TextFieldValue(trip.country)) }
+            var editedDate by remember { mutableStateOf(trip.startDate) }
+
+            AddTripDialog(
+                onDismiss = { selectedTrip = null },
+                onAddTrip = { newCountry, newStartDate ->
+                    tripViewModel.updateTrip(trip, newCountry, newStartDate)
+                    selectedTrip = null
+                },
+                country = editedCountry,
+                setCountry = { editedCountry = it },
+                startDate = editedDate,
+                setStartDate = { editedDate = it }
+            )
+        }
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
@@ -102,22 +129,26 @@ fun TripsScreen(navController: NavController) {
 }
 
 @Composable
-fun TripItem(trip: Trip) {
+fun TripItem(trip: Trip, onEdit: (Trip) -> Unit, onDelete: (Trip) -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.medium,
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = stringResource(R.string.trip_to, trip.country),
-                style = MaterialTheme.typography.titleMedium
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = stringResource(R.string.start_date_label, trip.startDate),
-                style = MaterialTheme.typography.bodyMedium
-            )
+            Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+                Column {
+                    Text(text = stringResource(R.string.trip_to, trip.country), style = MaterialTheme.typography.titleMedium)
+                    Text(text = stringResource(R.string.start_date_label, trip.startDate), style = MaterialTheme.typography.bodyMedium)
+                }
+                Row {
+                    IconButton(onClick = { onEdit(trip) }) {
+                        Icon(Icons.Default.Edit, contentDescription = "Edit Trip")
+                    }
+                    IconButton(onClick = { onDelete(trip) }) {
+                        Icon(Icons.Default.Delete, contentDescription = "Delete Trip")
+                    }
+                }
+            }
         }
     }
 }
@@ -206,13 +237,19 @@ fun AddTripDialog(
             }
         },
         confirmButton = {
-            Button(onClick = { onAddTrip(country.text, startDate) }) {
-                Text(stringResource(R.string.add))
-            }
-        },
-        dismissButton = {
-            Button(onClick = onDismiss) {
-                Text(stringResource(R.string.cancel))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Button(
+                    onClick = onDismiss,
+                    modifier = Modifier.padding(end = 8.dp)
+                ) {
+                    Text(stringResource(R.string.cancel))
+                }
+                Button(onClick = { onAddTrip(country.text, startDate) }) {
+                    Text(stringResource(R.string.confirm_new_trip))
+                }
             }
         }
     )

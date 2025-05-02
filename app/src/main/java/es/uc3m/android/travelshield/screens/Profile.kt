@@ -164,13 +164,9 @@ fun ProfileScreen(
             ProfileStat(likeCount.toString(), stringResource(R.string.likes_given))
         }
 
-
-        Spacer(modifier = Modifier.height(20.dp))
-
+        Spacer(modifier = Modifier.height(24.dp))
         Column {
             Text(stringResource(R.string.my_reviews), style = MaterialTheme.typography.titleMedium)
-            Spacer(modifier = Modifier.height(8.dp))
-
             if (reviews.isEmpty()) {
                 Text(
                     text = stringResource(R.string.no_reviews_yet),

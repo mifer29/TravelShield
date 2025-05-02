@@ -158,5 +158,6 @@
     <string name="future_travels">Futuros viajes</string>
     <string name="emergency_format">Ambulancia: %1$d\nCentro de toxicología: %2$d</string>
     <string name="no_reviews_yet">Aún no has escrito ninguna reseña.</string>
-
+    <string name="search_users_title">Encontrar Usuarios</string>
+    <string name="search_users">Buscar</string>
 </resources>

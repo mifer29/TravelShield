@@ -39,6 +39,7 @@ import es.uc3m.android.travelshield.screens.EditProfileScreen
 import es.uc3m.android.travelshield.notifications.NotificationHelper
 import es.uc3m.android.travelshield.viewmodel.SettingsViewModel
 import es.uc3m.android.travelshield.screens.CountryReviewsScreen
+import es.uc3m.android.travelshield.screens.FindUsersScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -218,8 +219,9 @@ fun NavigationGraph(navController: NavHostController, modifier: Modifier) {
             CountryReviewsScreen(navController, countryName)
         }
 
-
-
+        composable("find_users") {
+            FindUsersScreen(navController)
+        }
     }
 }
 

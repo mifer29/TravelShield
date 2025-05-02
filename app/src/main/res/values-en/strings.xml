@@ -118,6 +118,8 @@
     <string name="rating_star">Rating star</string>
     <string name="country_image">Image of %1$s</string>
     <string name="category_icon">%1$s icon</string>
+    <string name="search_users_title">Search Users</string>
+    <string name="search_users">Search</string>
     <!-- values-en/strings.xml -->
     <string name="back">Back</string>
     <string name="reviews_for_country">Reviews for %1$s</string>

@@ -45,6 +45,7 @@ import es.uc3m.android.travelshield.viewmodel.*
 import java.text.SimpleDateFormat
 import java.util.*
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
 fun ProfileScreen(
@@ -155,7 +156,6 @@ fun ProfileScreen(
 
         }
 
-
         Spacer(modifier = Modifier.height(16.dp))
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
@@ -203,13 +203,16 @@ fun ProfileScreen(
         }
 
         Spacer(modifier = Modifier.height(24.dp))
+        Button(onClick = { navController.navigate("find_users") }, modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(R.string.search_users))
+        }
 
+        Spacer(modifier = Modifier.height(24.dp))
         Button(onClick = { navController.navigate("trips") }, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.go_to_my_trips))
         }
 
         Spacer(modifier = Modifier.height(24.dp))
-
         Button(onClick = { navController.navigate("edit_profile") }, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.edit_profile_info))
         }

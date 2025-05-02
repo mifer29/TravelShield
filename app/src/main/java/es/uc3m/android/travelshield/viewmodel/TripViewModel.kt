@@ -64,4 +64,17 @@ class TripViewModel : ViewModel() {
                 Log.e(TAG, "Error adding trip", exception)
             }
     }
+
+    fun fetchTripsForUser(userId: String) {
+        firestore.collection("trips")
+            .whereEqualTo("userId", userId)
+            .get()
+            .addOnSuccessListener { result ->
+                val tripList = result.documents.mapNotNull { it.toObject<Trip>() }
+                _trips.value = tripList
+            }
+            .addOnFailureListener { exception ->
+                Log.e(TAG, "Error fetching trips for user", exception)
+            }
+    }
 }

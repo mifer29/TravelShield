@@ -163,4 +163,25 @@ class UserReviewsViewModel : ViewModel() {
             }
         }
     }
+
+    fun fetchReviewsForUser(userId: String) {
+        viewModelScope.launch {
+            try {
+                val snapshot = firestore.collection(REVIEWS_COLLECTION)
+                    .whereEqualTo("userId", userId)
+                    .get()
+                    .await()
+
+                val reviewList = snapshot.map { doc ->
+                    doc.toObject<Review>().copy(reviewId = doc.id)
+                }
+                _reviews.value = reviewList
+                _reviewCount.value = reviewList.size
+
+            } catch (e: Exception) {
+                _toastMessage.value = "Failed to fetch user reviews: ${e.message}"
+                Log.e(TAG, "Error fetching reviews for user", e)
+            }
+        }
+    }
 }

@@ -27,4 +27,14 @@ class LikeCountViewModel : ViewModel() {
                 _likeCount.value = snapshot.size()
             }
     }
+
+    fun loadLikeCountForUser(userId: String) {
+        firestore.collection("likes")
+            .document(userId)
+            .collection("countries")
+            .get()
+            .addOnSuccessListener { snapshot ->
+                _likeCount.value = snapshot.size()
+            }
+    }
 }

@@ -56,7 +56,7 @@ fun HealthScreen(navController: NavController, countryName: String) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = stringResource(R.string.health_info_for, country.name),
+                    text = stringResource(R.string.health_info_for, if (lang == "es") country.name.es else country.name.en),
                     style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
                     modifier = Modifier.padding(bottom = 16.dp)
                 )

@@ -19,7 +19,9 @@ data class GenInfo(
     val culture: LocalizedText = LocalizedText(),
     val description: LocalizedText = LocalizedText(),
     val food: LocalizedText = LocalizedText(),
-    val history: LocalizedText = LocalizedText()
+    val history: LocalizedText = LocalizedText(),
+    val lat: Double = 0.0,
+    val long: Double = 0.0
 )
 
 data class Health(

@@ -32,13 +32,13 @@ fun NewsScreen(navController: NavController, countryName: String) {
     var weatherAvailable by remember { mutableStateOf(false) }
 
     LaunchedEffect(countryName) {
-        newsInfo = fetchNewsInfoFromFirebase(countryName)
+        //newsInfo = fetchNewsInfoFromFirebase(countryName)
         val coords = fetchLatLongFromFirebase(countryName)
-        coords?.let { (lat, lon) ->
-            weatherViewModel.fetchWeather(lat, lon)
+        coords?.let { (lat, long) ->
+            weatherViewModel.fetchWeather(lat, long)
             weatherAvailable = true
         } ?: run {
-            weatherAvailable = false
+            weatherAvailable = true
         }
     }
 
@@ -56,12 +56,13 @@ fun NewsScreen(navController: NavController, countryName: String) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = stringResource(R.string.news_for, countryName),
+                //text = stringResource(R.string.news_for, countryName),
+                text = stringResource(R.string.weather_for, countryName),
                 style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
-            NewsCard(stringResource(R.string.latest_news), newsInfo)
+            //NewsCard(stringResource(R.string.latest_news), newsInfo)
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -77,9 +78,11 @@ fun NewsScreen(navController: NavController, countryName: String) {
                 // Main weather info card
                 if (temperature != null && conditions != null) {
                     Text(
-                        text = stringResource(R.string.weather_in_capital_city),
-                        style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-                        modifier = Modifier.padding(bottom = 16.dp)
+                        text = "📍 " + stringResource(R.string.weather_in_capital_city),
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium),
+                        modifier = Modifier
+                            .padding(bottom = 16.dp)
+                            .align(Alignment.Start)
                     )
 
                     // Temperature card
@@ -120,17 +123,36 @@ fun NewsScreen(navController: NavController, countryName: String) {
                 }
 
                 if (windSpeed != null || windDirection != null) {
+                    val speed = String.format("%.1f", windSpeed ?: 0.0)
+                    val speedUnit = when (weatherData?.wind?.speed?.unit) {
+                        "KILOMETERS_PER_HOUR" -> "km/h"
+                        "MILES_PER_HOUR" -> "mph"
+                        else -> ""
+                    }
+                    val direction = windDirection
+                        ?.lowercase()
+                        ?.split("_")
+                        ?.joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
+                        ?: "Unknown"
+
                     // Wind speed and direction card
                     WeatherCard(
                         title = stringResource(R.string.wind),
-                        content = "${windSpeed ?: 0.0} ${weatherData?.wind?.speed?.unit} at $windDirection",
+                        content = "$speed $speedUnit at $direction",
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
                     if (windGust != null) {
+                        val gust = String.format("%.1f", windGust)
+                        val gustUnit = when (weatherData?.wind?.gust?.unit) {
+                            "KILOMETERS_PER_HOUR" -> "km/h"
+                            "MILES_PER_HOUR" -> "mph"
+                            else -> ""
+                        }
+
                         // Wind gust card
                         WeatherCard(
                             title = stringResource(R.string.wind_gust),
-                            content = "$windGust ${weatherData?.wind?.gust?.unit}",
+                            content = "$gust $gustUnit",
                             modifier = Modifier.padding(bottom = 16.dp)
                         )
                     }
@@ -212,18 +234,27 @@ suspend fun fetchNewsInfoFromFirebase(countryName: String): String {
 
 suspend fun fetchLatLongFromFirebase(countryName: String): Pair<Double, Double>? {
     val db = FirebaseFirestore.getInstance("travelshield-db")
-    return try {
-        val querySnapshot = db.collection("countries")
-            .whereEqualTo("name", countryName)
-            .get()
-            .await()
+    val language = java.util.Locale.getDefault().language  // "en" or "es"
 
-        val doc = querySnapshot.documents.firstOrNull()
-        val genInfo = doc?.get("genInfo") as? Map<*, *>
+    return try {
+        val querySnapshot = db.collection("countries").get().await()
+        //println("Total countries fetched: ${querySnapshot.size()}")
+
+        val matchingDoc = querySnapshot.documents.firstOrNull { doc ->
+            val nameMap = doc.get("name") as? Map<*, *>
+            val localizedName = nameMap?.get(language) as? String
+            //println("Checking country: $localizedName against $countryName")
+            localizedName == countryName
+        }
+
+        val genInfo = matchingDoc?.get("genInfo") as? Map<*, *>
         val lat = genInfo?.get("lat") as? Double
-        val lon = genInfo?.get("long") as? Double
-        if (lat != null && lon != null) Pair(lat, lon) else null
+        val long = genInfo?.get("long") as? Double
+        //println("Extracted coordinates: lat=$lat, long=$long")
+
+        if (lat != null && long != null) Pair(lat, long) else null
     } catch (e: Exception) {
+        e.printStackTrace()
         null
     }
 }

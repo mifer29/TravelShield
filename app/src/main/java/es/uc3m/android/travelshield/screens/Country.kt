@@ -87,7 +87,12 @@ fun CountryScreen(navController: NavController, countryId: String) {
 
             CategoryGrid(navController = navController, countryName = name)
 
-            Spacer(modifier = Modifier.height(30.dp))
+            Button(
+                onClick = { navController.popBackStack() },
+                modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 16.dp)
+            ) {
+                Text(text = stringResource(R.string.go_back))
+            }
         } ?: Text("Cargando país...")
     }
 }
@@ -198,7 +203,8 @@ fun CategoryGrid(navController: NavController, countryName: String) {
         stringResource(R.string.health),
         stringResource(R.string.visa),
         stringResource(R.string.security),
-        stringResource(R.string.news),
+        //stringResource(R.string.news),
+        stringResource(R.string.weather),
         stringResource(R.string.transport)
     )
 
@@ -225,7 +231,8 @@ fun CategoryItem(name: String, navController: NavController, countryName: String
         stringResource(R.string.health) -> NavGraph.Health.createRoute(countryName)
         stringResource(R.string.visa) -> NavGraph.Visa.createRoute(countryName)
         stringResource(R.string.security) -> NavGraph.Security.createRoute(countryName)
-        stringResource(R.string.news) -> NavGraph.News.createRoute(countryName)
+        //stringResource(R.string.news) -> NavGraph.News.createRoute(countryName)
+        stringResource(R.string.weather) -> NavGraph.News.createRoute(countryName)
         stringResource(R.string.transport) -> NavGraph.Transport.createRoute(countryName)
         else -> NavGraph.Home.route
     }

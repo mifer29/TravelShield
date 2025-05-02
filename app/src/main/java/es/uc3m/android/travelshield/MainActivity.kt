@@ -37,9 +37,9 @@ import es.uc3m.android.travelshield.ui.theme.TravelShieldTheme
 import es.uc3m.android.travelshield.screens.TripsScreen
 import es.uc3m.android.travelshield.screens.EditProfileScreen
 import es.uc3m.android.travelshield.notifications.NotificationHelper
+import es.uc3m.android.travelshield.screens.CompleteProfileScreen
 import es.uc3m.android.travelshield.viewmodel.SettingsViewModel
 import es.uc3m.android.travelshield.screens.CountryReviewsScreen
-import es.uc3m.android.travelshield.screens.CompleteProfileScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

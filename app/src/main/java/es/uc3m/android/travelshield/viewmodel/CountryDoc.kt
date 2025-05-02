@@ -50,7 +50,7 @@ data class Emergency(
 
 data class Security(
     val commonScams: List<String> = emptyList(),
-    val crimeLevel: String = "",
+    val crimeLevel: LocalizedText = LocalizedText(),
     val emergencyContacts: EmergencyContacts = EmergencyContacts()
 )
 

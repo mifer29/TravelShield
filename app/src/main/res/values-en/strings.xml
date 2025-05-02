@@ -7,7 +7,7 @@
     <string name="add_country">Add Country</string>
     <string name="delete">Delete Country</string>
     <string name="add">Add Country</string>
-    <string name="cancel">Cancel Country</string>
+    <string name="cancel">Cancel</string>
     <string name="name">Name</string>
     <string name="vaccine">Vaccine</string>
     <string name="update">Update</string>
@@ -111,8 +111,8 @@
     <string name="visa_required">Visa Required</string>
     <string name="visa_duration">Visa Duration</string>
     <string name="review_submitted_successfully">Review submitted successfully!</string>
-    <string name="location_profile">Ubicación</string>
-    <string name="no_location">Ubicación no especificada</string>
+    <string name="location_profile">Location</string>
+    <string name="no_location">Location is not specified</string>
     <string name="country_flag">Flag of %1$s</string>
     <string name="favorite">Favorite</string>
     <string name="rating_star">Rating star</string>

@@ -62,6 +62,7 @@ fun EditProfileScreen(
             singleLine = true
         )
 
+        Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = {
                 val updatedName = if (name.text.isNotBlank()) name.text else userInfo?.name ?: ""
@@ -82,8 +83,13 @@ fun EditProfileScreen(
             Text(stringResource(R.string.save_changes))
         }
 
-        TextButton(onClick = { navController.popBackStack() }) {
-            Text(stringResource(R.string.cancel))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            TextButton(onClick = { navController.popBackStack() }) {
+                Text(stringResource(R.string.cancel))
+            }
         }
     }
 }

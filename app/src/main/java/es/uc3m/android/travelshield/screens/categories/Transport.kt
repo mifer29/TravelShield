@@ -25,6 +25,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import es.uc3m.android.travelshield.R
 import es.uc3m.android.travelshield.viewmodel.CountryViewModel
+import androidx.core.net.toUri
 
 @Composable
 fun TransportScreen(navController: NavController, countryName: String) {
@@ -78,13 +79,14 @@ fun TransportScreen(navController: NavController, countryName: String) {
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(onClick = {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/maps"))
+                val lat = country!!.genInfo.lat
+                val lon = country.genInfo.long
+                val geoUri = "geo:$lat,$lon?q=$lat,$lon(${country.name.en})"
+                val intent = Intent(Intent.ACTION_VIEW, geoUri.toUri())
                 context.startActivity(intent)
             }) {
                 Text(text = stringResource(R.string.view_transport_on_maps))
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
 
             Button(onClick = { navController.popBackStack() }) {
                 Text(text = stringResource(R.string.go_back))

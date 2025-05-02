@@ -111,8 +111,8 @@
     <string name="visa_required">Visado requerido</string>
     <string name="visa_duration">Duración del visado</string>
     <string name="review_submitted_successfully">¡Reseña enviada exitosamente!</string>
-    <string name="location_profile">Location</string>
-    <string name="no_location">Location is not specified</string>
+    <string name="location_profile">Ubicación</string>
+    <string name="no_location">Ubicación no especificada</string>
     <string name="country_flag">Bandera de %1$s</string>
     <string name="favorite">Favorito</string>
     <string name="rating_star">Estrella de valoración</string>

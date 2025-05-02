@@ -62,6 +62,7 @@ fun TripsScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(16.dp))
         }
 
+        Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = { isDialogOpen = true },
             modifier = Modifier
@@ -85,6 +86,17 @@ fun TripsScreen(navController: NavController) {
                 startDate = newTripDate,
                 setStartDate = { newTripDate = it }
             )
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Button(
+                onClick = { navController.popBackStack() },
+                modifier = Modifier.padding(top = 16.dp)
+            ) {
+                Text(text = stringResource(R.string.go_back))
+            }
         }
     }
 }

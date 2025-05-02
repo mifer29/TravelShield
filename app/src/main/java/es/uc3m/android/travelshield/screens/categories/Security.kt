@@ -106,8 +106,6 @@ fun SecurityScreen(navController: NavController, countryName: String) {
                 Text(text = stringResource(R.string.call_emergency))
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
             Button(onClick = { navController.popBackStack() }) {
                 Text(text = stringResource(R.string.go_back))
             }

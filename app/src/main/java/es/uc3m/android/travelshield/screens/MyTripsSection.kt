@@ -170,7 +170,12 @@ fun AddTripDialog(
         val db = FirebaseFirestore.getInstance("travelshield-db")
         try {
             val snapshot = db.collection("countries").get().await()
-            allCountries = snapshot.documents.mapNotNull { it.getString("name") }
+            allCountries = snapshot.documents.mapNotNull {
+                it.get("name")?.let { nameMap ->
+                    if (nameMap is Map<*, *>) nameMap["en"] as? String else null
+                }
+            }
+
         } catch (_: Exception) {}
     }
 

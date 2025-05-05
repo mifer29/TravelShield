@@ -26,6 +26,7 @@ import es.uc3m.android.travelshield.viewmodel.CountryReviewsViewModel
 import es.uc3m.android.travelshield.viewmodel.Review
 import java.text.SimpleDateFormat
 import java.util.*
+import androidx.navigation.compose.currentBackStackEntryAsState
 
 @Composable
 fun CountryReviewsScreen(navController: NavController, countryName: String) {
@@ -35,14 +36,15 @@ fun CountryReviewsScreen(navController: NavController, countryName: String) {
     val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
 
     val userReview = countryReviews.find { it.userId == currentUserId }
-    val otherReviews by remember(countryReviews) {
-        mutableStateOf(countryReviews.filter { it.userId != currentUserId })
-    }
+    val otherReviews = countryReviews.filter { it.userId != currentUserId }
+
 
     var ratingFilter by remember { mutableStateOf(0) }
     var sortDescending by remember { mutableStateOf(true) }
 
-    LaunchedEffect(Unit) {
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+
+    LaunchedEffect(navBackStackEntry) {
         countryReviewsViewModel.fetchReviewsByCountry(countryName)
     }
 

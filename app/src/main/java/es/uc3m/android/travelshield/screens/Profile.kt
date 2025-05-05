@@ -46,6 +46,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.tasks.await
 
 @Composable
 fun ProfileScreen(
@@ -56,6 +57,14 @@ fun ProfileScreen(
     userReviewsViewModel: UserReviewsViewModel = viewModel()
 ) {
     var profileImage by remember { mutableStateOf<Bitmap?>(null) }
+    val userId = FirebaseAuth.getInstance().currentUser?.uid
+
+    LaunchedEffect(profileImage) {
+        if (profileImage != null) {
+            userInfoViewModel.uploadProfileImageAndSaveUrl(profileImage!!)
+        }
+    }
+
     val context = LocalContext.current
     var showDialog by remember { mutableStateOf(false) }
 
@@ -242,9 +251,11 @@ fun ProfileScreen(
         AlertDialog(
             onDismissRequest = { showDialog = false },
             title = { Text(stringResource(R.string.select_profile_picture)) },
-            text = { Text(stringResource(R.string.choose_an_option)) },
-            confirmButton = {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            text = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                     Button(onClick = {
                         showDialog = false
                         if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
@@ -252,19 +263,30 @@ fun ProfileScreen(
                         } else {
                             requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
                         }
-                    }) { Text(stringResource(R.string.take_photo)) }
+                    }) {
+                        Text(stringResource(R.string.take_photo))
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
 
                     Button(onClick = {
                         showDialog = false
                         galleryLauncher.launch("image/*")
-                    }) { Text(stringResource(R.string.choose_from_gallery)) }
+                    }) {
+                        Text(stringResource(R.string.choose_from_gallery))
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
 
                     Button(onClick = { showDialog = false }) {
                         Text(stringResource(R.string.cancel))
                     }
                 }
-            }
+            },
+            confirmButton = {},
+            dismissButton = {}
         )
+
     }
 }
 

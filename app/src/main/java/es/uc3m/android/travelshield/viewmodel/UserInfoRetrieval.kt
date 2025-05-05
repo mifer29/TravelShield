@@ -7,6 +7,9 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import android.graphics.Bitmap
+import android.util.Log
 
 data class UserInfo(
     val name: String = "",
@@ -66,5 +69,48 @@ class UserInfoRetrieval : ViewModel() {
             fetchUserInfo()
         }
     }
+
+    fun uploadProfileImageAndSaveUrl(bitmap: Bitmap) {
+        val uid = auth.currentUser?.uid ?: run {
+            Log.e("ProfileUpload", "No UID available. User not authenticated.")
+            return
+        }
+
+        val fileName = "${uid}_profileImage"
+        val storageRef = com.google.firebase.storage.FirebaseStorage.getInstance().reference
+            .child("profileImages/$fileName")
+
+        Log.d("ProfileUpload", "Starting upload for file: profileImages/$fileName")
+
+        viewModelScope.launch {
+            try {
+                val baos = java.io.ByteArrayOutputStream()
+                bitmap.compress(Bitmap.CompressFormat.WEBP, 90, baos)
+                val imageBytes = baos.toByteArray()
+                Log.d("ProfileUpload", "Image compressed, size: ${imageBytes.size} bytes")
+
+                val uploadTask = storageRef.putBytes(imageBytes).await()
+                Log.d("ProfileUpload", "Upload successful: ${uploadTask.metadata?.path}")
+
+                val downloadUrl = storageRef.downloadUrl.await().toString()
+                Log.d("ProfileUpload", "Download URL obtained: $downloadUrl")
+
+                firestore.collection("users").document(uid)
+                    .update("profileImageUrl", downloadUrl)
+                    .addOnSuccessListener {
+                        Log.d("ProfileUpload", "Firestore updated with image URL.")
+                        fetchUserInfo()
+                    }
+                    .addOnFailureListener {
+                        Log.e("ProfileUpload", "Failed to update Firestore: ${it.message}", it)
+                    }
+
+            } catch (e: Exception) {
+                Log.e("ProfileUpload", "Exception during image upload: ${e.message}", e)
+            }
+        }
+    }
+
+
 
 }

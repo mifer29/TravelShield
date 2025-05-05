@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.services)
+    alias(libs.plugins.secrets.gradle)
 }
 
 android {
@@ -56,6 +57,14 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore.ktx)
+    implementation(libs.coil.compose)
+    implementation(libs.maps.compose)
+    implementation(libs.maps.utils)
+    implementation(libs.play.services.maps)
+    implementation(libs.firebase.storage)
+    implementation(libs.firebase.storage.ktx)
+    implementation(libs.androidx.room.common.jvm)
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -64,6 +73,50 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    implementation(libs.androidx.datastore.preferences)
 
-    
+    implementation(libs.androidx.material.icons.extended)
+    // Android Instrumentation tests
+    androidTestImplementation(libs.ui.test.junit4) // adjust to your Compose version
+    androidTestImplementation(libs.androidx.navigation.testing)
+
+// Unit testing with JUnit 5
+    testImplementation(libs.junit.jupiter.api)
+    testRuntimeOnly(libs.junit.jupiter.engine)
+
+// MockK (recommended for Kotlin)
+    testImplementation(libs.mockk)
+    testImplementation(libs.mockk.agent) // needed for mocking final/static
+    // For Mockito
+    testImplementation(libs.mockito.core.v480) // or any compatible version
+    testImplementation(libs.mockk.v1120)
+
+    // For Mockito-Kotlin
+    testImplementation(libs.mockito.kotlin) // or the latest version
+
+
+// Mockito (if also needed)
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.mockito.inline)
+    testImplementation(libs.turbine)
+
+    testImplementation(libs.awaitility.kotlin)
+    testImplementation(libs.kotlin.test)
+    implementation(libs.ui)
+    testImplementation(libs.androidx.ui.test.junit4.v150)
+
+
+// Coroutines
+    implementation(libs.kotlinx.coroutines.core)
+    testImplementation(libs.kotlinx.coroutines.test)
+
+
+
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.okhttp)
+
+
+
+
 }

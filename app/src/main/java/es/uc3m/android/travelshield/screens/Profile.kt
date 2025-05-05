@@ -221,7 +221,8 @@ fun ProfileScreen(
                 onClick = { navController.navigate(NavGraph.UploadCountries.route) },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Subir países (admin)")
+                Text(text = stringResource(id = R.string.upload_countries))
+
             }
         }
 

@@ -5,6 +5,7 @@ import com.google.firebase.firestore.Exclude
 data class CountryDoc(
     @get:Exclude var id: String? = null,
     val name: LocalizedText = LocalizedText(),
+    val abbreviation: String? = null,
     val genInfo: GenInfo = GenInfo(),
     val health: Health = Health(),
     val security: Security = Security(),
@@ -12,8 +13,8 @@ data class CountryDoc(
     val visa: Visa = Visa(),
     val geometry: String? = null,
     val imageUrl: String? = null
-
 )
+
 
 data class GenInfo(
     val culture: LocalizedText = LocalizedText(),

@@ -161,4 +161,5 @@
     <string name="search_users_title">Encontrar Usuarios</string>
     <string name="search_users">Buscar</string>
     <string name="confirm_new_trip">Confirmar</string>
+    <string name="upload_countries">Subir países (admin)</string>
 </resources>

@@ -9,11 +9,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class LikeViewModel(
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance(), // Dependency injection
+    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance("travelshield-db"), // Dependency injection
     private val likeCountViewModel: LikeCountViewModel? = null // optional injection
 ) : ViewModel() {
-
-    private val auth = FirebaseAuth.getInstance()
-    private val firestore = FirebaseFirestore.getInstance("travelshield-db")
 
     private val _liked = MutableStateFlow(false)
     val liked: StateFlow<Boolean> = _liked

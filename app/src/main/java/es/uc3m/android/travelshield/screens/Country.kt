@@ -37,7 +37,7 @@ import es.uc3m.android.travelshield.viewmodel.CountryViewModel
 fun CountryScreen(navController: NavController, countryId: String) {
     val context = LocalContext.current
     val likeCountViewModel: LikeCountViewModel = viewModel()
-    val likeViewModel: LikeViewModel = remember { LikeViewModel(likeCountViewModel) }
+    val likeViewModel: LikeViewModel = remember { LikeViewModel(likeCountViewModel =likeCountViewModel) }
     val liked by likeViewModel.liked.collectAsState()
 
     val countryReviewsViewModel: CountryReviewsViewModel = viewModel()

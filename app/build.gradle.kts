@@ -82,6 +82,13 @@ dependencies {
     implementation(libs.converter.gson)
     implementation(libs.okhttp)
 
+    testImplementation(libs.junit)
+
+// --- Coroutine Testing ---
+    testImplementation(libs.kotlinx.coroutines.test)
+
+// --- MockK for mocking ---
+    testImplementation(libs.mockk)
 
 
 

@@ -68,4 +68,23 @@ class CountryReviewsViewModel : ViewModel() {
             }
         }
     }
+    fun fetchAllReviews() {
+        viewModelScope.launch {
+            try {
+                val result = firestore.collection(REVIEWS_COLLECTION)
+                    .get()
+                    .await()
+
+                val reviewList = result.mapNotNull { doc ->
+                    doc.toObject<Review>().copy(reviewId = doc.id)
+                }
+
+                _reviews.value = reviewList
+
+            } catch (e: Exception) {
+                Log.e(TAG, "Error fetching all reviews", e)
+            }
+        }
+    }
+
 }

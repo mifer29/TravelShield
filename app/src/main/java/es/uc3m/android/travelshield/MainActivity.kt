@@ -40,6 +40,7 @@ import es.uc3m.android.travelshield.notifications.NotificationHelper
 import es.uc3m.android.travelshield.viewmodel.SettingsViewModel
 import es.uc3m.android.travelshield.screens.CountryReviewsScreen
 import es.uc3m.android.travelshield.screens.FindUsersScreen
+import es.uc3m.android.travelshield.viewmodel.CountryReviewsViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -152,6 +153,8 @@ fun BottomNavigationBar(navController: NavHostController) {
 fun NavigationGraph(navController: NavHostController, modifier: Modifier) {
     val countryViewModel: CountryViewModel = viewModel()
     val likeViewModel: LikeViewModel = viewModel()
+    val countryReviewsViewModel: CountryReviewsViewModel = viewModel()
+
 
     NavHost(
         navController = navController,
@@ -159,7 +162,14 @@ fun NavigationGraph(navController: NavHostController, modifier: Modifier) {
         modifier = modifier
     ) {
         // General Screens
-        composable(NavGraph.Home.route) { HomeScreen(navController, countryViewModel, likeViewModel) }
+        composable(NavGraph.Home.route) {
+            HomeScreen(
+                navController = navController,
+                countryViewModel = countryViewModel,
+                likeViewModel = likeViewModel,
+                countryReviewsViewModel = countryReviewsViewModel
+            )
+        }
         composable(NavGraph.Map.route) { MapScreen(navController, countryViewModel) }
         composable(NavGraph.Profile.route) { ProfileScreen(navController) }
 

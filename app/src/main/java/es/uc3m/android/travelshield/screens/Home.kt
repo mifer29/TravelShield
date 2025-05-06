@@ -16,45 +16,60 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import es.uc3m.android.travelshield.R
-import es.uc3m.android.travelshield.viewmodel.CountryViewModel
-import es.uc3m.android.travelshield.viewmodel.CountryDoc
-import es.uc3m.android.travelshield.viewmodel.LikeViewModel
-import androidx.compose.ui.platform.LocalContext
 import coil.compose.rememberAsyncImagePainter
-import android.util.Log
+import es.uc3m.android.travelshield.R
+import es.uc3m.android.travelshield.viewmodel.CountryDoc
+import es.uc3m.android.travelshield.viewmodel.CountryViewModel
+import es.uc3m.android.travelshield.viewmodel.LikeViewModel
+import es.uc3m.android.travelshield.viewmodel.CountryReviewsViewModel
 
 @Composable
 fun HomeScreen(
     navController: NavController,
     countryViewModel: CountryViewModel,
-    likeViewModel: LikeViewModel
+    likeViewModel: LikeViewModel,
+    countryReviewsViewModel: CountryReviewsViewModel
 ) {
     val countries by countryViewModel.countries.collectAsState()
     val likedCountries by likeViewModel.likedCountries.collectAsState()
+    val reviews by countryReviewsViewModel.reviews.collectAsState()
     val searchQuery = remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
         likeViewModel.loadLikedCountries()
+        countryReviewsViewModel.fetchAllReviews()
     }
 
     val lang = LocalContext.current.resources.configuration.locales[0].language
 
-    val filteredCountries = countries.filter {
-        val localizedName = if (lang == "es") it.name.es else it.name.en
-        localizedName.contains(searchQuery.value.trim(), ignoreCase = true)
-    }
-
-
     val likedCountryDocs = countries.filter {
         val name = if (lang == "es") it.name.es else it.name.en
         name in likedCountries
+    }
+
+    val reviewsByCountry = reviews.groupingBy { it.country }.eachCount()
+    val topReviewedCountries = reviewsByCountry.entries
+        .sortedByDescending { it.value }
+        .map { it.key }
+        .take(5)
+
+    val trendingCountries = countries.filter { topReviewedCountries.contains(it.name.en) }
+    val extraCountries = countries
+        .filterNot { it in trendingCountries }
+        .shuffled()
+        .take(5 - trendingCountries.size)
+
+    val finalTrending = trendingCountries + extraCountries
+
+    val filteredCountries = countries.filter {
+        val localizedName = if (lang == "es") it.name.es else it.name.en
+        localizedName.contains(searchQuery.value.trim(), ignoreCase = true)
     }
 
     Column(
@@ -64,8 +79,32 @@ fun HomeScreen(
             .padding(16.dp)
     ) {
         TopSection(searchQuery)
+
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Sección de resultados del buscador
+        if (searchQuery.value.isNotBlank()) {
+            Text(
+                text = stringResource(R.string.search_results),
+                fontSize = 20.sp,
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            if (filteredCountries.isEmpty()) {
+                Text(text = stringResource(R.string.no_destinations))
+            } else {
+                LazyRow(modifier = Modifier.fillMaxWidth()) {
+                    items(filteredCountries) { country ->
+                        CountryCard(country, navController)
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+        }
+
+        // Trending
         Text(
             text = stringResource(R.string.trending_destinations),
             fontSize = 24.sp,
@@ -73,11 +112,11 @@ fun HomeScreen(
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
-        if (filteredCountries.isEmpty()) {
+        if (finalTrending.isEmpty()) {
             Text(text = stringResource(R.string.no_destinations))
         } else {
             LazyRow(modifier = Modifier.fillMaxWidth()) {
-                items(filteredCountries) { country ->
+                items(finalTrending) { country ->
                     CountryCard(country, navController)
                 }
             }
@@ -85,6 +124,7 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Liked
         Text(
             text = stringResource(R.string.liked_destinations),
             fontSize = 24.sp,
@@ -106,9 +146,7 @@ fun HomeScreen(
 
 @Composable
 fun TopSection(searchQuery: MutableState<String>) {
-    Column(
-        modifier = Modifier.fillMaxWidth()
-    ) {
+    Column(modifier = Modifier.fillMaxWidth()) {
         Spacer(modifier = Modifier.height(16.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -120,7 +158,6 @@ fun TopSection(searchQuery: MutableState<String>) {
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Light
             )
-
             Icon(
                 imageVector = Icons.Filled.Flight,
                 contentDescription = stringResource(R.string.airplane_icon)
@@ -168,9 +205,7 @@ fun CountryCard(country: CountryDoc, navController: NavController) {
             .padding(8.dp)
             .clickable {
                 navController.navigate("country/${country.id}")
-            }
-
-        ,
+            },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(

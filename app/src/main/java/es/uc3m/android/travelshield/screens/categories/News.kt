@@ -78,7 +78,7 @@ fun NewsScreen(navController: NavController, countryName: String) {
                 // Main weather info card
                 if (temperature != null && conditions != null) {
                     Text(
-                        text = "📍 " + stringResource(R.string.weather_in_capital_city),
+                        text = stringResource(R.string.weather_in_capital_city),
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium),
                         modifier = Modifier
                             .padding(bottom = 16.dp)

@@ -15,10 +15,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.Public
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
@@ -27,7 +31,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -39,14 +45,15 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.google.firebase.auth.FirebaseAuth
 import es.uc3m.android.travelshield.NavGraph
 import es.uc3m.android.travelshield.R
 import es.uc3m.android.travelshield.viewmodel.*
 import java.text.SimpleDateFormat
 import java.util.*
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
+import androidx.compose.ui.text.style.TextAlign
 
 @Composable
 fun ProfileScreen(
@@ -162,7 +169,6 @@ fun ProfileScreen(
                     color = Color.Gray
                 )
             }
-
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -172,6 +178,9 @@ fun ProfileScreen(
             ProfileStat(trips.size.toString(), stringResource(R.string.future_travels))
             ProfileStat(likeCount.toString(), stringResource(R.string.likes_given))
         }
+
+        Spacer(modifier = Modifier.height(24.dp))
+        ProfileCategoryGrid(navController = navController)
 
         Spacer(modifier = Modifier.height(24.dp))
         Column {
@@ -195,7 +204,6 @@ fun ProfileScreen(
             }
         }
 
-
         selectedReviewForEdit?.let { review ->
             EditReviewDialog(
                 review = review,
@@ -207,23 +215,7 @@ fun ProfileScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
-        Button(onClick = { navController.navigate("find_users") }, modifier = Modifier.fillMaxWidth()) {
-            Text(stringResource(R.string.search_users))
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-        Button(onClick = { navController.navigate("trips") }, modifier = Modifier.fillMaxWidth()) {
-            Text(stringResource(R.string.go_to_my_trips))
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-        Button(onClick = { navController.navigate("edit_profile") }, modifier = Modifier.fillMaxWidth()) {
-            Text(stringResource(R.string.edit_profile_info))
-        }
-
         val userEmail = FirebaseAuth.getInstance().currentUser?.email
-
         if (userEmail == "admin@travelshield.com") {
             Spacer(modifier = Modifier.height(20.dp))
             Button(
@@ -231,19 +223,7 @@ fun ProfileScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(text = stringResource(id = R.string.upload_countries))
-
             }
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Button(onClick = {
-            navController.navigate("login") {
-                popUpTo("home") { inclusive = true }
-                launchSingleTop = true
-            }
-        }, modifier = Modifier.fillMaxWidth()) {
-            Text(stringResource(R.string.log_out))
         }
     }
 
@@ -286,7 +266,6 @@ fun ProfileScreen(
             confirmButton = {},
             dismissButton = {}
         )
-
     }
 }
 
@@ -325,7 +304,6 @@ fun ReviewItem(review: Review, onDeleteClick: (String) -> Unit, onEditClick: (Re
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Gray
             )
-
         }
         Spacer(modifier = Modifier.height(4.dp))
         Text(text = review.comment)
@@ -366,6 +344,74 @@ fun EditReviewDialog(review: Review, onDismiss: () -> Unit, onConfirm: (String, 
             TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
         }
     )
+}
+
+@Composable
+fun ProfileCategoryGrid(navController: NavController) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally)
+    ) {
+        CategoryButton(
+            label = stringResource(R.string.search_users),
+            icon = Icons.Default.Search,
+            onClick = { navController.navigate("find_users") }
+        )
+        CategoryButton(
+            label = stringResource(R.string.go_to_my_trips),
+            icon = Icons.Default.Public,
+            onClick = { navController.navigate("trips") }
+        )
+        CategoryButton(
+            label = stringResource(R.string.edit_profile_info),
+            icon = Icons.Default.Edit,
+            onClick = { navController.navigate("edit_profile") }
+        )
+        CategoryButton(
+            label = stringResource(R.string.log_out),
+            icon = Icons.Default.ExitToApp,
+            onClick = {
+                navController.navigate("login") {
+                    popUpTo("home") { inclusive = true }
+                    launchSingleTop = true
+                }
+            }
+        )
+    }
+}
+
+@Composable
+fun CategoryButton(label: String, icon: ImageVector, onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        shape = RoundedCornerShape(12.dp),
+        modifier = Modifier.size(85.dp, 85.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color.LightGray,
+            contentColor = Color.Black
+        )
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = label,
+                modifier = Modifier.size(28.dp)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = label,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
 }
 
 fun launchCamera(cameraLauncher: androidx.activity.result.ActivityResultLauncher<Intent>) {

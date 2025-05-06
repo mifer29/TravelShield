@@ -23,6 +23,7 @@ import java.util.*
 import kotlinx.coroutines.tasks.await
 import androidx.compose.ui.res.stringResource
 import es.uc3m.android.travelshield.R
+import es.uc3m.android.travelshield.notifications.NotificationHelper
 
 @Composable
 fun TripsScreen(navController: NavController) {
@@ -34,6 +35,7 @@ fun TripsScreen(navController: NavController) {
     var newTripDate by remember { mutableStateOf("") }
 
     var selectedTrip by remember { mutableStateOf<Trip?>(null) }
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier
@@ -86,6 +88,11 @@ fun TripsScreen(navController: NavController) {
                 onDismiss = { isDialogOpen = false },
                 onAddTrip = { country, startDate ->
                     tripViewModel.addTrip(Trip(country = country, startDate = startDate))
+                    val notificationHelper = NotificationHelper(context)
+                    notificationHelper.showNotification(
+                        "New Trip Added",
+                        "You have successfully added a trip to $country starting on $startDate."
+                    )
                     newTripCountry = TextFieldValue("")
                     newTripDate = ""
                     isDialogOpen = false

@@ -17,6 +17,7 @@ import androidx.navigation.NavController
 import com.google.firebase.auth.FirebaseAuth
 import es.uc3m.android.travelshield.R
 import es.uc3m.android.travelshield.viewmodel.Review
+import es.uc3m.android.travelshield.notifications.NotificationHelper
 import es.uc3m.android.travelshield.viewmodel.UserReviewsViewModel
 import java.text.SimpleDateFormat
 import java.util.*
@@ -169,6 +170,11 @@ private fun submitReview(
     }
 
     Toast.makeText(context, context.getString(R.string.review_submitted_successfully), Toast.LENGTH_SHORT).show()
+    val notificationHelper = NotificationHelper(context)
+    notificationHelper.showNotification(
+        "New Review Added",
+        "You have successfully added a new review for $countryName."
+    )
     isSubmitting(false)
 
     navController.navigate("country_reviews/$countryName") {

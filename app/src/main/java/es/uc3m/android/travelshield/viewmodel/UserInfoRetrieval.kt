@@ -16,7 +16,6 @@ data class UserInfo(
     val surname: String = "",
     val profileImageUrl: String = "",
     val location: String = ""
-
 )
 
 class UserInfoRetrieval : ViewModel() {
@@ -32,6 +31,7 @@ class UserInfoRetrieval : ViewModel() {
 
     private fun fetchUserInfo() {
         val uid = auth.currentUser?.uid ?: return
+        Log.d("UserInfo", "Fetching user info for UID: $uid")
 
         viewModelScope.launch {
             firestore.collection("users").document(uid).get()
@@ -41,13 +41,15 @@ class UserInfoRetrieval : ViewModel() {
                     val imageUrl = document.getString("profileImageUrl") ?: "" // si no existe aún, será ""
                     val location = document.getString("location") ?: ""
 
+                    Log.d("UserInfo", "Fetched user info: $name, $surname, $imageUrl, $location")
                     _userInfo.value = UserInfo(name, surname, imageUrl, location)
                 }
                 .addOnFailureListener {
-                    // handle error if needed
+                    Log.e("UserInfo", "Failed to fetch user info", it)
                 }
         }
     }
+
     fun updateUserInfo(name: String, surname: String, location: String? = null, imageUrl: String? = null) {
         val uid = auth.currentUser?.uid ?: return
         val userRef = firestore.collection("users").document(uid)
@@ -65,9 +67,15 @@ class UserInfoRetrieval : ViewModel() {
             updates["profileImageUrl"] = imageUrl
         }
 
+        Log.d("UserInfo", "Updating user info for UID: $uid with updates: $updates")
+
         userRef.update(updates).addOnSuccessListener {
+            Log.d("UserInfo", "User info updated successfully.")
             fetchUserInfo()
         }
+            .addOnFailureListener {
+                Log.e("UserInfo", "Failed to update user info", it)
+            }
     }
 
     fun uploadProfileImageAndSaveUrl(bitmap: Bitmap) {
@@ -89,7 +97,9 @@ class UserInfoRetrieval : ViewModel() {
                 val imageBytes = baos.toByteArray()
                 Log.d("ProfileUpload", "Image compressed, size: ${imageBytes.size} bytes")
 
+                Log.d("ProfileUpload", "Uploading image to Firebase Storage...")
                 val uploadTask = storageRef.putBytes(imageBytes).await()
+
                 Log.d("ProfileUpload", "Upload successful: ${uploadTask.metadata?.path}")
 
                 val downloadUrl = storageRef.downloadUrl.await().toString()
@@ -110,7 +120,4 @@ class UserInfoRetrieval : ViewModel() {
             }
         }
     }
-
-
-
 }

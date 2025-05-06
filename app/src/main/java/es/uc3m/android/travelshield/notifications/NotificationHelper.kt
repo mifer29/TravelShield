@@ -30,7 +30,7 @@ class NotificationHelper(private val context: Context) {
             val standardChannel = NotificationChannel(
                 STANDARD_CHANNEL_ID,
                 STANDARD_CHANNEL_NAME,
-                NotificationManager.IMPORTANCE_DEFAULT
+                NotificationManager.IMPORTANCE_HIGH
             ).apply {
                 description = STANDARD_CHANNEL_DESCRIPTION
             }
@@ -47,7 +47,7 @@ class NotificationHelper(private val context: Context) {
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle(title)
             .setContentText(content)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
             .setContentIntent(getPendingIntent())  // Add pending intent for notification click
 

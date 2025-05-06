@@ -31,6 +31,7 @@ import es.uc3m.android.travelshield.viewmodel.LikeCountViewModel
 import es.uc3m.android.travelshield.viewmodel.LikeViewModel
 import androidx.compose.ui.platform.LocalContext
 import com.google.firebase.firestore.FirebaseFirestore
+import es.uc3m.android.travelshield.notifications.NotificationHelper
 import es.uc3m.android.travelshield.viewmodel.CountryViewModel
 
 @Composable
@@ -125,6 +126,7 @@ fun HeaderSection(
     liked: Boolean,
     onLikeClick: () -> Unit
 ) {
+    val context = LocalContext.current
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -157,7 +159,25 @@ fun HeaderSection(
             }
         }
 
-        IconButton(onClick = onLikeClick) {
+        IconButton(
+            onClick = {
+                val newLikedState = !liked // Predict the new state before toggling
+                onLikeClick() // Actually toggles the state in ViewModel
+
+                val notificationHelper = NotificationHelper(context)
+                val message = if (newLikedState) {
+                    "You have successfully liked $countryName."
+                } else {
+                    "You have removed your like from $countryName."
+                }
+
+                notificationHelper.showNotification(
+                    "Like Updated",
+                    message
+                )
+            }
+        )
+        {
             Icon(
                 painter = painterResource(id = R.drawable.heart),
                 contentDescription = stringResource(R.string.favorite),
@@ -265,7 +285,7 @@ fun CategoryItem(name: String, navController: NavController, countryName: String
         stringResource(R.string.health) -> R.drawable.categories_hospital
         stringResource(R.string.visa) -> R.drawable.categories_visa
         stringResource(R.string.security) -> R.drawable.categories_security
-        stringResource(R.string.news) -> R.drawable.categories_news
+        stringResource(R.string.weather) -> R.drawable.categories_weather
         stringResource(R.string.transport) -> R.drawable.categories_transport
         else -> R.drawable.categories_info
     }

@@ -13,6 +13,8 @@ import kotlinx.coroutines.launch
 private const val TAG = "TripViewModel"
 private const val TRIPS_COLLECTION = "trips"
 
+
+// Viewmodel to retrieve the trips planned
 class TripViewModel : ViewModel() {
 
     private val _trips = MutableStateFlow<List<Trip>>(emptyList())

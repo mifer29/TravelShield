@@ -78,7 +78,7 @@ fun SecurityScreen(navController: NavController, countryName: String) {
                 SecurityInfoCard(stringResource(R.string.embassy_contact), country.security.emergencyContacts.embassy)
             } else {
                 // Show loading or error state if country not found
-                Text(text = "Country not found!")
+                Text(text = stringResource(R.string.country_not_found))
             }
 
             // Emergency contact button

@@ -164,4 +164,11 @@
     <string name="no_reviews_yet">You haven’t written any reviews yet.</string>
     <string name="upload_countries">Upload countries (admin)</string>
     <string name="search_results">Search results</string>
+    <string name="new_trip_added">New Trip Added</string>
+    <string name="you_have_successfully_added_a_new_review_for">You have successfully added a new review for %1$s.</string>
+    <string name="new_review_added">New Review Added</string>
+    <string name="cargando_pais">Loading country…</string>
+    <string name="you_have_successfully_liked">You have successfully liked %1$s.</string>
+    <string name="you_have_removed_your_like_from">You have removed your like from %1$s.</string>
+    <string name="you_have_successfully_added_a_trip_to_starting_on">You have successfully added a trip to %1$s starting on %2$s.</string>
 </resources>

@@ -172,8 +172,8 @@ private fun submitReview(
     Toast.makeText(context, context.getString(R.string.review_submitted_successfully), Toast.LENGTH_SHORT).show()
     val notificationHelper = NotificationHelper(context)
     notificationHelper.showNotification(
-        "New Review Added",
-        "You have successfully added a new review for $countryName."
+        context.getString(R.string.new_review_added),
+        context.getString(R.string.you_have_successfully_added_a_new_review_for, countryName)
     )
     isSubmitting(false)
 

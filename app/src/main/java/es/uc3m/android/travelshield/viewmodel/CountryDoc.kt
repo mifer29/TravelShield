@@ -2,6 +2,9 @@ package es.uc3m.android.travelshield.viewmodel
 
 import com.google.firebase.firestore.Exclude
 
+
+// Country data model
+
 data class CountryDoc(
     @get:Exclude var id: String? = null,
     val name: LocalizedText = LocalizedText(),

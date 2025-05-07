@@ -13,6 +13,7 @@ import kotlinx.coroutines.tasks.await
 private const val REVIEWS_COLLECTION = "reviews"
 private const val TAG = "CountryReviewsViewModel"
 
+// This viewmodel is used to retrieve the reviews in each country from all users
 class CountryReviewsViewModel : ViewModel() {
 
     private val firestore = FirebaseFirestore.getInstance("travelshield-db")

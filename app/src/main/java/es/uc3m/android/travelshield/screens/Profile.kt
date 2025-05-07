@@ -360,7 +360,7 @@ fun ProfileCategoryGrid(navController: NavController) {
             onClick = { navController.navigate("find_users") }
         )
         CategoryButton(
-            label = stringResource(R.string.go_to_my_trips),
+            label = stringResource(R.string.my_trips),
             icon = Icons.Default.Public,
             onClick = { navController.navigate("trips") }
         )

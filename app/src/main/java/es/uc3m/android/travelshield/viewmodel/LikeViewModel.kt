@@ -8,6 +8,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
+
+// This view model is used for the liking functionality
 class LikeViewModel(
     private val auth: FirebaseAuth = FirebaseAuth.getInstance(), // Dependency injection
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance("travelshield-db"), // Dependency injection

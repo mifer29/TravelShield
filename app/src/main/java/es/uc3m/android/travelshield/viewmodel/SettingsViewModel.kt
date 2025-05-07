@@ -12,6 +12,7 @@ import androidx.datastore.preferences.core.edit
 
 val Context.dataStore by preferencesDataStore(name = "settings")
 
+// Viewmodel to keep track of the dark mode in the settings
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
     private val darkModeKey = booleanPreferencesKey("dark_mode_enabled")
 

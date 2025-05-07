@@ -72,7 +72,7 @@ fun TransportScreen(navController: NavController, countryName: String) {
 
             } else {
                 // Show loading or error state if country not found
-                Text(text = "Country not found!")
+                Text(text = stringResource(R.string.country_not_found))
             }
 
             // Button for checking transport info in Maps

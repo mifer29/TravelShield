@@ -11,13 +11,16 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import es.uc3m.android.travelshield.MainActivity
 
+
+// Notification helper to allow the notification flow
+
+// Notifications have been implemented when liking/unliking, writing a review and adding a new trip
 class NotificationHelper(private val context: Context) {
 
     companion object {
-        const val STANDARD_CHANNEL_ID = "standard_channel"
+        const val STANDARD_CHANNEL_ID = "standard_channel" // Here we set the channel
         const val STANDARD_CHANNEL_NAME = "Standard Notifications"
         const val STANDARD_CHANNEL_DESCRIPTION = "Channel for general notifications"
-
         const val NOTIFICATION_ID = 1
     }
 
@@ -30,7 +33,7 @@ class NotificationHelper(private val context: Context) {
             val standardChannel = NotificationChannel(
                 STANDARD_CHANNEL_ID,
                 STANDARD_CHANNEL_NAME,
-                NotificationManager.IMPORTANCE_HIGH
+                NotificationManager.IMPORTANCE_HIGH // The importance has been set to HIGH to get the sound and upper notification
             ).apply {
                 description = STANDARD_CHANNEL_DESCRIPTION
             }
@@ -41,6 +44,9 @@ class NotificationHelper(private val context: Context) {
         }
     }
 
+
+     // Here we define the way we will show notifications
+
     @SuppressLint("MissingPermission")
     fun showNotification(title: String, content: String) {
         val builder = NotificationCompat.Builder(context, STANDARD_CHANNEL_ID)
@@ -49,7 +55,7 @@ class NotificationHelper(private val context: Context) {
             .setContentText(content)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
-            .setContentIntent(getPendingIntent())  // Add pending intent for notification click
+            .setContentIntent(getPendingIntent())
 
         with(NotificationManagerCompat.from(context)) {
             notify(NOTIFICATION_ID, builder.build())

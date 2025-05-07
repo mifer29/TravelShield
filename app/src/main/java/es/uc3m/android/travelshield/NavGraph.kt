@@ -21,6 +21,8 @@ const val UPLOAD_COUNTRIES_ROUTE = "upload_countries"
 const val COUNTRY_REVIEWS_ROUTE = "country_reviews/{countryName}"
 const val FIND_USERS_ROUTE = "find_users"
 
+
+// Navigation Graph to keep track of the flow of the app
 sealed class NavGraph(val route: String) {
     data object Home : NavGraph(HOME_ROUTE)
     data object Profile : NavGraph(PROFILE_ROUTE)

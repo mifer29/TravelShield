@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
+// This viewmodel is used to get the weather for the capital city of the country
 class WeatherViewModel : ViewModel() {
 
     private val _weatherData = MutableStateFlow<WeatherResponse?>(null)

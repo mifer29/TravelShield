@@ -1,6 +1,8 @@
 
 package es.uc3m.android.travelshield.weather
 
+// Weather data model
+
 data class WeatherResponse(
     val temperature: Temperature?,
     val feelsLikeTemperature: Temperature?,

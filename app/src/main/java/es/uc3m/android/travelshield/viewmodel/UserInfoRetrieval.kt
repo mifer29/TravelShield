@@ -11,6 +11,7 @@ import kotlinx.coroutines.tasks.await
 import android.graphics.Bitmap
 import android.util.Log
 
+// Data model for the user information
 data class UserInfo(
     val name: String = "",
     val surname: String = "",
@@ -18,6 +19,7 @@ data class UserInfo(
     val location: String = ""
 )
 
+// This viewmodel is used to get the information of the user for the profile
 class UserInfoRetrieval : ViewModel() {
     private val firestore = FirebaseFirestore.getInstance("travelshield-db")
     private val auth = FirebaseAuth.getInstance()

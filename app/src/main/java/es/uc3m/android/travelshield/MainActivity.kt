@@ -51,6 +51,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+// Initializing the app
 @Composable
 fun TravelShieldApp() {
     val context = LocalContext.current
@@ -75,7 +76,8 @@ fun TravelShieldApp() {
         }
     }
 
-    TravelShieldTheme(darkTheme = isDarkMode, dynamicColor = false) { // Fuerza los colores definidos en color.kt
+    // Theme setting
+    TravelShieldTheme(darkTheme = isDarkMode, dynamicColor = false) { // Setting the colors in Theme.kt
         val navController = rememberNavController()
         val currentRoute by navController.currentBackStackEntryFlow.collectAsState(
             initial = navController.currentBackStackEntry
@@ -95,6 +97,7 @@ fun TravelShieldApp() {
     }
 }
 
+// Bottom navigation bar setting
 @Composable
 fun BottomNavigationBar(navController: NavHostController) {
     val items = listOf(
@@ -105,7 +108,7 @@ fun BottomNavigationBar(navController: NavHostController) {
     var selectedItem by remember { mutableStateOf(0) }
 
     NavigationBar(
-        containerColor = MaterialTheme.colorScheme.primary // Fondo de la barra
+        containerColor = MaterialTheme.colorScheme.primary
     ) {
         items.forEachIndexed { index, item ->
             NavigationBarItem(
@@ -141,7 +144,7 @@ fun BottomNavigationBar(navController: NavHostController) {
                     unselectedIconColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f),
                     selectedTextColor = MaterialTheme.colorScheme.onPrimary,
                     unselectedTextColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f),
-                    indicatorColor = MaterialTheme.colorScheme.secondary // Fondo bajo el icono/texto seleccionado
+                    indicatorColor = MaterialTheme.colorScheme.secondary
                 )
             )
         }
@@ -149,6 +152,7 @@ fun BottomNavigationBar(navController: NavHostController) {
 
 }
 
+// Initialization of the navigation graph
 @Composable
 fun NavigationGraph(navController: NavHostController, modifier: Modifier) {
     val countryViewModel: CountryViewModel = viewModel()

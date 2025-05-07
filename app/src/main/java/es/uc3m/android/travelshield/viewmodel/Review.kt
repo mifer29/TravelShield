@@ -1,5 +1,8 @@
 package es.uc3m.android.travelshield.viewmodel
 
+
+// Review data model
+
 data class Review(
     val reviewId: String = "",
     val userId: String = "",

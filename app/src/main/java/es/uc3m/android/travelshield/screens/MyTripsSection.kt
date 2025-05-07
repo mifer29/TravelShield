@@ -90,8 +90,12 @@ fun TripsScreen(navController: NavController) {
                     tripViewModel.addTrip(Trip(country = country, startDate = startDate))
                     val notificationHelper = NotificationHelper(context)
                     notificationHelper.showNotification(
-                        "New Trip Added",
-                        "You have successfully added a trip to $country starting on $startDate."
+                        context.getString(R.string.new_trip_added),
+                        context.getString(
+                            R.string.you_have_successfully_added_a_trip_to_starting_on,
+                            country,
+                            startDate
+                        )
                     )
                     newTripCountry = TextFieldValue("")
                     newTripDate = ""

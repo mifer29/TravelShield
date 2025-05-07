@@ -57,6 +57,7 @@ fun GeneralInfoScreen(navController: NavController, countryName: String) {
                     style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
+
                 val lang = LocalContext.current.resources.configuration.locales[0].language
 
                 GeneralInfoCard(

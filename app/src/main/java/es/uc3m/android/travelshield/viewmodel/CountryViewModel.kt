@@ -12,6 +12,7 @@ import kotlinx.coroutines.tasks.await
 
 private const val COUNTRIES_COLLECTION = "countries"
 
+// This viewmodel is used to retrieve the country information
 class CountryViewModel : ViewModel() {
     private val _countries = MutableStateFlow<List<CountryDoc>>(emptyList())
     val countries: StateFlow<List<CountryDoc>> get() = _countries
@@ -105,8 +106,8 @@ class CountryViewModel : ViewModel() {
                 val country = doc.toObject<CountryDoc>()?.copy(id = doc.id)
                 countryFlow.value = country
             } catch (e: Exception) {
-                _toastMessage.value = "Error al cargar país: ${e.message}"
-                Log.e("CountryViewModel", "Error al cargar país", e)
+                _toastMessage.value = "Error loading country ${e.message}"
+                Log.e("CountryViewModel", "Error loading country", e)
             }
         }
 

@@ -15,6 +15,8 @@ private const val REVIEWS_COLLECTION = "reviews"
 private const val USERS_COLLECTION = "users"
 private const val TAG = "UserReviewsViewModel"
 
+
+// This viewmodel is used to fetch the user reviews in the profile
 class UserReviewsViewModel : ViewModel() {
 
     private val firestore = FirebaseFirestore.getInstance("travelshield-db")

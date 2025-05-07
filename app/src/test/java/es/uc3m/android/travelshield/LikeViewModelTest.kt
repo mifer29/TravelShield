@@ -9,6 +9,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.setMain
 
+
+// This unit test is used to check the toggle of likes
+
 class LikeViewModelTest {
 
     private lateinit var likeViewModel: LikeViewModel

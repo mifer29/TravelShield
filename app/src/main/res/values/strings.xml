@@ -163,4 +163,12 @@
     <string name="confirm_new_trip">Confirmar</string>
     <string name="upload_countries">Subir países (admin)</string>
     <string name="search_results">Resultados de búsqueda</string>
+    <string name="cargando_pais">Cargando país…</string>
+    <string name="new_trip_added">Nuevo Viaje Añadido</string>
+    <string name="you_have_successfully_added_a_new_review_for">Has añadido correctamente una nueva reseña para %1$s.</string>
+    <string name="new_review_added">Nueva Reseña Añadida</string>
+    <string name="you_have_successfully_liked">Has dado like correctamente a %1$s.</string>
+    <string name="you_have_removed_your_like_from">Has quitado correctamente el like de %1$s.</string>
+    <string name="you_have_successfully_added_a_trip_to_starting_on">Has añadido un nuevo viaje a %1$s con fecha %2$s.</string>
+
 </resources>

@@ -32,7 +32,7 @@ fun NewsScreen(navController: NavController, countryName: String) {
     var weatherAvailable by remember { mutableStateOf(false) }
 
     LaunchedEffect(countryName) {
-        //newsInfo = fetchNewsInfoFromFirebase(countryName)
+
         val coords = fetchLatLongFromFirebase(countryName)
         coords?.let { (lat, long) ->
             weatherViewModel.fetchWeather(lat, long)
@@ -56,13 +56,12 @@ fun NewsScreen(navController: NavController, countryName: String) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                //text = stringResource(R.string.news_for, countryName),
                 text = stringResource(R.string.weather_for, countryName),
                 style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
-            //NewsCard(stringResource(R.string.latest_news), newsInfo)
+
 
             Spacer(modifier = Modifier.height(16.dp))
 

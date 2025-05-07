@@ -54,6 +54,7 @@ import java.util.*
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import androidx.compose.ui.text.style.TextAlign
+import kotlin.math.roundToInt
 
 @Composable
 fun ProfileScreen(
@@ -327,7 +328,8 @@ fun EditReviewDialog(review: Review, onDismiss: () -> Unit, onConfirm: (String, 
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(stringResource(R.string.rating, updatedRating.toInt()))
+                Text(stringResource(R.string.rating, updatedRating.roundToInt()))
+
                 Slider(
                     value = updatedRating,
                     onValueChange = { updatedRating = it },

@@ -27,6 +27,6 @@ Travelshield helps travelers easily access important information about countries
 To see how the app works, you can view this explanatory YouTube video: [Click here!](https://youtu.be/k1Bdwpqoz3I)
 
 ## ✍️ Authors
-- Alejandro Leonardo García Navarro
-- María Ángeles Magro Garrote
+- [Alejandro Leonardo García Navarro](https://github.com/alexgaarciia)
+- [María Ángeles Magro Garrote](https://github.com/mariamagro)
 - Miguel Fernández Lara
